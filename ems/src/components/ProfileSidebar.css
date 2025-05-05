@@ -1,0 +1,35 @@
+.profile-sidebar {
+    background-color: #e6f0fa; /* light blue background like the image */
+    padding: 20px;
+    border-radius: 10px;
+    width: 250px;
+}
+
+.profile-sidebar ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.sidebar-item {
+    background-color: #f0f4f8;
+    border-radius: 8px;
+    padding: 12px 20px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    text-align: center;
+    font-weight: 500;
+    color: #333;
+    transition: background-color 0.3s ease;
+}
+
+.sidebar-item:hover {
+    background-color: #d9e6f2;
+}
+
+.sidebar-item.active {
+    background-color: #4caf50; /* green for active */
+    color: white;
+    font-weight: 600;
+    border-left: 5px solid #2e7d32; /* Add a green border to the left */
+}

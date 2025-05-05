@@ -1,0 +1,18 @@
+.daily-report {
+    padding: 20px;
+}
+
+.daily-report table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.daily-report th, .daily-report td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: center;
+}
+
+.daily-report th {
+    background-color: #f4f4f4;
+}

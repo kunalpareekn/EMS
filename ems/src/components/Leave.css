@@ -1,0 +1,378 @@
+.leave-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.header-card {
+    background: white;
+    border-radius: 10px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.profile-info {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.profile-pic {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.profile-info h2 {
+    margin: 0;
+    color: #333;
+    font-size: 1.5rem;
+}
+
+.profile-info p {
+    margin: 0.5rem 0 0;
+    color: #666;
+    font-size: 1rem;
+}
+
+.leave-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    background: white;
+    border-radius: 10px;
+    padding: 1.5rem;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+}
+
+.stat-card .number {
+    display: block;
+    font-size: 2.5rem;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 0.5rem;
+}
+
+.stat-card .label {
+    color: #666;
+    font-size: 1rem;
+}
+
+.leave-section {
+    background: white;
+    border-radius: 10px;
+    padding: 2rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.leave-section h3 {
+    margin: 0 0 1.5rem;
+    color: #333;
+    font-size: 1.3rem;
+}
+
+.table-container {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+}
+
+th, td {
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+
+th {
+    background-color: #f8f9fa;
+    color: #495057;
+    font-weight: 600;
+}
+
+tr:hover {
+    background-color: #f8f9fa;
+}
+
+.status {
+    display: inline-block;
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.status.pending {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.status.approved {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.status.rejected {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 2rem;
+    overflow-y: auto;
+    z-index: 1000;
+}
+
+.modal-content {
+    background: white;
+    border-radius: 10px;
+    padding: 2rem;
+    width: 100%;
+    max-width: 600px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.modal-content h2 {
+    margin: 0 0 1.5rem;
+    color: #333;
+    font-size: 1.5rem;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+}
+
+label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: #495057;
+    font-weight: 500;
+}
+
+input[type="date"],
+input[type="number"],
+select,
+textarea {
+    width: 100%;
+    padding: 0.8rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1rem;
+    transition: border-color 0.2s ease;
+}
+
+input[type="date"]:focus,
+input[type="number"]:focus,
+select:focus,
+textarea:focus {
+    outline: none;
+    border-color: #80bdff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.readonly-input {
+    background-color: #e9ecef;
+    cursor: not-allowed;
+}
+
+textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+.file-hint {
+    display: block;
+    margin-top: 0.5rem;
+    color: #6c757d;
+    font-size: 0.875rem;
+}
+
+.button-group {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.submit-btn,
+.cancel-btn,
+.apply-leave-btn,
+.retry-btn {
+    padding: 0.8rem 1.5rem;
+    border: none;
+    border-radius: 4px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.submit-btn {
+    background-color: #28a745;
+    color: white;
+    flex: 1;
+}
+
+.submit-btn:hover {
+    background-color: #218838;
+}
+
+.cancel-btn {
+    background-color: #6c757d;
+    color: white;
+    flex: 1;
+}
+
+.cancel-btn:hover {
+    background-color: #5a6268;
+}
+
+.apply-leave-btn {
+    display: block;
+    margin: 2rem auto 0;
+    background-color: #007bff;
+    color: white;
+    min-width: 200px;
+}
+
+.apply-leave-btn:hover {
+    background-color: #0056b3;
+}
+
+button:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.success-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.success-content {
+    background: white;
+    border-radius: 10px;
+    padding: 2rem;
+    text-align: center;
+    animation: slideIn 0.3s ease;
+}
+
+.success-content svg {
+    color: #28a745;
+    margin-bottom: 1rem;
+}
+
+.success-content h2 {
+    margin: 0 0 0.5rem;
+    color: #333;
+}
+
+.success-content p {
+    margin: 0;
+    color: #666;
+}
+
+.error-message {
+    background-color: #f8d7da;
+    color: #721c24;
+    padding: 1rem;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.error-message .retry-btn {
+    background-color: #dc3545;
+    color: white;
+    margin-left: 1rem;
+}
+
+.error-message .retry-btn:hover {
+    background-color: #c82333;
+}
+
+.no-leaves {
+    text-align: center;
+    padding: 2rem;
+    color: #6c757d;
+    font-size: 1.1rem;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(-20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@media (max-width: 768px) {
+    .leave-container {
+        padding: 1rem;
+    }
+
+    .profile-info {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+
+    .button-group {
+        flex-direction: column;
+    }
+
+    .modal {
+        padding: 1rem;
+    }
+
+    .modal-content {
+        padding: 1.5rem;
+    }
+}

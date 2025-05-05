@@ -1,0 +1,128 @@
+/* Container Styles */
+.register-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: url('../media/Untitled-2\ \(2\).png') no-repeat center center fixed;
+    background-size: cover;
+}
+
+/* Register Box Styles */
+.register-box {
+  
+    padding: 2rem;
+    border-radius: 10px;
+    width: 100%;
+    max-width: 500px;
+  
+    text-align: center;
+}
+
+.register-box h1 {
+    color: #23d05d;
+    font-size: 1.8rem;
+    margin-bottom: 1rem;
+}
+
+.register-box p {
+    color: #7f8c8d;
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+/* Form Styles */
+.form-row {
+    display: flex;
+    gap: 1.5rem; /* Increased gap between fields */
+    margin-bottom: 1.5rem; /* Added margin between rows */
+}
+
+.form-group {
+    flex: 1;
+    margin-bottom: 1.5rem; /* Added margin between fields */
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: #2c3e50;
+    font-weight: 500;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 0.8rem;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 1rem;
+    transition: border-color 0.2s;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: #3498db;
+}
+
+/* Password Strength Indicator */
+.password-strength {
+    margin-top: 0.5rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+
+/* Button Styles */
+.register-button {
+    width: 100%;
+    padding: 1rem;
+    background-color: #22d051;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.register-button:hover {
+    background-color: #2da60b;
+}
+
+.register-button:disabled {
+    background-color: #bdc3c7;
+    cursor: not-allowed;
+}
+
+/* Error Message Styles */
+.error-message {
+    color: #c62828;
+    margin-bottom: 1rem;
+}
+
+/* Login Link Styles */
+.login-link {
+    margin-top: 1rem;
+    color: #7f8c8d;
+}
+
+.login-link a {
+    color: #23c847;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.login-link a:hover {
+    text-decoration: underline;
+}
+
+/* Responsive Styles */
+@media (max-width: 480px) {
+    .register-container {
+        padding: 1rem;
+    }
+
+    .register-box {
+        padding: 1.5rem;
+    }
+}

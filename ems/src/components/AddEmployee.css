@@ -1,0 +1,172 @@
+.add-employee-container {
+    display: flex;
+    gap: 2rem;
+    padding: 2rem;
+    background-color: #f4f4f9;
+    min-height: 100vh;
+}
+
+.sidebar {
+    width: 250px;
+    background-color: #2c3e50;
+    color: white;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.admin-profile {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.admin-avatar {
+    width: 50px;
+    height: 50px;
+    background-color: #4caf50;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: white;
+}
+
+.admin-info h3 {
+    margin: 0;
+    font-size: 1.2rem;
+}
+
+.admin-info p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: #ccc;
+}
+
+.sidebar-sections {
+    margin-bottom: 2rem;
+}
+
+.sidebar-sections h4 {
+    margin-bottom: 1rem;
+    font-size: 1.2rem;
+    color: #ccc;
+}
+
+.sidebar-menu {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.sidebar-menu li {
+    margin-bottom: 0.5rem;
+}
+
+.sidebar-menu a {
+    text-decoration: none;
+    color: white;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+}
+
+.sidebar-menu a:hover {
+    background-color: #4caf50;
+}
+
+.logout-button {
+    margin-top: 2rem;
+    padding: 0.75rem 1.5rem;
+    background-color: #e53935;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.logout-button:hover {
+    background-color: #d32f2f;
+}
+
+.main-content {
+    flex: 1;
+    background-color: #ffffff;
+    border-radius: 8px;
+    padding: 2rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.page-title {
+    font-size: 1.5rem;
+    color: #333;
+    margin-bottom: 1.5rem;
+}
+
+.add-employee-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.form-row {
+    display: flex;
+    gap: 1rem;
+}
+
+.form-row input {
+    flex: 1;
+    padding: 0.75rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1rem;
+}
+
+.form-input, .form-select {
+    flex: 1;
+    padding: 0.75rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1rem;
+}
+
+.submit-button {
+    align-self: flex-end;
+    padding: 0.75rem 1.5rem;
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.submit-button:hover {
+    background-color: #45a049;
+}
+
+button {
+    align-self: flex-end;
+    padding: 0.75rem 1.5rem;
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #45a049;
+}
