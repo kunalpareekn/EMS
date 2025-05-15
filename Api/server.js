@@ -6,6 +6,7 @@ require('dotenv').config();
 const apiRoutes = require('./routes/api');
 const errorHandler = require('./middleware/errorHandler');
 const { apiLimiter } = require('./middleware/rateLimiter');
+const leaveRoutes = require('./routes/leaveRoutes');
 
 const app = express();
 
@@ -13,9 +14,12 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 app.use(apiLimiter); // Apply rate limiting to all routes
+app.set('trust proxy', 1)
 
 // Routes
-app.use('/api', apiRoutes);
+// app.use('/api', apiRoutes);
+app.use("/api/v1/admin",apiRoutes);
+app.use('/leave',leaveRoutes);
 
 // Error handling
 app.use(errorHandler);
@@ -36,7 +40,6 @@ app.get('/', (req, res) => {
         version: '1.0.0'
     });
 });
-
 // Handle 404 routes
 app.use((req, res) => {
     res.status(404).json({
@@ -47,5 +50,6 @@ app.use((req, res) => {
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
+    
     console.log(`Server running on http://localhost:${PORT}`);
 });

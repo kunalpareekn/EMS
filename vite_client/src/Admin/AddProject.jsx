@@ -26,7 +26,7 @@ function AddProject() {
                 throw new Error(errorData.message || 'Failed to add project');
             }
             
-            navigate('/dashboard1');
+            navigate('/dashboard-admin');
         } catch (err) {
             setError(err.message);
         }
@@ -65,7 +65,7 @@ function AddProject() {
                 </button>
 
                 <Link 
-                    to="/dashboard1" 
+                    to="/dashboard-admin" 
                     className="p-3 text-center text-base text-gray-700 hover:text-gray-900"
                 >
                     Back to Dashboard

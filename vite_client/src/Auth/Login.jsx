@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 function Login() {
     const [form, setForm] = useState({ email: '', password: '' });
     const [error, setError] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
 
     const handleChange = e => {
@@ -13,26 +14,55 @@ function Login() {
     const handleSubmit = async e => {
         e.preventDefault();
         setError('');
+        setIsLoading(true);
 
         const emailDomain = form.email.split('@')[1];
 
-        // Decide API endpoint based on email domain
-        let apiEndpoint = '';
-        if (emailDomain === 'gmail.com') {
-            apiEndpoint = 'http://localhost:3000/api/login'; // Admin
-        } else if (emailDomain === 'paarsiv.com') {
-            apiEndpoint = 'http://localhost:5000/api/employees/login'; // Employee
-        } else {
-            setError('Invalid email domain.');
+        if (!form.email.includes('@') || !emailDomain) {
+            setError('Please enter a valid email address');
+            setIsLoading(false);
             return;
         }
 
+        let apiEndpoint = '';
+        let userRole = '';
+
+        if (emailDomain === 'gmail.com') {
+            apiEndpoint = 'http://localhost:5000/api/v1/admin/login';
+            userRole = 'admin';
+        } else if (emailDomain === 'paarsiv.com') {
+            apiEndpoint = 'http://localhost:5000/api/v1/employee/login'; // ✅ Corrected
+            userRole = 'employee';
+        } else {
+            setError('Invalid email domain. Only @gmail.com and @paarsiv.com are allowed.');
+            setIsLoading(false);
+            return;
+        }
+
+        console.log("Logging into:", apiEndpoint);
+
         try {
             const response = await fetch(apiEndpoint, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(form),
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                credentials: 'include',
+                body: JSON.stringify({
+                    email: form.email,
+                    password: form.password
+                })
+
             });
+
+            const contentType = response.headers.get('content-type');
+            if (!contentType || !contentType.includes('application/json')) {
+                const text = await response.text();
+                if (text.startsWith('<!DOCTYPE html>')) {
+                    throw new Error('Server returned HTML instead of JSON. Check your API endpoint.');
+                }
+                throw new Error(`Unexpected response type: ${contentType}`);
+            }
 
             if (response.status === 401) {
                 setError('Invalid email or password.');
@@ -40,33 +70,29 @@ function Login() {
             }
 
             if (!response.ok) {
-                throw new Error(`Error: ${response.status}`);
+                const errorData = await response.json();
+                throw new Error(errorData.message || `Error: ${response.status}`);
             }
 
             const data = await response.json();
-            console.log('Response data:', data);
 
-            // Store user data in localStorage
             localStorage.setItem('token', data.token);
-            localStorage.setItem('role', data.role || 'user');
-            localStorage.setItem('userName', data.name || data.employee?.name || 'User');
-            localStorage.setItem('email', form.email); // Store email in localStorage
+            localStorage.setItem('role', userRole);
+            localStorage.setItem('userName', data.name || 'User');
+            localStorage.setItem('email', form.email);
 
-            // Redirect based on domain
-            if (emailDomain === 'gmail.com') {
-                navigate('/dashboard1'); // Admin Dashboard
-            } else {
-                navigate('/dashboard2'); // Employee Dashboard
-            }
+            navigate(userRole === 'admin' ? '/dashboard-admin' : '/dashboard-employee');
 
         } catch (err) {
             console.error('Login failed:', err);
-            setError('An error occurred. Please try again.');
+            setError(err.message || 'An error occurred. Please try again.');
+        } finally {
+            setIsLoading(false);
         }
     };
 
     return (
-        <div 
+        <div
             className="flex justify-center items-center min-h-screen bg-cover bg-center bg-fixed"
             style={{ backgroundImage: "url('../media/Untitled-2 (2).png')" }}
         >
@@ -74,13 +100,14 @@ function Login() {
                 <h1 className="text-2xl font-bold text-green-500 mb-2">Login</h1>
                 <p className="text-green-500 mb-5">Login to your account.</p>
                 {error && <p className="text-red-500 mb-4">{error}</p>}
-                
+
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <input
                         name="email"
                         placeholder="E-mail Address"
                         type="email"
                         onChange={handleChange}
+                        value={form.email}
                         required
                         className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-green-500"
                     />
@@ -89,35 +116,37 @@ function Login() {
                         placeholder="Password"
                         type="password"
                         onChange={handleChange}
+                        value={form.password}
                         required
                         className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-green-500"
                     />
-                    
+
                     <div className="flex justify-between items-center text-sm">
                         <label className="flex items-center space-x-2">
                             <input type="checkbox" className="rounded" />
                             <span>Remember me</span>
                         </label>
-                        <a 
-                            href="/reset-password" 
+                        <a
+                            href="/reset-password"
                             className="text-blue-500 hover:text-blue-700 hover:underline"
                         >
                             Reset Password?
                         </a>
                     </div>
-                    
-                    <button 
-                        type="submit" 
-                        className="w-full py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors"
+
+                    <button
+                        type="submit"
+                        disabled={isLoading}
+                        className={`w-full py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors ${isLoading ? 'opacity-70 cursor-not-allowed' : ''}`}
                     >
-                        Sign In
+                        {isLoading ? 'Signing In...' : 'Sign In'}
                     </button>
                 </form>
-                
+
                 <p className="mt-5 text-sm">
                     Don't have an account?{' '}
-                    <a 
-                        href="/register" 
+                    <a
+                        href="/register"
                         className="text-blue-500 hover:text-blue-700 hover:underline"
                     >
                         Create New

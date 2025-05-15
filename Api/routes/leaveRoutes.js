@@ -8,10 +8,10 @@ const adminOnlyMiddleware = require('../middleware/adminMiddleware');
 router.use(authMiddleware);
 
 // Admin-only: Get all leave requests
-router.get('/', adminOnlyMiddleware, leaveController.getAllLeaves);
+router.get('/get-all-leaves', adminOnlyMiddleware, leaveController.getAllLeaves);
 
 // Authenticated employee: Create a new leave request
-router.post('/', leaveController.createLeave);
+router.post('/create-leave', leaveController.createLeave);
 
 // Authenticated employee: Get their own leave requests
 router.get('/my', leaveController.getMyLeaves);

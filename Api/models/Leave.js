@@ -49,16 +49,8 @@ const leaveSchema = new mongoose.Schema({
     year: {
         type: Number,
         required: true
-    },
-    createdAt: {
-        type: Date,
-        default: Date.now
-    },
-    updatedAt: {
-        type: Date,
-        default: Date.now
     }
-});
+},{timestamps: true});
 
 // Update the updatedAt timestamp before saving
 leaveSchema.pre('save', function(next) {

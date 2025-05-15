@@ -3,6 +3,7 @@ const router = express.Router();
 const Employee = require('../models/Employee');
 const employeeController = require('../controllers/employeeController');
 const authMiddleware = require('../middleware/authMiddleware');
+
 const validate = require('../middleware/validator');
 const {
     validateEmployeeRegistration,
