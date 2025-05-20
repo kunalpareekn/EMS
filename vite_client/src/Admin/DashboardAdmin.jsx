@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 // import AdminLayout from './AdminLayout';
 import AdminLayout from '../Layout/AdminLayout';
 
@@ -50,10 +50,10 @@ function DashboardAdmin() {
           <div>
             <h4 className="text-lg font-medium mb-2">Menu</h4>
             <ul className="space-y-4">
-              <li><a href="#" className="flex items-center"><span className="mr-2">📊</span> Dashboard</a></li>
-              <li><a href="#" className="flex items-center"><span className="mr-2">👥</span> Employees</a></li>
-              <li><a href="#" className="flex items-center"><span className="mr-2">📋</span> Projects</a></li>
-              <li><a href="#" className="flex items-center"><span className="mr-2">💰</span> Payroll</a></li>
+              <li><Link  to={"/dashboard"} className="flex items-center"><span className="mr-2">📊</span> Dashboard</Link></li>
+              <li><Link  to={"/employees"} className="flex items-center"><span className="mr-2">👥</span> Employees</Link></li>
+              <li><Link to={"/projects"}  className="flex items-center"><span className="mr-2">📋</span> Projects</Link></li>
+              <li><Link to={"/admin-payroll"} className="flex items-center"><span className="mr-2">💰</span> Payroll</Link></li>
             </ul>
           </div>
         </div>

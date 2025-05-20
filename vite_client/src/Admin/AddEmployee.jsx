@@ -60,7 +60,7 @@ function AddEmployee() {
                 throw new Error(errorData.message || 'Failed to add employee');
             }
 
-            navigate('/dashboard1');
+            navigate('/dashboard-admin');
         } catch (err) {
             setError(err.message);
         }
@@ -85,7 +85,7 @@ function AddEmployee() {
                         <h4 className="text-gray-300 text-lg mb-4">Features</h4>
                         <ul className="space-y-2">
                             <li>
-                                <Link to="/dashboard1" className="flex items-center gap-2 p-2 rounded hover:bg-green-500 transition-colors">
+                                <Link to="/dashboard-admin" className="flex items-center gap-2 p-2 rounded hover:bg-green-500 transition-colors">
                                     <span>📊</span> Dashboard
                                 </Link>
                             </li>

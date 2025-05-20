@@ -490,8 +490,7 @@ router.get('/payroll/all', authMiddleware, payrollController.getAllPayrolls);
 
 // ---------------- General User Auth Routes ---------------- //
 
-router.post('/register', registrationController.registerUser);
-router.post('/login', registrationController.loginUser);
+
 
 // ---------------- Leave Management Routes ---------------- //
 

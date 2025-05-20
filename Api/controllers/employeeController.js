@@ -67,7 +67,7 @@ const loginEmployee = async (req, res) => {
 
         const token = generateToken(employee._id);
         res.status(200).json({
-            message: 'Login successful',
+            message: 'Login successfulllll',
             token,
             employee: {
                 id: employee._id,

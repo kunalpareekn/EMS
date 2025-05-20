@@ -38,13 +38,13 @@ const Header = () => {
 
             <nav className="flex gap-6">
                 <a 
-                    href={email.endsWith('@gmail.com') ? "/dashboard1" : email.endsWith('@paarsiv.com') ? "/dashboard2" : "#"}
+                    href={email.endsWith('@gmail.com') ? "/dashboard-admin" : email.endsWith('@paarsiv.com') ? "/dashboard-employee" : "#"}
                     className="text-white no-underline text-base transition-colors duration-300 pb-1 border-b-2 border-transparent hover:text-blue-400 hover:border-blue-400"
                 >
                     Dashboard
                 </a>
                 <a 
-                    href={email.endsWith('@gmail.com') ? "/admin-payroll" : email.endsWith('@paarsiv.com') ? "/payroll" : "#"}
+                    href={email.endsWith('@gmail.com') ? "/admin-payroll" : email.endsWith('@paarsiv.com') ? "/employee-payroll" : "#"}
                     className="text-white no-underline text-base transition-colors duration-300 pb-1 border-b-2 border-transparent hover:text-blue-400 hover:border-blue-400"
                 >
                     Payroll

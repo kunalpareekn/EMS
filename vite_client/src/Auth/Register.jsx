@@ -4,8 +4,7 @@ import { useNavigate } from 'react-router-dom';
 const Register = () => {
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
-        firstName: '',
-        lastName: '',
+        name: '',  // Changed from firstName/lastName to single name
         email: '',
         phone: '',
         password: '',
@@ -25,34 +24,45 @@ const Register = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setLoading(true);
+        setError('');
 
+        // Client-side validation
         if (formData.password !== formData.confirmPassword) {
             setError('Passwords do not match');
+            setLoading(false);
             return;
         }
 
         if (!formData.agreeToTerms) {
             setError('You must agree to the terms and privacy policy');
+            setLoading(false);
             return;
         }
 
-        setLoading(true);
-        setError('');
+        if (formData.password.length < 8) {
+            setError('Password must be at least 8 characters long');
+            setLoading(false);
+            return;
+        }
 
         try {
-            const response = await fetch('/api/register', {
+            const response = await fetch('http://localhost:5000/api/v1/admin/register', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(formData),
             });
 
+            const data = await response.json();
+console.log(data)
             if (!response.ok) {
-                throw new Error('Registration failed');
+                throw new Error(data.message || 'Registration failed');
             }
 
             navigate('/login');
         } catch (error) {
-            setError(error.message);
+            console.error('Registration error:', error);
+            setError(error.message || 'An unexpected error occurred');
         } finally {
             setLoading(false);
         }
@@ -70,27 +80,15 @@ const Register = () => {
                 <h1 className="text-green-500 text-2xl font-bold mb-4">Welcome to Paarsiv</h1>
                 {error && <p className="text-red-600 mb-4">{error}</p>}
 
-                <div className="flex gap-6 mb-6">
-                    <div className="flex-1">
-                        <input
-                            name="firstName"
-                            placeholder="First Name"
-                            value={formData.firstName}
-                            onChange={handleChange}
-                            required
-                            className="w-full p-3 border border-gray-300 rounded-md focus:border-blue-500 focus:outline-none"
-                        />
-                    </div>
-                    <div className="flex-1">
-                        <input
-                            name="lastName"
-                            placeholder="Last Name"
-                            value={formData.lastName}
-                            onChange={handleChange}
-                            required
-                            className="w-full p-3 border border-gray-300 rounded-md focus:border-blue-500 focus:outline-none"
-                        />
-                    </div>
+                <div className="mb-6">
+                    <input
+                        name="name"
+                        placeholder="Full Name"
+                        value={formData.name}
+                        onChange={handleChange}
+                        required
+                        className="w-full p-3 border border-gray-300 rounded-md focus:border-blue-500 focus:outline-none"
+                    />
                 </div>
 
                 <div className="flex gap-6 mb-6">

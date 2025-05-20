@@ -30,9 +30,9 @@ const Header = () => {
     return (
         <header className="header">
             <div className="logo">
-                
-            <img src={require('./media/paarsiv-white-png-web.png')} alt="Logo" className="logo-image" />
-                
+
+                <img src={require('./media/paarsiv-white-png-web.png')} alt="Logo" className="logo-image" />
+
             </div>
 
             <nav className="nav-links">

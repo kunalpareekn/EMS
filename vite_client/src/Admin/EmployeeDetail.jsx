@@ -56,7 +56,7 @@ function EmployeeDetails() {
                 throw new Error('Failed to update employee details');
             }
 
-            navigate('/Dashboard1');
+            navigate('/dashboard-admin');
         } catch (err) {
             setError(err.message);
         } finally {
