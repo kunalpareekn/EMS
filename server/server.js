@@ -8,8 +8,9 @@ import errorHandler from "../Api/middleware/errorHandler.js";
 import { apiLimiter } from "./middlewares/rateLimiter.js";
 import adminRouter from "./routes/Auth/AdminRoutes.js";
 import employeeRouter from "./routes/Auth/EmployeeRoutes.js";
-
-
+import leaveEmployeeRouter from "./routes/Employee/LeaveEmployeeRoutes.js"
+import leaveAdminRouter from "./routes/Admin/LeaveAdminRoutes.js"
+import projectRouter from "./routes/Admin/ProjectsRoutes.js"
 
 
 
@@ -44,8 +45,11 @@ app.use(errorHandler);
 
 
 //routes 
-app.use("/api/v1/admin",adminRouter);
-app.use("/api/v1/employee",employeeRouter);
+app.use("/api/v1/admin/auth",adminRouter);
+app.use("/api/v1/employee/auth",employeeRouter);
+app.use("/api/v1/admin/leave",leaveAdminRouter);
+app.use("/api/v1/employee/leave",leaveEmployeeRouter);
+app.use("/api/v1/admin/project",projectRouter);
 
 
 

@@ -12,28 +12,30 @@ const authMiddleware = async (req, res, next) => {
 
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        const employee = await Employee.findById(decoded.employeeId).select('+role email'); // Include role & email
+        console.log("Decoded Token:", decoded); // Debugging log
+
+        const employeeId = decoded.employeeId || decoded._id;
+        if (!employeeId) {
+            return res.status(401).json({ message: 'Token missing employee identifier' });
+        }
+
+        const employee = await Employee.findById(employeeId).select('_id role email name lastName');
+        console.log("Found Employee:", employee); // Debugging log
 
         if (!employee) {
             return res.status(404).json({ message: 'Employee not found' });
         }
 
-        // Validate email domain based on route
-        const emailDomain = employee.email.split('@')[1];
-        if (req.path === '/register' && emailDomain !== 'gmail.com') {
-            return res.status(403).json({ message: 'Only Gmail addresses are allowed for registration' });
-        } else if (req.path === '/login' && emailDomain !== 'gmail.com' && emailDomain !== 'paarsiv.com') {
-            return res.status(403).json({ message: 'Only Gmail and Paarsiv email domains are allowed for login' });
-        }
-
-        // Add isAdmin helper
         employee.isAdmin = employee.role && employee.role.toLowerCase() === 'admin';
-        
-        req.employee = employee; // Attach the employee object to the request
+
+        req.employee = employee;
         next();
     } catch (error) {
         console.error('Auth Middleware Error:', error.message);
-        return res.status(401).json({ message: 'Invalid or expired token', error: error.message });
+        return res.status(401).json({
+            message: 'Invalid or expired token',
+            error: error.message
+        });
     }
 };
 
