@@ -1,13 +1,13 @@
 import express from "express";
-import { getAllLeaves, getLeaveStatistics } from "../../controllers/leave/leaveAdminController.js";
+import { getAllLeaves, getLeaveStatistics, updateLeaveStatus } from "../../controllers/leave/leaveAdminController.js";
+import isAdminAuthenticated from "../../middlewares/isAdminAuthenticated.js";
  
 
 const router = express.Router();
  
-router.route("/get-all-leaves").get(getAllLeaves)
-router.route("/get-leave-statistics").get(getLeaveStatistics)
-//update stautus route incomplete
-router.route("/update-leave-staus")
+router.route("/get-all-leaves").get(isAdminAuthenticated,getAllLeaves)
+router.route("/update-leave-staus/:id").put(isAdminAuthenticated,updateLeaveStatus)
+router.route("/get-leave-statistics/:employeeId").get(isAdminAuthenticated,getLeaveStatistics)
 
 
 

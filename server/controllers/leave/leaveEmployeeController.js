@@ -1,6 +1,7 @@
 import Employee from "../../models/employee.model.js"
 import Leave from "../../models/leave.model.js"
 
+
 // Create a leave request
 export const createLeave = async (req, res) => {
     console.log("Authenticated Employee:", req.employee);

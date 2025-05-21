@@ -85,7 +85,6 @@ export const loginEmployee = async (req, res) => {
             return res.status(401).json({ message: 'Invalid email or password' });
         }
 
-        // Check if the employee is active
         if (!employee.active) {
             return res.status(403).json({ message: 'Your account is inactive. Please contact HR or Admin.' });
         }
@@ -95,9 +94,11 @@ export const loginEmployee = async (req, res) => {
             return res.status(401).json({ message: 'Invalid email or password' });
         }
 
-        const token = generateToken(employee._id);
+        // ✅ Pass `res` and `role` so cookie gets set
+        const token = generateToken(employee._id, "employee", res);
+
         res.status(200).json({
-            message: 'Login successfulllll',
+            message: 'Login successful',
             token,
             employee: {
                 id: employee._id,
@@ -109,6 +110,21 @@ export const loginEmployee = async (req, res) => {
         });
     } catch (error) {
         res.status(500).json({ message: 'Login failed', error: error.message });
+    }
+};
+
+export const logoutEmployee = (req, res) => {
+    try {
+        res.clearCookie('jwt', {
+            httpOnly: true,
+            sameSite: 'strict',
+            secure: process.env.NODE_ENV === 'production',
+            path: '/',
+        });
+
+        res.status(200).json({ message: 'Logout successful' });
+    } catch (error) {
+        res.status(500).json({ message: 'Logout failed', error: error.message });
     }
 };
 
@@ -144,3 +160,5 @@ export const updateEmployeeDetails = async (req, res) => {
         res.status(500).json({ message: 'Error updating employee details', error: error.message });
     }
 };
+// Logout employee
+

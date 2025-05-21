@@ -1,9 +1,9 @@
-// import Employee from "../../models/employee.model.js"
 import Leave from "../../models/leave.model.js"
+import mongoose from "mongoose";
 
 export const getAllLeaves = async (req, res) => {
     try {
-        if (!req.employee.isAdmin) {
+        if (req.user.role !== 'admin') {
             return res.status(403).json({ message: 'Access denied. Admin only.' });
         }
 
@@ -37,9 +37,10 @@ export const getAllLeaves = async (req, res) => {
 };
 
 
+
 export const updateLeaveStatus = async (req, res) => {
     try {
-        if (!req.employee.isAdmin) {
+        if (req.user?.role !== 'admin') {
             return res.status(403).json({ message: 'Access denied. Admin only.' });
         }
 
@@ -54,6 +55,8 @@ export const updateLeaveStatus = async (req, res) => {
         leave.status = status;
         if (status === 'rejected' && rejectionReason) {
             leave.rejectionReason = rejectionReason;
+        } else {
+            leave.rejectionReason = undefined; // clear if not rejected
         }
 
         await leave.save();
@@ -63,18 +66,35 @@ export const updateLeaveStatus = async (req, res) => {
         res.status(500).json({ message: 'Error updating leave status', error: error.message });
     }
 };
+
  
 export const getLeaveStatistics = async (req, res) => {
+
     try {
-        let employeeId = req.params.employeeId || req.employee._id;
-        
-        // If requesting another employee's stats, check if admin
-        if (req.params.employeeId && !req.employee.isAdmin) {
+        // Step 1: Determine employee ID
+        const rawId = req.params.employeeId || req.user?._id || req.employee?._id;
+
+        if (!rawId) {
+            return res.status(400).json({ message: 'Employee ID missing' });
+        }
+
+        // Step 2: Convert to ObjectId
+        let employeeObjectId;
+        try {
+            employeeObjectId = new mongoose.Types.ObjectId(rawId);
+        } catch (err) {
+            return res.status(400).json({ message: 'Invalid employee ID format' });
+        }
+
+        // Step 3: Admin access control (only needed when accessing someone else's data)
+        if (req.params.employeeId && !(req.user?.role === 'admin' || req.employee?.isAdmin)) {
             return res.status(403).json({ message: 'Access denied. Admin privileges required.' });
         }
 
-        const leaves = await Leave.find({ employeeId });
-        
+        // Step 4: Find all leave records for this employee
+        const leaves = await Leave.find({ employee: employeeObjectId });
+
+        // Step 5: Compute statistics
         const statistics = {
             totalLeaves: leaves.length,
             approvedLeaves: leaves.filter(l => l.status === 'approved').length,
@@ -86,8 +106,9 @@ export const getLeaveStatistics = async (req, res) => {
             }, {})
         };
 
-        res.json(statistics);
+        return res.json(statistics);
     } catch (error) {
-        res.status(500).json({ message: 'Error fetching leave statistics', error: error.message });
+        console.error('Leave Statistics Error:', error);
+        return res.status(500).json({ message: 'Error fetching leave statistics', error: error.message });
     }
 };
