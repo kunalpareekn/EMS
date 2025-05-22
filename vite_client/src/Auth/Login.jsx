@@ -28,10 +28,10 @@ function Login() {
         let userRole = '';
 
         if (emailDomain === 'gmail.com') {
-            apiEndpoint = 'http://localhost:5000/api/v1/admin/login';
+            apiEndpoint = 'http://localhost:5000/api/v1/admin/auth/login';
             userRole = 'admin';
         } else if (emailDomain === 'paarsiv.com') {
-            apiEndpoint = 'http://localhost:5000/api/v1/employee/login'; // ✅ Corrected
+            apiEndpoint = 'http://localhost:5000/api/v1/employee/auth/login'; // ✅ Corrected
             userRole = 'employee';
         } else {
             setError('Invalid email domain. Only @gmail.com and @paarsiv.com are allowed.');
