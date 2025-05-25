@@ -7,7 +7,10 @@ export const getAllProjects = async (req, res) => {
         const projects = await Project.find()
             .populate('projectLeader', 'name email role')
             .populate('projectMembers', 'name email role');
-        res.status(200).json(projects);
+       res.json({
+  success: true,
+  projects: [projects]
+});
     } catch (error) {
         res.status(500).json({ error: 'Failed to fetch projects', details: error.message });
     }
