@@ -7,13 +7,14 @@ import DashboardEmployee from './Employee/DashboardEmployee';
 import Header from './Shared/Header'; // Import Header component
 import AddEmployee from './Admin/AddEmployee'; // Import AddEmployee component
 import EmployeeList from './Admin/EmployeeList'; // Import EmployeeList component
-import AddProject from './Admin/AddProject'; // Import AddProject component
+import AddProject from './Admin/project/AddProject'; // Import AddProject component
+import ProjectCard from './Admin/project/ProjectCard'; // Import AddProject component
 import EmployeeDetails from './Admin/EmployeeDetail'; // Import EmployeeDetails component
 import ProfileDetails from './Employee/ProfileDetails'; // Import ProfileDetails component
 import ContactDetails from './Employee/ContactDetails';
 import ProfileSidebar from './Shared/ProfileSidebar'; // Import ProfileSidebar component
 import NextOfKinDetails from './Employee/NextOfKinDetails';
-import EducationQualifications from './Admin/EducationQualifications';
+import EducationQualifications from './Employee/EducationQualifications';
 import GuarantorDetails from './Employee/GuarantorDetails';
 import FamilyDetails from './Employee/FamilyDetails';
 import JobDetails from "./Employee/JobDetails"
@@ -24,6 +25,8 @@ import EmployeePayroll from './Employee/EmployeePayroll';
 import Leave from './Others/LeaveApplication';
 import LeaveManagement from './Admin/LeaveManagement';
 import AdminPayroll from './Admin/AdminPayroll';
+import ProjectsPage from './Admin/project/Projectpage';
+import ProjectDetailPage from './Admin/project/ProjectDetailPage';
 
 function App() {
     const location = useLocation();
@@ -60,10 +63,17 @@ function App() {
                         <Route path="/login" element={<Login />} />
                         <Route path="/dashboard-admin" element={<DashboardAdmin />} />
                         <Route path="/dashboard-employee" element={<DashboardEmployee />} />
+
+
+
+
+                        
                         <Route path="/add" element={<AddEmployee />} /> {/* Add route for AddEmployee */}
                         <Route path="/employee-list" element={<EmployeeList />} /> {/* Add route for EmployeeList */}
                         <Route path="/add-employee" element={<AddEmployee />} /> {/* Add route for AddEmployee */}
                         <Route path="/add-project" element={<AddProject />} /> {/* Add route for AddProject */}
+                        <Route path="/projects" element={<ProjectsPage  />} /> {/* Add route for AddProject */}
+                        <Route path="/projects/:id" element={<ProjectDetailPage />} />
                         <Route path="/employee/:id" element={<EmployeeDetails />} /> {/* Add route for EmployeeDetails */}
                         <Route path="/contact-details" element={<ContactDetails />} /> {/* Add route for ContactDetails */}
                         <Route path="/profile-details" element={<ProfileDetails />} /> {/* Add route for ProfileDetails */}

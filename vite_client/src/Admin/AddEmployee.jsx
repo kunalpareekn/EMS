@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, Link } from 'react-router-dom';
+import { createEmployee} from '../context/employeeSlice'; 
 
 function AddEmployee() {
     const [form, setForm] = useState({
@@ -14,8 +16,15 @@ function AddEmployee() {
         position: '',
         salary: '',
     });
-    const [error, setError] = useState('');
+
+    const dispatch = useDispatch();
     const navigate = useNavigate();
+
+    const [error, setError] = useState('');
+
+    const employeeStatus = useSelector(state => state.employees.status);
+    const employeeError = useSelector(state => state.employees.error);
+
 
     const departments = [
         "Engineering", "HR", "Finance", "Sales", "Marketing", "IT Support", "Operations",
@@ -40,7 +49,7 @@ function AddEmployee() {
         "Director", "VP", "CTO", "CFO", "CEO"
     ];
 
-    const handleChange = e => {
+ const handleChange = e => {
         setForm({ ...form, [e.target.name]: e.target.value });
     };
 
@@ -48,21 +57,12 @@ function AddEmployee() {
         e.preventDefault();
         setError('');
 
-        try {
-            const response = await fetch('/api/employees/register', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(form),
-            });
+        const resultAction = await dispatch(createEmployee(form));
 
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.message || 'Failed to add employee');
-            }
-
+        if (createEmployee.fulfilled.match(resultAction)) {
             navigate('/dashboard-admin');
-        } catch (err) {
-            setError(err.message);
+        } else {
+            setError(resultAction.payload || 'Failed to create employee');
         }
     };
 
@@ -125,10 +125,12 @@ function AddEmployee() {
             </div>
 
             {/* Main Content */}
-            <div className="flex-1 bg-white rounded-lg shadow-md p-8">
+          <div className="flex-1 bg-white rounded-lg shadow-md p-8">
                 <h1 className="text-2xl font-semibold text-gray-800 mb-6">➕ Add Employee</h1>
                 
-                {error && <p className="text-red-500 mb-4">{error}</p>}
+                {(error || employeeError) && (
+                    <p className="text-red-500 mb-4">{error || employeeError}</p>
+                )}
                 
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div className="flex gap-4">
@@ -226,12 +228,12 @@ function AddEmployee() {
                             required
                         />
                     </div>
-                    
                     <button
                         type="submit"
+                          disabled={employeeStatus === 'loading'}
                         className="ml-auto px-6 py-3 bg-green-500 text-white rounded hover:bg-green-600 transition-colors"
                     >
-                        Add Employee
+                        {employeeStatus === 'loading' ? 'Adding...' : 'Add Employee'}
                     </button>
                 </form>
             </div>
@@ -240,3 +242,9 @@ function AddEmployee() {
 }
 
 export default AddEmployee;
+
+
+
+
+
+

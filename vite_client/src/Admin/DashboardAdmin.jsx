@@ -2,12 +2,15 @@ import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 // import AdminLayout from './AdminLayout';
 import AdminLayout from '../Layout/AdminLayout';
+import useGetAllProjects from "../Hooks/useGetAllProjects";
 
 function DashboardAdmin() {
   const [employees, setEmployees] = useState([]);
   const [projects, setProjects] = useState([]);
   const [payrolls, setPayrolls] = useState([]);
   const navigate = useNavigate();
+
+  useGetAllProjects(); 
 
   useEffect(() => {
     // Fetch employees
@@ -35,6 +38,8 @@ function DashboardAdmin() {
       });
     }
   }, []);
+  useGetAllProjects();
+
 
   return (
     <div className="flex min-h-screen">
@@ -46,18 +51,18 @@ function DashboardAdmin() {
             <h3 className="text-xl font-semibold">Admin Name</h3>
             <p className="text-gray-400 text-sm">Administrator</p>
           </div>
-          
+
           <div>
             <h4 className="text-lg font-medium mb-2">Menu</h4>
             <ul className="space-y-4">
-              <li><Link  to={"/dashboard"} className="flex items-center"><span className="mr-2">📊</span> Dashboard</Link></li>
-              <li><Link  to={"/employees"} className="flex items-center"><span className="mr-2">👥</span> Employees</Link></li>
-              <li><Link to={"/projects"}  className="flex items-center"><span className="mr-2">📋</span> Projects</Link></li>
+              <li><Link to={"/dashboard"} className="flex items-center"><span className="mr-2">📊</span> Dashboard</Link></li>
+              <li><Link to={"/employees"} className="flex items-center"><span className="mr-2">👥</span> Employees</Link></li>
+              <li><Link to={"/projects"} className="flex items-center"><span className="mr-2">📋</span> Projects</Link></li>
               <li><Link to={"/admin-payroll"} className="flex items-center"><span className="mr-2">💰</span> Payroll</Link></li>
             </ul>
           </div>
         </div>
-        
+
         <button className="logout-button bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded transition duration-300">
           Logout
         </button>
@@ -73,12 +78,12 @@ function DashboardAdmin() {
             <h3 className="text-gray-600 text-lg mb-2">Employees</h3>
             <p className="text-gray-800 text-3xl font-bold">{employees.length}</p>
           </div>
-          
+
           <div className="flex-1 bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition-shadow text-center">
             <h3 className="text-gray-600 text-lg mb-2">Projects</h3>
             <p className="text-gray-800 text-3xl font-bold">{projects.length}</p>
           </div>
-          
+
           <div className="flex-1 bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition-shadow text-center">
             <h3 className="text-gray-600 text-lg mb-2">Payrolls</h3>
             <p className="text-gray-800 text-3xl font-bold">{payrolls.length}</p>
@@ -91,14 +96,14 @@ function DashboardAdmin() {
           <div className="flex-1 bg-white p-6 rounded-lg shadow-sm">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-semibold text-gray-800">Projects</h2>
-              <button 
-                onClick={() => navigate("/add-project")} 
+              <button
+                onClick={() => navigate("/add-project")}
                 className="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded transition duration-300"
               >
                 Add Project
               </button>
             </div>
-            
+
             <div className="overflow-x-auto">
               <table className="w-full">
                 <tbody>
@@ -118,14 +123,14 @@ function DashboardAdmin() {
           <div className="flex-1 bg-white p-6 rounded-lg shadow-sm">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-semibold text-gray-800">Employees</h2>
-              <button 
-                onClick={() => navigate("/add-employee")} 
+              <button
+                onClick={() => navigate("/add-employee")}
                 className="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded transition duration-300"
               >
                 Add Employee
               </button>
             </div>
-            
+
             <div className="overflow-x-auto">
               <table className="w-full">
                 <tbody>
@@ -133,7 +138,7 @@ function DashboardAdmin() {
                     <tr key={emp._id} className="border-b border-gray-200">
                       <td className="py-3">
                         {emp.name} - {emp.position}
-                        <button 
+                        <button
                           onClick={() => navigate(`/employee/${emp._id}`)}
                           className="ml-2 bg-blue-600 text-white py-1 px-3 rounded text-sm"
                         >
@@ -151,7 +156,7 @@ function DashboardAdmin() {
         {/* Payrolls Section */}
         <div className="bg-white p-6 rounded-lg shadow-sm">
           <h2 className="text-xl font-semibold text-gray-800 mb-4">Payrolls</h2>
-          
+
           <div className="overflow-x-auto">
             <table className="w-full">
               <tbody>
