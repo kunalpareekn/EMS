@@ -3,14 +3,24 @@ import { Link, useNavigate } from "react-router-dom";
 // import AdminLayout from './AdminLayout';
 import AdminLayout from '../Layout/AdminLayout';
 import useGetAllProjects from "../Hooks/useGetAllProjects";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchEmployees } from "../context/employeeSlice";
 
 function DashboardAdmin() {
-  const [employees, setEmployees] = useState([]);
   const [projects, setProjects] = useState([]);
   const [payrolls, setPayrolls] = useState([]);
   const navigate = useNavigate();
 
-  useGetAllProjects(); 
+  useGetAllProjects();
+  const dispatch = useDispatch();
+  const { employee: employeesObj, status, error } = useSelector((state) => state.employees);
+  const employees = employeesObj ? Object.values(employeesObj) : [];
+
+  useEffect(() => {
+    if (status === "idle") {
+      dispatch(fetchEmployees());
+    }
+  }, [status, dispatch]);
 
   useEffect(() => {
     // Fetch employees
@@ -135,11 +145,11 @@ function DashboardAdmin() {
               <table className="w-full">
                 <tbody>
                   {employees.map((emp) => (
-                    <tr key={emp._id} className="border-b border-gray-200">
+                    <tr key={emp.id} className="border-b border-gray-200">
                       <td className="py-3">
-                        {emp.name} - {emp.position}
+                        {emp.name} {emp.lastName} - {emp.position}
                         <button
-                          onClick={() => navigate(`/employee/${emp._id}`)}
+                          onClick={() => navigate(`/employee/${emp.id}`)}
                           className="ml-2 bg-blue-600 text-white py-1 px-3 rounded text-sm"
                         >
                           View Details

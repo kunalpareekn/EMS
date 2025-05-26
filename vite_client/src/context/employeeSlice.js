@@ -13,10 +13,23 @@ export const createEmployee = createAsyncThunk(
     }
   }
 );
+export const fetchEmployees = createAsyncThunk(
+  'employees/fetchEmployees',
+  async (_, thunkAPI) => {
+    try {
+      const response = await axios.get(`${EMPLOYEE_AUTH_ENDPOINT}/get-all-employees`,{withCredentials:true});
+      return response.data;
+    } catch (err) {
+      return thunkAPI.rejectWithValue(err.response?.data?.message || 'Failed to fetch employees');
+    }
+  }
+);
+
 
 const employeeSlice = createSlice({
   name: 'employees',
   initialState: {
+    employees: [],
     status: 'idle',
     error: null,
   },
@@ -29,11 +42,24 @@ const employeeSlice = createSlice({
       })
       .addCase(createEmployee.fulfilled, (state) => {
         state.status = 'succeeded';
+        state.employees.push(action.payload);
       })
       .addCase(createEmployee.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.payload;
+      })
+      .addCase(fetchEmployees.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(fetchEmployees.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        state.employees = action.payload;
+      })
+      .addCase(fetchEmployees.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.payload;
       });
+
   },
 });
 

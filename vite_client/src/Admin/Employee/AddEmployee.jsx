@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, Link } from 'react-router-dom';
-import { createEmployee} from '../context/employeeSlice'; 
+import { createEmployee} from '../../context/employeeSlice'; 
 
 function AddEmployee() {
     const [form, setForm] = useState({

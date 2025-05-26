@@ -5,7 +5,7 @@ import Login from './Auth/Login';
 import DashboardAdmin from './Admin/DashboardAdmin';
 import DashboardEmployee from './Employee/DashboardEmployee';
 import Header from './Shared/Header'; // Import Header component
-import AddEmployee from './Admin/AddEmployee'; // Import AddEmployee component
+import AddEmployee from './Admin/Employee/AddEmployee'; // Import AddEmployee component
 import EmployeeList from './Admin/EmployeeList'; // Import EmployeeList component
 import AddProject from './Admin/project/AddProject'; // Import AddProject component
 import ProjectCard from './Admin/project/ProjectCard'; // Import AddProject component
@@ -27,6 +27,7 @@ import LeaveManagement from './Admin/LeaveManagement';
 import AdminPayroll from './Admin/AdminPayroll';
 import ProjectsPage from './Admin/project/Projectpage';
 import ProjectDetailPage from './Admin/project/ProjectDetailPage';
+import EmployeesPage from './Admin/Employee/EmployeesPage';
 
 function App() {
     const location = useLocation();
@@ -69,6 +70,7 @@ function App() {
 
                         
                         <Route path="/add" element={<AddEmployee />} /> {/* Add route for AddEmployee */}
+                        <Route path="/employees" element={<EmployeesPage />} /> {/* Add route for AddEmployee */}
                         <Route path="/employee-list" element={<EmployeeList />} /> {/* Add route for EmployeeList */}
                         <Route path="/add-employee" element={<AddEmployee />} /> {/* Add route for AddEmployee */}
                         <Route path="/add-project" element={<AddProject />} /> {/* Add route for AddProject */}
