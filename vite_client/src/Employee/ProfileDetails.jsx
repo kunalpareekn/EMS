@@ -5,45 +5,45 @@ function ProfileDetails() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchEmployeeDetails = async () => {
-      try {
-        const token = localStorage.getItem('token');
-        const email = localStorage.getItem('email');
+  // useEffect(() => {
+  //   const fetchEmployeeDetails = async () => {
+  //     try {
+  //       const token = localStorage.getItem('token');
+  //       const email = localStorage.getItem('email');
 
-        if (!token || !email) {
-          setError('User not authenticated.');
-          setLoading(false);
-          return;
-        }
+  //       if (!token || !email) {
+  //         setError('User not authenticated.');
+  //         setLoading(false);
+  //         return;
+  //       }
 
-        const response = await fetch(`/api/employees?email=${encodeURIComponent(email)}`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-        });
+  //       const response = await fetch(`/api/employees?email=${encodeURIComponent(email)}`, {
+  //         method: 'GET',
+  //         headers: {
+  //           'Content-Type': 'application/json',
+  //           Authorization: `Bearer ${token}`,
+  //         },
+  //       });
 
-        const data = await response.json();
+  //       const data = await response.json();
 
-        if (!response.ok) {
-          throw new Error(data.message || 'Failed to fetch employee profile');
-        }
+  //       if (!response.ok) {
+  //         throw new Error(data.message || 'Failed to fetch employee profile');
+  //       }
 
-        setEmployee(data);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
+  //       setEmployee(data);
+  //     } catch (err) {
+  //       setError(err.message);
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
 
-    fetchEmployeeDetails();
-  }, []);
+  //   fetchEmployeeDetails();
+  // }, []);
 
-  if (loading) return <p className="text-center p-8 text-lg">Loading dashboard...</p>;
-  if (error) return <p className="text-center p-8 text-lg text-red-500">{error}</p>;
+  // if (loading) return <p className="text-center p-8 text-lg">Loading dashboard...</p>;
+  // if (error) return <p className="text-center p-8 text-lg text-red-500">{error}</p>;
 
   return (
     <div className="min-h-screen bg-gray-50 p-8">

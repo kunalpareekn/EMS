@@ -16,11 +16,41 @@ const Header = () => {
         if (storedEmail) setEmail(storedEmail);
     }, []);
 
-    const handleLogout = () => {
+const handleLogout = async () => {
+    try {
+        // 1. Call the server logout endpoint (if you have one)
+        const response = await fetch('/api/auth/logout', {
+            method: 'POST',
+            credentials: 'include' // Important for cookie-based auth
+        });
+
+        if (!response.ok) {
+            throw new Error('Logout failed on server');
+        }
+
+        // 2. Clear client-side storage
         localStorage.removeItem('username');
         localStorage.removeItem('email');
+        localStorage.removeItem('authToken'); // If you store token in localStorage
+        localStorage.removeItem('userRole');  // If you store role
+        
+        // 3. Clear any application state (if using context/Redux)
+        // Example: setUser(null) or dispatch(logoutAction())
+        
+        // 4. Redirect to login
         navigate('/login');
-    };
+        
+        // Optional: Force refresh to ensure clean state
+        window.location.reload();
+
+    } catch (error) {
+        console.error('Logout error:', error);
+        
+        // Fallback client-side cleanup if server logout fails
+        localStorage.clear();
+        navigate('/login');
+    }
+};
 
     const toggleDropdown = () => {
         setDropdownOpen(!dropdownOpen);

@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 
+
+  
 function DashboardEmployee() {
     const [employee, setEmployee] = useState(null);
     const [error, setError] = useState('');
@@ -9,43 +12,43 @@ function DashboardEmployee() {
     const [timer, setTimer] = useState(null);
     const [elapsedTime, setElapsedTime] = useState(0);
     const navigate = useNavigate();
+const user = useSelector((state) => state.auth.user);
+    // useEffect(() => {
+    //     const fetchEmployeeDetails = async () => {
+    //         try {
+    //             const token = localStorage.getItem('token');
+    //             const email = localStorage.getItem('email');
 
-    useEffect(() => {
-        const fetchEmployeeDetails = async () => {
-            try {
-                const token = localStorage.getItem('token');
-                const email = localStorage.getItem('email');
+    //             if (!token || !email) {
+    //                 setError('User not authenticated.');
+    //                 setLoading(false);
+    //                 return;
+    //             }
 
-                if (!token || !email) {
-                    setError('User not authenticated.');
-                    setLoading(false);
-                    return;
-                }
+    //             const response = await fetch(`/api/employees?email=${encodeURIComponent(email)}`, {
+    //                 method: 'GET',
+    //                 headers: {
+    //                     'Content-Type': 'application/json',
+    //                     Authorization: `Bearer ${token}`,
+    //                 },
+    //             });
 
-                const response = await fetch(`/api/employees?email=${encodeURIComponent(email)}`, {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
+    //             const data = await response.json();
 
-                const data = await response.json();
+    //             if (!response.ok) {
+    //                 throw new Error(data.message || 'Failed to fetch employee profile');
+    //             }
 
-                if (!response.ok) {
-                    throw new Error(data.message || 'Failed to fetch employee profile');
-                }
+    //             setEmployee(data);
+    //         } catch (err) {
+    //             setError(err.message);
+    //         } finally {
+    //             setLoading(false);
+    //         }
+    //     };
 
-                setEmployee(data);
-            } catch (err) {
-                setError(err.message);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchEmployeeDetails();
-    }, []);
+    //     fetchEmployeeDetails();
+    // }, []);
 
     const handleEditProfile = () => navigate('/profile-details');
     const handleViewReport = () => navigate('/attendance');
@@ -98,8 +101,8 @@ function DashboardEmployee() {
         return `${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
     };
 
-    if (loading) return <p className="p-4">Loading dashboard...</p>;
-    if (error) return <p className="text-red-500 p-4">{error}</p>;
+    // if (loading) return <p className="p-4">Loading dashboard...</p>;
+    // if (error) return <p className="text-red-500 p-4">{error}</p>;
 
     return (
         <div className="min-h-screen bg-gray-100 p-5">
@@ -112,7 +115,7 @@ function DashboardEmployee() {
                         className="w-20 h-20 rounded-full object-cover"
                     />
                     <div>
-                        <h2 className="text-xl font-bold text-gray-800">{employee?.name || 'Kunal Pareek'}</h2>
+                        <h2 className="text-xl font-bold text-gray-800"> {user?.name || 'User'}</h2>
                         <p className="text-gray-600">Salesforce Developer</p>
                     </div>
                 </div>

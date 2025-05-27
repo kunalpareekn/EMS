@@ -160,5 +160,19 @@ export const updateEmployeeDetails = async (req, res) => {
         res.status(500).json({ message: 'Error updating employee details', error: error.message });
     }
 };
-// Logout employee
+//get all employees
+export const getAllEmployees = async (req, res) => {
+    try {
+        const user = req.user || req.employee;
 
+        if (!user || user.role !== 'admin') {
+            return res.status(403).json({ message: 'Access denied. Admins only.' });
+        }
+
+        const employees = await Employee.find().select('-password');
+        res.status(200).json({ employees });
+    } catch (error) {
+        console.error('Error fetching employees:', error);
+        res.status(500).json({ message: 'Failed to fetch employees', error: error.message });
+    }
+};

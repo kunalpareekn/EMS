@@ -12,7 +12,7 @@ import leaveEmployeeRouter from "./routes/Employee/LeaveEmployeeRoutes.js"
 import leaveAdminRouter from "./routes/Admin/LeaveAdminRoutes.js"
 import projectRouter from "./routes/Admin/ProjectsRoutes.js"
 import attendanceRouter from "./routes/Employee/AttendaceRoutes.js"
-
+import payrollRouter from "./routes/Admin/PayrollRoutes.js"
 
 
 
@@ -42,12 +42,15 @@ app.use(cors({
 
 
 
-//routes 
+//routes -------- ADMIN ROUTES-------------
 app.use("/api/v1/admin/auth",adminRouter);
-app.use("/api/v1/employee/auth",employeeRouter);
 app.use("/api/v1/admin/leave",leaveAdminRouter);
-app.use("/api/v1/employee/leave",leaveEmployeeRouter);
 app.use("/api/v1/admin/project",projectRouter);
+app.use("/api/v1/admin/payroll",payrollRouter);
+
+//routes -------- EMPLOYEE ROUTES-------------
+app.use("/api/v1/employee/auth",employeeRouter);
+app.use("/api/v1/employee/leave",leaveEmployeeRouter);
 app.use("/api/v1/employee/attendance",attendanceRouter);
 
 
