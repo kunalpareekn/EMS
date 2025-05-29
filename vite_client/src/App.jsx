@@ -29,7 +29,7 @@ import ProjectsPage from './Admin/project/Projectpage';
 import ProjectDetailPage from './Admin/project/ProjectDetailPage';
 import EmployeesPage from './Admin/Employee/EmployeesPage';
 import UpdatePayroll from './Admin/Payroll/UpdatePayroll';
-// import MyLeavePage from './Employee/Leave/MyLeave';
+import MyLeavePage from './Employee/Leave/MyLeave';
 
 function App() {
     const location = useLocation();
@@ -88,7 +88,7 @@ function App() {
                         <Route path="/job-details" element={<JobDetails />} />
                         <Route path="/financial-details" element={<FinancialDetails />} />
                         <Route path="/leave" element={<Leave />} />
-                        {/* <Route path="/my-leave" element={<MyLeavePage />} /> */}
+                        <Route path="/my-leave" element={<MyLeavePage />} />
                         <Route path="/leave-management" element={<LeaveManagement />} />
                         <Route path="/daily-report" element={<DailyReport />} /> {/* Add route for DailyReport */}
                         <Route path="/attendance" element={<AttendanceDashboard />} />
