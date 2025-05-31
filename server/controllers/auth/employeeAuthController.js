@@ -93,7 +93,8 @@ export const registerEmployee = async (req, res) => {
                 _id: employee._id,
                 name: employee.name,
                 email: employee.email,
-                position: employee.position
+                position: employee.position,
+                jobTitle: employee.jobTitle
             }
         });
     } catch (error) {
@@ -139,6 +140,7 @@ export const loginEmployee = async (req, res) => {
                 email: employee.email,
                 position: employee.position,
                 department: employee.department,
+                jobTitle: employee.jobTitle
             },
         });
     } catch (error) {

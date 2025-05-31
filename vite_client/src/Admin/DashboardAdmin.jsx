@@ -11,9 +11,11 @@ function DashboardAdmin() {
   const [payrolls, setPayrolls] = useState([]);
   const navigate = useNavigate();
 
+const admin= useSelector((state) => state.auth.user);
+const employeeSelector = useSelector((state) => state.employees.employees.employees || {});
   useGetAllProjects();
   const dispatch = useDispatch();
-  const { employee: employeesObj, status, error } = useSelector((state) => state.employees);
+  const { employee: employeesObj, status, error } = useSelector((state) => state.employees.employees);
   const employees = employeesObj ? Object.values(employeesObj) : [];
 
   useEffect(() => {
@@ -22,23 +24,7 @@ function DashboardAdmin() {
     }
   }, [status, dispatch]);
 
-  useEffect(() => {
-    // Fetch employees
-    fetch("/api/employees")
-      .then((res) => res.json())
-      .then((data) => setEmployees(data));
-
-    // Fetch projects
-    fetch("/api/projects")
-      .then((res) => res.json())
-      .then((data) => setProjects(data));
-
-    // Fetch payrolls
-    fetch("/api/payrolls")
-      .then((res) => res.json())
-      .then((data) => setPayrolls(data));
-  }, []);
-
+   
   useEffect(() => {
     const logoutButton = document.querySelector('.logout-button');
     if (logoutButton) {
@@ -58,7 +44,7 @@ function DashboardAdmin() {
         <div>
           <div className="text-center mb-8">
             <div className="text-4xl mb-2">👨‍💼</div>
-            <h3 className="text-xl font-semibold">Admin Name</h3>
+            <h3 className="text-xl font-semibold">{admin?.name || 'Admin'}</h3>
             <p className="text-gray-400 text-sm">Administrator</p>
           </div>
 
@@ -86,7 +72,7 @@ function DashboardAdmin() {
         <div className="flex gap-4 mb-8">
           <div className="flex-1 bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition-shadow text-center">
             <h3 className="text-gray-600 text-lg mb-2">Employees</h3>
-            <p className="text-gray-800 text-3xl font-bold">{employees.length}</p>
+            <p className="text-gray-800 text-3xl font-bold">{employeeSelector.length}</p>
           </div>
 
           <div className="flex-1 bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition-shadow text-center">

@@ -12,7 +12,7 @@ import ProjectCard from './Admin/project/ProjectCard'; // Import AddProject comp
 import EmployeeDetails from './Admin/EmployeeDetail'; // Import EmployeeDetails component
 import ProfileDetails from './Employee/ProfileDetails'; // Import ProfileDetails component
 import ContactDetails from './Employee/ContactDetails';
-import ProfileSidebar from './Shared/ProfileSidebar'; // Import ProfileSidebar component
+import ProfileSidebar from './Employee/ProfileSidebar'; // Import ProfileSidebar component
 import NextOfKinDetails from './Employee/NextOfKinDetails';
 import EducationQualifications from './Employee/EducationQualifications';
 import GuarantorDetails from './Employee/GuarantorDetails';
@@ -30,6 +30,7 @@ import ProjectDetailPage from './Admin/project/ProjectDetailPage';
 import EmployeesPage from './Admin/Employee/EmployeesPage';
 import UpdatePayroll from './Admin/Payroll/UpdatePayroll';
 import MyLeavePage from './Employee/Leave/MyLeave';
+import AttendanceStats from './Employee/Attendance/AttendanceStats';
 
 function App() {
     const location = useLocation();
@@ -89,6 +90,8 @@ function App() {
                         <Route path="/financial-details" element={<FinancialDetails />} />
                         <Route path="/leave" element={<Leave />} />
                         <Route path="/my-leave" element={<MyLeavePage />} />
+                        <Route path="/attendance-stats" element={<AttendanceStats />} />
+
                         <Route path="/leave-management" element={<LeaveManagement />} />
                         <Route path="/daily-report" element={<DailyReport />} /> {/* Add route for DailyReport */}
                         <Route path="/attendance" element={<AttendanceDashboard />} />
