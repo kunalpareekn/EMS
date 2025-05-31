@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import Todo from './Todo';
+import AttendanceBox from '../Attendance/AttendanceBox';
 
 
   
@@ -117,7 +118,7 @@ const user = useSelector((state) => state.auth.user);
                     />
                     <div>
                         <h2 className="text-xl font-bold text-gray-800"> {user?.name || 'User'}</h2>
-                        <p className="text-gray-600">Salesforce Developer</p>
+                        <p className="text-gray-600">{user?.jobTitle || 'Employee'}</p>
                     </div>
                 </div>
                 <button 
@@ -129,44 +130,7 @@ const user = useSelector((state) => state.auth.user);
             </div>
 
             {/* Check In/Out Section */}
-            <div className="bg-white rounded-xl p-5 mb-6 border-2 border-gray-200 flex flex-col md:flex-row justify-between items-center">
-                <div className="flex flex-col mb-4 md:mb-0">
-                    <p className="text-emerald-400 text-lg">Welcome Back !!!</p>
-                    <h3 className="text-gray-800 text-xl font-semibold">Mr./Ms. {employee?.name || 'Kunal'}</h3>
-                    <img 
-                        src="https://img.icons8.com/ios/100/clock--v1.png" 
-                        alt="Clock Icon" 
-                        className="w-12 h-12 mt-2"
-                    />
-                </div>
-                
-                <div className="flex flex-col items-center">
-                    {!checkInTime ? (
-                        <button 
-                            onClick={handleCheckIn}
-                            className="bg-emerald-400 text-white px-6 py-3 rounded-lg font-medium hover:bg-emerald-500 transition cursor-pointer"
-                        >
-                            Check IN
-                        </button>
-                    ) : (
-                        <>
-                            <button 
-                                onClick={handleCheckOut}
-                                className="bg-emerald-400 text-white px-6 py-3 rounded-lg font-medium hover:bg-emerald-500 transition cursor-pointer"
-                            >
-                                Check Out
-                            </button>
-                            <p className="text-gray-800 text-lg mt-2">Timer: {formatTime(elapsedTime)}</p>
-                        </>
-                    )}
-                    <button 
-                        onClick={handleViewReport}
-                        className="bg-gray-100 text-gray-800 px-4 py-2 rounded-lg font-medium hover:bg-gray-200 transition mt-4"
-                    >
-                        Attendance
-                    </button>
-                </div>
-            </div>
+            <AttendanceBox/>
 
             {/* Main Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
