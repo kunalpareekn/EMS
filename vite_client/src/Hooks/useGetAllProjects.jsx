@@ -27,6 +27,7 @@ const useGetAllProjects = () => {
 
         fetchAllProjects();
     }, [dispatch]);
+    
 };
 
 export default useGetAllProjects;

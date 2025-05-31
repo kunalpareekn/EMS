@@ -3,7 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { FaBell, FaEnvelope, FaUserCircle } from "react-icons/fa";
 import { useSelector, useDispatch } from "react-redux";
 import { logoutUser } from "../context/Auth/authSlice";
-// import { logout } from "../redux/authSlice"; // Adjust path to your auth slice
+import { toast } from 'react-toastify';
 
 const Header = () => {
     const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -12,13 +12,33 @@ const Header = () => {
     
     // Get user data from Redux store
     const { username, email } = useSelector((state) => state.auth.user || {});
-    // const notificationCount = useSelector((state) => state.notifications.count);
 
-   const handleLogout = () => {
-    dispatch(logoutUser()).then(() => {
-      navigate('/login');
-    });
-  };
+    const handleLogout = async () => {
+        try {
+            // Pass the email to determine which endpoint to use
+            await dispatch(logoutUser(email)).unwrap();
+            
+            // Clear all client-side storage
+            localStorage.removeItem('token');
+            localStorage.removeItem('role');
+            localStorage.removeItem('email');
+            
+            // Show success message
+              toast.success('Logged out successfully');
+            
+            // Navigate to login page with full reload
+            navigate ('/login')
+            toast.success('Logged out successfully');
+            
+        } catch (error) {
+            // Even if API fails, clear local storage and redirect
+            localStorage.removeItem('token');
+            localStorage.removeItem('role');
+            localStorage.removeItem('email');
+            toast.success('Logged out successfully');
+            window.location.href = '/login';
+        }
+    };
 
     const toggleDropdown = () => setDropdownOpen(!dropdownOpen);
 
@@ -56,11 +76,6 @@ const Header = () => {
             <div className="flex items-center gap-4">
                 <div className="relative text-xl text-white cursor-pointer transition-transform duration-200 hover:scale-110">
                     <FaBell />
-                    {/* {notificationCount > 0 && (
-                        <span className="absolute -top-1 -right-2 bg-red-500 text-white rounded-full text-xs w-4 h-4 flex items-center justify-center">
-                            {notificationCount}
-                        </span>
-                    )} */}
                 </div>
                 
                 <div className="relative text-xl text-white cursor-pointer transition-transform duration-200 hover:scale-110">
