@@ -5,6 +5,11 @@ import { format, parseISO } from 'date-fns';
 import { FiClock, FiHome, FiMapPin, FiCalendar } from 'react-icons/fi';
 import store from '../../context/store';
 import { Link } from 'react-router-dom';
+
+
+
+
+
 const AttendanceBox = () => {
   const dispatch = useDispatch();
   const {
@@ -17,6 +22,7 @@ const AttendanceBox = () => {
   const [workLocation, setWorkLocation] = useState('office');
   const [notification, setNotification] = useState({ show: false, message: '', type: '' });
   const [currentSession, setCurrentSession] = useState(null);
+
 
   useEffect(() => {
     dispatch(fetchLogs());
@@ -89,6 +95,12 @@ const handleClockOut = async () => {
     return format(parseISO(dateString), 'HH:mm');
   };
 
+
+  const todayKey = format(new Date(), 'yyyy-MM-dd');
+const todayStats = dailyStats?.[todayKey] || { sessions: [], totalEffectiveHours: 0, totalGrossHours: 0 };
+const totalSessions = todayStats.sessions.length;
+const totalHours = todayStats.totalEffectiveHours || 0;
+
   const formatDuration = (start, end) => {
     if (!start || !end) return '--:--';
     
@@ -123,6 +135,7 @@ useEffect(() => {
 
   return () => clearInterval(interval);
 }, [dispatch]);
+
 
   return (
     <div className="bg-white rounded-lg shadow-md p-6 mb-6">
@@ -211,28 +224,29 @@ useEffect(() => {
             </div>
           )}
           
-          {dailyStats && (
-            <div className="mt-6 pt-4 border-t border-gray-200">
-              <div className="flex items-center mb-3">
-                <FiCalendar className="text-gray-500 mr-2" />
-                <h3 className="text-md font-medium text-gray-800">Today's Summary</h3>
-              </div>
-              
-              <div className="grid grid-cols-2 gap-2">
-                <div className="bg-gray-50 p-3 rounded-md">
-                  <p className="text-sm text-gray-500">Total Sessions</p>
-                  <p className="font-semibold">{dailyStats.sessionCount || 0}</p>
-                </div>
-                
-                <div className="bg-gray-50 p-3 rounded-md">
-                  <p className="text-sm text-gray-500">Total Hours</p>
-                  <p className="font-semibold">
-                    {dailyStats.totalHours ? `${dailyStats.totalHours.toFixed(2)}h` : '0h'}
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
+         {dailyStats && (
+  <div className="mt-6 pt-4 border-t border-gray-200">
+    <div className="flex items-center mb-3">
+      <FiCalendar className="text-gray-500 mr-2" />
+      <h3 className="text-md font-medium text-gray-800">Today's Summary</h3>
+    </div>
+    
+    <div className="grid grid-cols-2 gap-2">
+      <div className="bg-gray-50 p-3 rounded-md">
+        <p className="text-sm text-gray-500">Total Sessions</p>
+        <p className="font-semibold">{totalSessions}</p>
+      </div>
+      
+      <div className="bg-gray-50 p-3 rounded-md">
+        <p className="text-sm text-gray-500">Total Hours</p>
+        <p className="font-semibold">
+          {totalHours.toFixed(2)}h
+        </p>
+      </div>
+    </div>
+  </div>
+)}
+
         </>
       )}
       

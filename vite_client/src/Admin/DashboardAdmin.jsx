@@ -1,21 +1,20 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-// import AdminLayout from './AdminLayout';
-import AdminLayout from '../Layout/AdminLayout';
 import useGetAllProjects from "../Hooks/useGetAllProjects";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchEmployees } from "../context/employeeSlice";
 
 function DashboardAdmin() {
-  const [projects, setProjects] = useState([]);
+ const projects = useSelector((state) => state.project.allProjects || []);
+// const [projects, setProjects] = useState([]);
+
   const [payrolls, setPayrolls] = useState([]);
   const navigate = useNavigate();
-
-const admin= useSelector((state) => state.auth.user);
-const employeeSelector = useSelector((state) => state.employees.employees.employees || {});
-  useGetAllProjects();
+const admin = useSelector((state) => state.auth.user);
+  // useGetAllProjects();
   const dispatch = useDispatch();
-  const { employee: employeesObj, status, error } = useSelector((state) => state.employees.employees);
+  const employeeSelector = useSelector((state) => state.employees.employees.employees || {});
+  const { employee: employeesObj, status, error } = useSelector((state) => state.employees);
   const employees = employeesObj ? Object.values(employeesObj) : [];
 
   useEffect(() => {
@@ -24,7 +23,7 @@ const employeeSelector = useSelector((state) => state.employees.employees.employ
     }
   }, [status, dispatch]);
 
-   
+
   useEffect(() => {
     const logoutButton = document.querySelector('.logout-button');
     if (logoutButton) {
@@ -105,9 +104,9 @@ const employeeSelector = useSelector((state) => state.employees.employees.employ
                 <tbody>
                   {projects.map((project) => (
                     <tr key={project._id} className="border-b border-gray-200">
-                      <td className="py-3">
+                      {/* <td className="py-3">
                         {project.name} - {project.status} ({project.updatedAt})
-                      </td>
+                      </td> */}
                     </tr>
                   ))}
                 </tbody>

@@ -119,11 +119,7 @@ const attendanceSlice = createSlice({
       state.dailyStats = action.payload.dailyStats || {};
       state.summary = action.payload.summary || {};
       
-      // console.log('Redux state after fetchLogs:', {
-      //   sessions: state.sessions,
-      //   dailyStats: state.dailyStats,
-      //   summary: state.summary
-      // });
+     
     })
       .addCase(fetchLogs.rejected, (state, action) => {
         state.loading = false;
