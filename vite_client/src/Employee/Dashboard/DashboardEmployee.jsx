@@ -112,7 +112,7 @@ const user = useSelector((state) => state.auth.user);
             <div className="bg-emerald-200 rounded-xl p-5 mb-6 flex flex-col md:flex-row justify-between items-center">
                 <div className="flex items-center space-x-4 mb-4 md:mb-0">
                     <img 
-                        src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e" 
+                        src="/Avatar.jpg" 
                         alt="Profile" 
                         className="w-20 h-20 rounded-full object-cover"
                     />

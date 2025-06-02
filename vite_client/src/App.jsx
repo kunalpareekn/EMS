@@ -10,15 +10,15 @@ import EmployeeList from './Admin/EmployeeList'; // Import EmployeeList componen
 import AddProject from './Admin/project/AddProject'; // Import AddProject component
 import ProjectCard from './Admin/project/ProjectCard'; // Import AddProject component
 import EmployeeDetails from './Admin/EmployeeDetail'; // Import EmployeeDetails component
-import ProfileDetails from './Employee/ProfileDetails'; // Import ProfileDetails component
-import ContactDetails from './Employee/ContactDetails';
+import ProfileDetails from './Employee/Profile details/ProfileDetails'; // Import ProfileDetails component
+import ContactDetails from './Employee/Profile details/ContactDetails';
 import ProfileSidebar from './Employee/ProfileSidebar'; // Import ProfileSidebar component
-import NextOfKinDetails from './Employee/NextOfKinDetails';
-import EducationQualifications from './Employee/EducationQualifications';
-import GuarantorDetails from './Employee/GuarantorDetails';
-import FamilyDetails from './Employee/FamilyDetails';
-import JobDetails from "./Employee/JobDetails"
-import FinancialDetails from './Employee/FinancialDetails';
+import NextOfKinDetails from './Employee/Additional details/NextOfKinDetails';
+import EducationQualifications from './Employee/Profile details/EducationQualifications';
+import GuarantorDetails from './Employee/Additional details/GuarantorDetails';
+import FamilyDetails from './Employee/Additional details/FamilyDetails';
+import JobDetails from "./Employee/Additional details/JobDetails"
+import FinancialDetails from './Employee/Profile details/FinancialDetails';
 import DailyReport from './Others/DailyReport'; // Import DailyReport component
 import AttendanceDashboard from './Both/AttendanceDashboard';
 import EmployeePayroll from './Employee/EmployeePayroll';
