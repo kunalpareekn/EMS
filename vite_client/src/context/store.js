@@ -1,4 +1,5 @@
-import { combineReducers, configureStore } from "@reduxjs/toolkit";
+// store.js
+import { configureStore, combineReducers } from "@reduxjs/toolkit";
 import {
   persistStore,
   persistReducer,
@@ -11,16 +12,16 @@ import {
 } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
 
-// Import your reducers
+// Slices
 import authReducer from "./Auth/authSlice";
 import projectReducer from "./projectSlice";
 import employeeReducer from "./employeeSlice";
-import payrollReducer from './payrollSlice';
+import payrollReducer from "./payrollSlice";
 import leaveReducer from "./leaveSlice";
 import employeeLeaveReducer from "./employeeLeaveSlice";
 import attendanceReducer from "./attendanceSlice";
 
-// 1. Combine reducers FIRST
+// Combine reducers
 const rootReducer = combineReducers({
   auth: authReducer,
   project: projectReducer,
@@ -31,17 +32,22 @@ const rootReducer = combineReducers({
   attendance: attendanceReducer,
 });
 
-// 2. THEN apply persistConfig
+// Persistence configuration
 const persistConfig = {
   key: 'root',
+  version: 1,
   storage,
-  whitelist: ['auth', 'employees', 'leave'],
+  // Optional: persist only auth/user data
+  whitelist: ['auth'], // Only persist `auth` slice, for login persistence
+  // OR use `blacklist` if you want to persist everything *except* some slices
+  // blacklist: ['payroll', 'attendance'], 
 };
 
-const persistedReducer = persistReducer(persistConfig, rootReducer); // ✅ Now rootReducer is a function
+// Create persisted reducer
+const persistedReducer = persistReducer(persistConfig, rootReducer);
 
-// 3. Create store
-export const store = configureStore({
+// Configure store
+const store = configureStore({
   reducer: persistedReducer,
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

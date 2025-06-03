@@ -15,42 +15,7 @@ function DashboardEmployee() {
     const [elapsedTime, setElapsedTime] = useState(0);
     const navigate = useNavigate();
 const user = useSelector((state) => state.auth.user);
-    // useEffect(() => {
-    //     const fetchEmployeeDetails = async () => {
-    //         try {
-    //             const token = localStorage.getItem('token');
-    //             const email = localStorage.getItem('email');
-
-    //             if (!token || !email) {
-    //                 setError('User not authenticated.');
-    //                 setLoading(false);
-    //                 return;
-    //             }
-
-    //             const response = await fetch(`/api/employees?email=${encodeURIComponent(email)}`, {
-    //                 method: 'GET',
-    //                 headers: {
-    //                     'Content-Type': 'application/json',
-    //                     Authorization: `Bearer ${token}`,
-    //                 },
-    //             });
-
-    //             const data = await response.json();
-
-    //             if (!response.ok) {
-    //                 throw new Error(data.message || 'Failed to fetch employee profile');
-    //             }
-
-    //             setEmployee(data);
-    //         } catch (err) {
-    //             setError(err.message);
-    //         } finally {
-    //             setLoading(false);
-    //         }
-    //     };
-
-    //     fetchEmployeeDetails();
-    // }, []);
+   
 
     const handleEditProfile = () => navigate('/profile-details');
     const handleViewReport = () => navigate('/attendance');

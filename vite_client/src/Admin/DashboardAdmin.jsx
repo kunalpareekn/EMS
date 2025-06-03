@@ -5,36 +5,33 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchEmployees } from "../context/employeeSlice";
 
 function DashboardAdmin() {
- const projects = useSelector((state) => state.project.allProjects || []);
-// const [projects, setProjects] = useState([]);
-
+  const projects = useSelector((state) => state.project.allProjects || []);
   const [payrolls, setPayrolls] = useState([]);
   const navigate = useNavigate();
-const admin = useSelector((state) => state.auth.user);
-  // useGetAllProjects();
+  const admin = useSelector((state) => state.auth.user);
   const dispatch = useDispatch();
-  const employeeSelector = useSelector((state) => state.employees.employees.employees || {});
-  const { employee: employeesObj, status, error } = useSelector((state) => state.employees);
-  const employees = employeesObj ? Object.values(employeesObj) : [];
+  
+  // Updated employee state selector
+  const { employees, status, error } = useSelector((state) => state.employees);
+  
+  // Get employee count directly from the employees array
+  const employeeCount = employees?.length || 0;
 
+  // Fetch employees on component mount and whenever status changes
   useEffect(() => {
-    if (status === "idle") {
-      dispatch(fetchEmployees());
-    }
-  }, [status, dispatch]);
-
+    dispatch(fetchEmployees());
+  }, [dispatch]);
 
   useEffect(() => {
     const logoutButton = document.querySelector('.logout-button');
     if (logoutButton) {
       logoutButton.addEventListener('click', () => {
-        // Redirect to the login page
         window.location.href = '/login';
       });
     }
   }, []);
-  useGetAllProjects();
 
+  useGetAllProjects();
 
   return (
     <div className="flex min-h-screen">
@@ -71,7 +68,7 @@ const admin = useSelector((state) => state.auth.user);
         <div className="flex gap-4 mb-8">
           <div className="flex-1 bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition-shadow text-center">
             <h3 className="text-gray-600 text-lg mb-2">Employees</h3>
-            <p className="text-gray-800 text-3xl font-bold">{employeeSelector.length}</p>
+            <p className="text-gray-800 text-3xl font-bold">{employeeCount}</p>
           </div>
 
           <div className="flex-1 bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition-shadow text-center">
@@ -104,9 +101,7 @@ const admin = useSelector((state) => state.auth.user);
                 <tbody>
                   {projects.map((project) => (
                     <tr key={project._id} className="border-b border-gray-200">
-                      {/* <td className="py-3">
-                        {project.name} - {project.status} ({project.updatedAt})
-                      </td> */}
+                      {/* Project details here */}
                     </tr>
                   ))}
                 </tbody>
@@ -128,13 +123,13 @@ const admin = useSelector((state) => state.auth.user);
 
             <div className="overflow-x-auto">
               <table className="w-full">
-                <tbody>
-                  {employees.map((emp) => (
-                    <tr key={emp.id} className="border-b border-gray-200">
+                {/* <tbody>
+                  {employees?.map((emp) => (
+                    <tr key={emp._id} className="border-b border-gray-200">
                       <td className="py-3">
                         {emp.name} {emp.lastName} - {emp.position}
                         <button
-                          onClick={() => navigate(`/employee/${emp.id}`)}
+                          onClick={() => navigate(`/employee/${emp._id}`)}
                           className="ml-2 bg-blue-600 text-white py-1 px-3 rounded text-sm"
                         >
                           View Details
@@ -142,7 +137,7 @@ const admin = useSelector((state) => state.auth.user);
                       </td>
                     </tr>
                   ))}
-                </tbody>
+                </tbody> */}
               </table>
             </div>
           </div>
@@ -151,7 +146,6 @@ const admin = useSelector((state) => state.auth.user);
         {/* Payrolls Section */}
         <div className="bg-white p-6 rounded-lg shadow-sm">
           <h2 className="text-xl font-semibold text-gray-800 mb-4">Payrolls</h2>
-
           <div className="overflow-x-auto">
             <table className="w-full">
               <tbody>

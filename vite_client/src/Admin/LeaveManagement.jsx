@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import AdminLayout from '../Layout/AdminLayout';
 import { getAllLeaves, updateLeave } from '../context/leaveSlice';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const LeaveManagement = () => {
   const dispatch = useDispatch();
@@ -19,30 +21,60 @@ const LeaveManagement = () => {
 
   // When admin clicks "View Details"
   const handleViewDetails = (leaveId) => {
-    const leave = leaves.find((l) => l._id === leaveId);
+    const leave = (leaves || []).find((l) => l._id === leaveId);
     setSelectedLeaveDetails(leave);
   };
 
-  const handleApprove = (id) => {
-    dispatch(updateLeave({ id, updatedData: { status: 'approved' } }));
+  const handleApprove = async (id) => {
+    try {
+      await dispatch(updateLeave({ id, updatedData: { status: 'approved' } })).unwrap();
+      toast.success('Leave approved successfully!');
+      dispatch(getAllLeaves()); // Refresh the leaves list
+    } catch (error) {
+      toast.error(`Failed to approve leave: ${error.message}`);
+    }
   };
 
-  const handleReject = (id) => {
-    if (!rejectReason) return;
-    dispatch(updateLeave({ id, updatedData: { status: 'rejected', rejectionReason: rejectReason } }));
-    setRejectReason('');
-    setSelectedLeaveId(null);
-    setSelectedLeaveDetails(null);
+  const handleReject = async (id) => {
+    if (!rejectReason) {
+      toast.warning('Please provide a rejection reason');
+      return;
+    }
+
+    try {
+      await dispatch(updateLeave({ 
+        id, 
+        updatedData: { 
+          status: 'rejected', 
+          rejectionReason: rejectReason 
+        } 
+      })).unwrap();
+      
+      toast.success('Leave rejected successfully!');
+      setRejectReason('');
+      setSelectedLeaveId(null);
+      setSelectedLeaveDetails(null);
+      dispatch(getAllLeaves()); // Refresh the leaves list
+    } catch (error) {
+      toast.error(`Failed to reject leave: ${error.message}`);
+    }
   };
 
-  if (loading)
+  // Filter leaves based on selected status and year
+  const filteredLeaves = (leaves || [])
+    .filter((leave) => filterStatus === 'all' || leave.status === filterStatus)
+    .filter((leave) => new Date(leave.startDate).getFullYear() === filterYear);
+
+  if (loading) {
     return (
       <AdminLayout>
         <div className="text-center py-6">Loading...</div>
       </AdminLayout>
     );
+  }
 
   return (
+    
       <div className="p-6 max-w-7xl mx-auto">
         <h1 className="text-3xl font-bold mb-6">Leave Management</h1>
 
@@ -79,80 +111,98 @@ const LeaveManagement = () => {
           </select>
         </div>
 
+        {/* Empty State */}
+        {filteredLeaves.length === 0 && (
+          <div className="bg-white rounded-lg shadow p-8 text-center">
+            <div className="mx-auto w-24 h-24 text-gray-400 mb-4">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+              </svg>
+            </div>
+            <h3 className="text-xl font-medium text-gray-900 mb-1">
+              {filterStatus === 'pending' 
+                ? 'No pending leaves found' 
+                : filterStatus === 'all'
+                ? 'No leaves found'
+                : `No ${filterStatus} leaves found`}
+            </h3>
+            <p className="text-gray-500">
+              {filterStatus === 'pending'
+                ? 'All pending leave requests have been processed.'
+                : 'There are currently no leave records matching your filters.'}
+            </p>
+          </div>
+        )}
+
         {/* Leave Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-          {leaves
-            .filter((leave) => filterStatus === 'all' || leave.status === filterStatus)
-            .filter(
-              (leave) => new Date(leave.startDate).getFullYear() === filterYear
-            )
-            .map((leave) => (
-              <div
-                key={leave._id}
-                className={`bg-white p-4 rounded shadow border-l-4 ${
-                  leave.status === 'approved'
-                    ? 'border-green-500'
-                    : leave.status === 'rejected'
-                    ? 'border-red-500'
-                    : 'border-yellow-500'
-                }`}
-              >
-                <div className="flex justify-between items-center mb-4">
-                  <div>
-                    <p className="text-sm text-gray-500">Employee</p>
-                    <p className="font-semibold">{leave.employeeName}</p>
-                  </div>
-                  <span
-                    className={`text-xs font-medium px-2 py-1 rounded uppercase ${
-                      leave.status === 'approved'
-                        ? 'bg-green-100 text-green-700'
-                        : leave.status === 'rejected'
-                        ? 'bg-red-100 text-red-700'
-                        : 'bg-yellow-100 text-yellow-700'
-                    }`}
-                  >
-                    {leave.status}
-                  </span>
+          {filteredLeaves.map((leave) => (
+            <div
+              key={leave._id}
+              className={`bg-white p-4 rounded shadow border-l-4 ${
+                leave.status === 'approved'
+                  ? 'border-green-500'
+                  : leave.status === 'rejected'
+                  ? 'border-red-500'
+                  : 'border-yellow-500'
+              }`}
+            >
+              <div className="flex justify-between items-center mb-4">
+                <div>
+                  <p className="text-sm text-gray-500">Employee</p>
+                  <p className="font-semibold">{leave.employeeName}</p>
                 </div>
-                <div className="mb-2">
-                  <p className="text-sm text-gray-500">Type</p>
-                  <p className="capitalize">{leave.leaveType}</p>
-                </div>
-                <div className="mb-2">
-                  <p className="text-sm text-gray-500">From</p>
-                  <p>{new Date(leave.startDate).toLocaleDateString()}</p>
-                </div>
-                <div className="mb-2">
-                  <p className="text-sm text-gray-500">To</p>
-                  <p>{new Date(leave.endDate).toLocaleDateString()}</p>
-                </div>
-
-                <div className="flex gap-2 mt-4">
-                  {leave.status === 'pending' && (
-                    <>
-                      <button
-                        onClick={() => handleApprove(leave._id)}
-                        className="flex-1 bg-green-500 hover:bg-green-600 text-white px-3 py-2 rounded text-sm"
-                      >
-                        Approve
-                      </button>
-                      <button
-                        onClick={() => setSelectedLeaveId(leave._id)}
-                        className="flex-1 bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded text-sm"
-                      >
-                        Reject
-                      </button>
-                    </>
-                  )}
-                  <button
-                    onClick={() => handleViewDetails(leave._id)}
-                    className="flex-1 bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded text-sm"
-                  >
-                    View Details
-                  </button>
-                </div>
+                <span
+                  className={`text-xs font-medium px-2 py-1 rounded uppercase ${
+                    leave.status === 'approved'
+                      ? 'bg-green-100 text-green-700'
+                      : leave.status === 'rejected'
+                      ? 'bg-red-100 text-red-700'
+                      : 'bg-yellow-100 text-yellow-700'
+                  }`}
+                >
+                  {leave.status}
+                </span>
               </div>
-            ))}
+              <div className="mb-2">
+                <p className="text-sm text-gray-500">Type</p>
+                <p className="capitalize">{leave.leaveType}</p>
+              </div>
+              <div className="mb-2">
+                <p className="text-sm text-gray-500">From</p>
+                <p>{new Date(leave.startDate).toLocaleDateString()}</p>
+              </div>
+              <div className="mb-2">
+                <p className="text-sm text-gray-500">To</p>
+                <p>{new Date(leave.endDate).toLocaleDateString()}</p>
+              </div>
+
+              <div className="flex gap-2 mt-4">
+                {leave.status === 'pending' && (
+                  <>
+                    <button
+                      onClick={() => handleApprove(leave._id)}
+                      className="flex-1 bg-green-500 hover:bg-green-600 text-white px-3 py-2 rounded text-sm"
+                    >
+                      Approve
+                    </button>
+                    <button
+                      onClick={() => setSelectedLeaveId(leave._id)}
+                      className="flex-1 bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded text-sm"
+                    >
+                      Reject
+                    </button>
+                  </>
+                )}
+                <button
+                  onClick={() => handleViewDetails(leave._id)}
+                  className="flex-1 bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded text-sm"
+                >
+                  View Details
+                </button>
+              </div>
+            </div>
+          ))}
         </div>
 
         {/* Rejection Modal */}
@@ -198,7 +248,7 @@ const LeaveManagement = () => {
                 <strong>Employee Name:</strong> {selectedLeaveDetails.employeeName}
               </p>
               <p>
-                <strong>Department:</strong> {selectedLeaveDetails.employee.department}
+                <strong>Department:</strong> {selectedLeaveDetails.employee?.department || 'N/A'}
               </p>
               <p>
                 <strong>Leave Type:</strong> {selectedLeaveDetails.leaveType}
@@ -253,6 +303,7 @@ const LeaveManagement = () => {
           </div>
         )}
       </div>
+
   );
 };
 

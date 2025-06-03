@@ -10,6 +10,7 @@ const addNewProject = async (projectData) => {
   console.log("Adding project...", projectData);
 
   try {
+    console.log("Sending project data:", projectData);
     const res = await axios.post(`${ADMIN_PROJECT_ENDPOINT}/create-project`, projectData, {
       withCredentials: true,
     });
