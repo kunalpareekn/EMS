@@ -1,3 +1,4 @@
+// EmployeesPage.js
 import React, { useState, useEffect } from 'react';
 import {
   Table,
@@ -23,18 +24,14 @@ import { fetchEmployees } from '../../context/employeeSlice';
 
 const EmployeesPage = () => {
   const dispatch = useDispatch();
-  const employeesObj = useSelector((state) => state.employees?.employees?.employees || {});
-
-  const employees = employeesObj ? Object.values(employeesObj) : [];
+  const { employees, status, error } = useSelector((state) => state.employees);
   
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
 
   useEffect(() => {
-    if (status === 'idle') {
-      dispatch(fetchEmployees());
-    }
-  }, [status, dispatch]);
+    dispatch(fetchEmployees());
+  }, [dispatch]);
 
   const handleRowClick = (employee) => {
     setSelectedEmployee(employee);
@@ -79,7 +76,7 @@ const EmployeesPage = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {employees.map((employee) => (
+            {employees?.map((employee) => (
               <TableRow 
                 key={employee._id} 
                 hover 
@@ -87,7 +84,7 @@ const EmployeesPage = () => {
                 style={{ cursor: 'pointer' }}
               >
                 <TableCell>{employee.name} {employee.lastName}</TableCell>
-                <TableCell>{employee.jobTitle || employee.jobR1t1a}</TableCell>
+                <TableCell>{employee.jobTitle}</TableCell>
                 <TableCell>{employee.position}</TableCell>
                 <TableCell>{employee.department}</TableCell>
                 <TableCell>
@@ -114,8 +111,8 @@ const EmployeesPage = () => {
                 <strong>Manager:</strong> {selectedEmployee.manager}<br />
                 <strong>Salary:</strong> ${selectedEmployee.salary?.toLocaleString()}<br />
                 <strong>Role:</strong> {selectedEmployee.role}<br />
-                <strong>Job Category:</strong> {selectedEmployee.jobCategory || selectedEmployee.jabCategory}<br />
-                <strong>Job Title:</strong> {selectedEmployee.jobTitle || selectedEmployee.jobR1t1a}<br />
+                <strong>Job Category:</strong> {selectedEmployee.jobCategory}<br />
+                <strong>Job Title:</strong> {selectedEmployee.jobTitle}<br />
                 <strong>Position:</strong> {selectedEmployee.position}<br />
                 <strong>Department:</strong> {selectedEmployee.department}<br />
                 <strong>Status:</strong> 
@@ -125,7 +122,7 @@ const EmployeesPage = () => {
                   size="small"
                   style={{ marginLeft: '8px' }}
                 /><br />
-                <strong>Created At:</strong> {new Date(selectedEmployee.createdAt || selectedEmployee.createable).toLocaleString()}
+                <strong>Created At:</strong> {new Date(selectedEmployee.createdAt).toLocaleString()}
               </DialogContentText>
             </DialogContent>
             <DialogActions>

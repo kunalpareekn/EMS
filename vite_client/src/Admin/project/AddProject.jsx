@@ -13,7 +13,8 @@ import {
   CircularProgress,
   Alert,
   Checkbox,
-  ListItemText
+  ListItemText,
+  Autocomplete
 } from '@mui/material';
 import { useNavigate, Link } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
@@ -24,11 +25,12 @@ function AddProject() {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     
-    // Get employees from Redux store (matching your structure)
-    const employeesObj = useSelector((state) => state.employees?.employees?.employees || {});
-    const employees = employeesObj ? Object.values(employeesObj) : [];
-    const employeesStatus = useSelector((state) => state.employees.status);
-    const employeesError = useSelector((state) => state.employees.error);
+    // Get employees from Redux store (simplified structure)
+    const { employees, status, error: employeesError } = useSelector((state) => ({
+        employees: state.employees.employees || [],
+        status: state.employees.status,
+        error: state.employees.error
+    }));
     
     // Project submission status
     const projectStatus = useSelector((state) => state.project.status);
@@ -43,13 +45,14 @@ function AddProject() {
     });
     
     const [error, setError] = useState('');
+    const [searchTerm, setSearchTerm] = useState('');
 
     // Fetch employees when component mounts
     useEffect(() => {
-        if (employeesStatus === 'idle') {
+        if (status === 'idle') {
             dispatch(fetchEmployees());
         }
-    }, [employeesStatus, dispatch]);
+    }, [status, dispatch]);
 
     const handleChange = (e) => {
         setForm({ ...form, [e.target.name]: e.target.value });
@@ -118,7 +121,12 @@ function AddProject() {
         return employee ? `${employee.name} ${employee.lastName}` : '';
     };
 
-    if (employeesStatus === 'loading') {
+    // Filter employees based on search term
+    const filteredEmployees = employees.filter(employee => 
+        `${employee.name} ${employee.lastName}`.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    if (status === 'loading') {
         return (
             <Box display="flex" justifyContent="center" p={4}>
                 <CircularProgress />
@@ -126,7 +134,7 @@ function AddProject() {
         );
     }
 
-    if (employeesStatus === 'failed') {
+    if (status === 'failed') {
         return (
             <Box p={2}>
                 <Alert severity="error">
@@ -195,36 +203,49 @@ function AddProject() {
                                 />
                             ))}
                         </Box>
-                        <FormControl fullWidth>
-                            <InputLabel>Select Leaders</InputLabel>
-                            <Select
-                                multiple
-                                value={form.projectLeader}
-                                onChange={(e) => {
-                                    // Handle selection changes
-                                    const newLeaders = e.target.value;
-                                    if (newLeaders.length <= 2) {
-                                        setForm({...form, projectLeader: newLeaders});
-                                    } else {
-                                        setError('Maximum 2 leaders can be selected');
-                                    }
-                                }}
-                                renderValue={(selected) => (
-                                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                                        {selected.map((id) => (
-                                            <Chip key={id} label={getEmployeeName(id)} />
-                                        ))}
-                                    </Box>
-                                )}
-                            >
-                                {employees.map((employee) => (
-                                    <MenuItem key={employee._id} value={employee._id}>
-                                        <Checkbox checked={form.projectLeader.includes(employee._id)} />
-                                        <ListItemText primary={`${employee.name} ${employee.lastName}`} />
-                                    </MenuItem>
-                                ))}
-                            </Select>
-                        </FormControl>
+                        <Autocomplete
+                            multiple
+                            options={filteredEmployees}
+                            getOptionLabel={(employee) => `${employee.name} ${employee.lastName}`}
+                            value={employees.filter(emp => form.projectLeader.includes(emp._id))}
+                            onChange={(event, newValue) => {
+                                if (newValue.length <= 2) {
+                                    setForm({
+                                        ...form,
+                                        projectLeader: newValue.map(emp => emp._id)
+                                    });
+                                    setError('');
+                                } else {
+                                    setError('Maximum 2 leaders can be selected');
+                                }
+                            }}
+                            renderInput={(params) => (
+                                <TextField
+                                    {...params}
+                                    label="Search and select leaders"
+                                    placeholder="Type to search employees"
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                />
+                            )}
+                            renderOption={(props, employee, { selected }) => (
+                                <MenuItem {...props} key={employee._id}>
+                                    <Checkbox checked={form.projectLeader.includes(employee._id)} />
+                                    <ListItemText 
+                                        primary={`${employee.name} ${employee.lastName}`}
+                                        secondary={`${employee.position} - ${employee.department}`}
+                                    />
+                                </MenuItem>
+                            )}
+                            renderTags={(value, getTagProps) =>
+                                value.map((employee, index) => (
+                                    <Chip
+                                        {...getTagProps({ index })}
+                                        key={employee._id}
+                                        label={`${employee.name} ${employee.lastName}`}
+                                    />
+                                ))
+                            }
+                        />
                     </Box>
                     
                     {/* Project Members Section */}
@@ -242,28 +263,44 @@ function AddProject() {
                                 />
                             ))}
                         </Box>
-                        <FormControl fullWidth>
-                            <InputLabel>Select Members</InputLabel>
-                            <Select
-                                multiple
-                                value={form.projectMembers}
-                                onChange={(e) => setForm({...form, projectMembers: e.target.value})}
-                                renderValue={(selected) => (
-                                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                                        {selected.map((id) => (
-                                            <Chip key={id} label={getEmployeeName(id)} />
-                                        ))}
-                                    </Box>
-                                )}
-                            >
-                                {employees.map((employee) => (
-                                    <MenuItem key={employee._id} value={employee._id}>
-                                        <Checkbox checked={form.projectMembers.includes(employee._id)} />
-                                        <ListItemText primary={`${employee.name} ${employee.lastName}`} />
-                                    </MenuItem>
-                                ))}
-                            </Select>
-                        </FormControl>
+                        <Autocomplete
+                            multiple
+                            options={filteredEmployees}
+                            getOptionLabel={(employee) => `${employee.name} ${employee.lastName}`}
+                            value={employees.filter(emp => form.projectMembers.includes(emp._id))}
+                            onChange={(event, newValue) => {
+                                setForm({
+                                    ...form,
+                                    projectMembers: newValue.map(emp => emp._id)
+                                });
+                            }}
+                            renderInput={(params) => (
+                                <TextField
+                                    {...params}
+                                    label="Search and select members"
+                                    placeholder="Type to search employees"
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                />
+                            )}
+                            renderOption={(props, employee, { selected }) => (
+                                <MenuItem {...props} key={employee._id}>
+                                    <Checkbox checked={form.projectMembers.includes(employee._id)} />
+                                    <ListItemText 
+                                        primary={`${employee.name} ${employee.lastName}`}
+                                        secondary={`${employee.position} - ${employee.department}`}
+                                    />
+                                </MenuItem>
+                            )}
+                            renderTags={(value, getTagProps) =>
+                                value.map((employee, index) => (
+                                    <Chip
+                                        {...getTagProps({ index })}
+                                        key={employee._id}
+                                        label={`${employee.name} ${employee.lastName}`}
+                                    />
+                                ))
+                            }
+                        />
                     </Box>
                     
                     <Box mt={4} display="flex" justifyContent="space-between">

@@ -3,31 +3,34 @@ import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-route
 import Register from './Auth/Register';
 import Login from './Auth/Login';
 import DashboardAdmin from './Admin/DashboardAdmin';
-import DashboardEmployee from './Employee/DashboardEmployee';
+import DashboardEmployee from './Employee/Dashboard/DashboardEmployee';
 import Header from './Shared/Header'; // Import Header component
 import AddEmployee from './Admin/Employee/AddEmployee'; // Import AddEmployee component
 import EmployeeList from './Admin/EmployeeList'; // Import EmployeeList component
 import AddProject from './Admin/project/AddProject'; // Import AddProject component
 import ProjectCard from './Admin/project/ProjectCard'; // Import AddProject component
 import EmployeeDetails from './Admin/EmployeeDetail'; // Import EmployeeDetails component
-import ProfileDetails from './Employee/ProfileDetails'; // Import ProfileDetails component
-import ContactDetails from './Employee/ContactDetails';
-import ProfileSidebar from './Shared/ProfileSidebar'; // Import ProfileSidebar component
-import NextOfKinDetails from './Employee/NextOfKinDetails';
-import EducationQualifications from './Employee/EducationQualifications';
-import GuarantorDetails from './Employee/GuarantorDetails';
-import FamilyDetails from './Employee/FamilyDetails';
-import JobDetails from "./Employee/JobDetails"
-import FinancialDetails from './Employee/FinancialDetails';
+import ProfileDetails from './Employee/Profile details/ProfileDetails'; // Import ProfileDetails component
+import ContactDetails from './Employee/Profile details/ContactDetails';
+import ProfileSidebar from './Employee/ProfileSidebar'; // Import ProfileSidebar component
+import NextOfKinDetails from './Employee/Additional details/NextOfKinDetails';
+import EducationQualifications from './Employee/Profile details/EducationQualifications';
+import GuarantorDetails from './Employee/Additional details/GuarantorDetails';
+import FamilyDetails from './Employee/Additional details/FamilyDetails';
+import JobDetails from "./Employee/Additional details/JobDetails"
+import FinancialDetails from './Employee/Profile details/FinancialDetails';
 import DailyReport from './Others/DailyReport'; // Import DailyReport component
 import AttendanceDashboard from './Both/AttendanceDashboard';
 import EmployeePayroll from './Employee/EmployeePayroll';
-import Leave from './Others/LeaveApplication';
+import Leave from './Employee/Leave/LeaveApplication';
 import LeaveManagement from './Admin/LeaveManagement';
-import AdminPayroll from './Admin/AdminPayroll';
+import AdminPayroll from './Admin/Payroll/AdminPayroll';
 import ProjectsPage from './Admin/project/Projectpage';
 import ProjectDetailPage from './Admin/project/ProjectDetailPage';
 import EmployeesPage from './Admin/Employee/EmployeesPage';
+import UpdatePayroll from './Admin/Payroll/UpdatePayroll';
+import MyLeavePage from './Employee/Leave/MyLeave';
+import AttendanceStats from './Employee/Attendance/AttendanceStats';
 
 function App() {
     const location = useLocation();
@@ -66,11 +69,11 @@ function App() {
                         <Route path="/dashboard-employee" element={<DashboardEmployee />} />
 
 
+                        <Route path="/add" element={<AddEmployee />} /> {/* Add route for AddEmployee */}
+                        <Route path="/employees" element={<EmployeesPage />} /> {/* Add route for AddEmployee */}
 
 
                         
-                        <Route path="/add" element={<AddEmployee />} /> {/* Add route for AddEmployee */}
-                        <Route path="/employees" element={<EmployeesPage />} /> {/* Add route for AddEmployee */}
                         <Route path="/employee-list" element={<EmployeeList />} /> {/* Add route for EmployeeList */}
                         <Route path="/add-employee" element={<AddEmployee />} /> {/* Add route for AddEmployee */}
                         <Route path="/add-project" element={<AddProject />} /> {/* Add route for AddProject */}
@@ -86,11 +89,15 @@ function App() {
                         <Route path="/job-details" element={<JobDetails />} />
                         <Route path="/financial-details" element={<FinancialDetails />} />
                         <Route path="/leave" element={<Leave />} />
+                        <Route path="/my-leave" element={<MyLeavePage />} />
+                        <Route path="/attendance-stats" element={<AttendanceStats />} />
+
                         <Route path="/leave-management" element={<LeaveManagement />} />
                         <Route path="/daily-report" element={<DailyReport />} /> {/* Add route for DailyReport */}
                         <Route path="/attendance" element={<AttendanceDashboard />} />
                         <Route path="/employee-payroll" element={<EmployeePayroll />} />
                         <Route path="/admin-payroll" element={<AdminPayroll />} />
+                        <Route path="/add-payroll" element={<UpdatePayroll />} />
                     </Routes>
                 </div>
             </div>

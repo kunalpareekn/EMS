@@ -25,9 +25,25 @@ const attendanceSchema = new mongoose.Schema({
         type: Number,
         default: 0,
     },
+    overtimeHours: {
+        type: Number,
+        default: 0,
+    },
     isOnTime: {
         type: Boolean,
         default: true,
+    },
+    isLateArrival: {
+        type: Boolean,
+        default: false,
+    },
+    isEarlyDeparture: {
+        type: Boolean,
+        default: false,
+    },
+    averageWorkHours: {  // Usually calculated from multiple entries
+        type: Number,
+        default: 0,
     },
     workLocation: {
         type: String,
@@ -43,13 +59,36 @@ const attendanceSchema = new mongoose.Schema({
     timestamps: true,
 });
 
-// Calculate hours when clock out is updated
 attendanceSchema.pre("save", function (next) {
-    if (this.clockOut && this.clockIn) {
-        const grossMs = this.clockOut - this.clockIn;
-        this.grossHours = Math.round((grossMs / (1000 * 60 * 60)) * 100) / 100; // Round to 2 decimal places
-        this.effectiveHours = this.grossHours; // You can add logic for breaks/lunch here
+    if (this.clockIn) {
+        const startOfDay = new Date(this.clockIn);
+        startOfDay.setHours(0, 0, 0, 0);
+        this.date = startOfDay;
     }
+
+    if (this.clockIn && this.clockOut) {
+        const durationMs = this.clockOut - this.clockIn;
+        const hours = durationMs / (1000 * 60 * 60);
+        const roundedHours = Math.round(hours * 100) / 100;
+
+        this.grossHours = roundedHours;
+        this.effectiveHours = roundedHours;
+
+        // Mark late if clock-in is after 9:00 AM
+        const nineAM = new Date(this.clockIn);
+        nineAM.setHours(9, 0, 0, 0);
+        this.isLateArrival = this.clockIn > nineAM;
+        this.isOnTime = !this.isLateArrival;
+
+        // Mark early departure if clock-out is before 5:00 PM
+        const fivePM = new Date(this.clockIn);
+        fivePM.setHours(17, 0, 0, 0);
+        this.isEarlyDeparture = this.clockOut < fivePM;
+
+        // Calculate overtime (anything over 8 hrs)
+        this.overtimeHours = roundedHours > 8 ? Math.round((roundedHours - 8) * 100) / 100 : 0;
+    }
+
     next();
 });
 

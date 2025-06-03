@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { setLoading, setUser } from '../context/Auth/authSlice';
-import { toast } from 'sonner';
+import { toast } from 'react-toastify';
 
 function Login() {
     const [form, setForm] = useState({ email: '', password: '' });

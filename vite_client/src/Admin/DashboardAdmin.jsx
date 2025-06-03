@@ -1,55 +1,37 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-// import AdminLayout from './AdminLayout';
-import AdminLayout from '../Layout/AdminLayout';
 import useGetAllProjects from "../Hooks/useGetAllProjects";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchEmployees } from "../context/employeeSlice";
 
 function DashboardAdmin() {
-  const [projects, setProjects] = useState([]);
+  const projects = useSelector((state) => state.project.allProjects || []);
   const [payrolls, setPayrolls] = useState([]);
   const navigate = useNavigate();
-
-  useGetAllProjects();
+  const admin = useSelector((state) => state.auth.user);
   const dispatch = useDispatch();
-  const { employee: employeesObj, status, error } = useSelector((state) => state.employees);
-  const employees = employeesObj ? Object.values(employeesObj) : [];
+  
+  // Updated employee state selector
+  const { employees, status, error } = useSelector((state) => state.employees);
+  
+  // Get employee count directly from the employees array
+  const employeeCount = employees?.length || 0;
 
+  // Fetch employees on component mount and whenever status changes
   useEffect(() => {
-    if (status === "idle") {
-      dispatch(fetchEmployees());
-    }
-  }, [status, dispatch]);
-
-  useEffect(() => {
-    // Fetch employees
-    fetch("/api/employees")
-      .then((res) => res.json())
-      .then((data) => setEmployees(data));
-
-    // Fetch projects
-    fetch("/api/projects")
-      .then((res) => res.json())
-      .then((data) => setProjects(data));
-
-    // Fetch payrolls
-    fetch("/api/payrolls")
-      .then((res) => res.json())
-      .then((data) => setPayrolls(data));
-  }, []);
+    dispatch(fetchEmployees());
+  }, [dispatch]);
 
   useEffect(() => {
     const logoutButton = document.querySelector('.logout-button');
     if (logoutButton) {
       logoutButton.addEventListener('click', () => {
-        // Redirect to the login page
         window.location.href = '/login';
       });
     }
   }, []);
-  useGetAllProjects();
 
+  useGetAllProjects();
 
   return (
     <div className="flex min-h-screen">
@@ -58,7 +40,7 @@ function DashboardAdmin() {
         <div>
           <div className="text-center mb-8">
             <div className="text-4xl mb-2">👨‍💼</div>
-            <h3 className="text-xl font-semibold">Admin Name</h3>
+            <h3 className="text-xl font-semibold">{admin?.name || 'Admin'}</h3>
             <p className="text-gray-400 text-sm">Administrator</p>
           </div>
 
@@ -86,7 +68,7 @@ function DashboardAdmin() {
         <div className="flex gap-4 mb-8">
           <div className="flex-1 bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition-shadow text-center">
             <h3 className="text-gray-600 text-lg mb-2">Employees</h3>
-            <p className="text-gray-800 text-3xl font-bold">{employees.length}</p>
+            <p className="text-gray-800 text-3xl font-bold">{employeeCount}</p>
           </div>
 
           <div className="flex-1 bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition-shadow text-center">
@@ -119,9 +101,7 @@ function DashboardAdmin() {
                 <tbody>
                   {projects.map((project) => (
                     <tr key={project._id} className="border-b border-gray-200">
-                      <td className="py-3">
-                        {project.name} - {project.status} ({project.updatedAt})
-                      </td>
+                      {/* Project details here */}
                     </tr>
                   ))}
                 </tbody>
@@ -143,13 +123,13 @@ function DashboardAdmin() {
 
             <div className="overflow-x-auto">
               <table className="w-full">
-                <tbody>
-                  {employees.map((emp) => (
-                    <tr key={emp.id} className="border-b border-gray-200">
+                {/* <tbody>
+                  {employees?.map((emp) => (
+                    <tr key={emp._id} className="border-b border-gray-200">
                       <td className="py-3">
                         {emp.name} {emp.lastName} - {emp.position}
                         <button
-                          onClick={() => navigate(`/employee/${emp.id}`)}
+                          onClick={() => navigate(`/employee/${emp._id}`)}
                           className="ml-2 bg-blue-600 text-white py-1 px-3 rounded text-sm"
                         >
                           View Details
@@ -157,7 +137,7 @@ function DashboardAdmin() {
                       </td>
                     </tr>
                   ))}
-                </tbody>
+                </tbody> */}
               </table>
             </div>
           </div>
@@ -166,7 +146,6 @@ function DashboardAdmin() {
         {/* Payrolls Section */}
         <div className="bg-white p-6 rounded-lg shadow-sm">
           <h2 className="text-xl font-semibold text-gray-800 mb-4">Payrolls</h2>
-
           <div className="overflow-x-auto">
             <table className="w-full">
               <tbody>

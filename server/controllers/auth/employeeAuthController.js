@@ -4,9 +4,11 @@ import { generateToken } from '../../helpers/utils.js';
 import bcrypt from 'bcryptjs';
 
 // Generate token with employeeId instead of email
+import Payroll from '../../models/payroll.model.js'; // Make sure this path is correct
 
 
 // Register new employee
+
 export const registerEmployee = async (req, res) => {
     try {
         const {
@@ -21,22 +23,22 @@ export const registerEmployee = async (req, res) => {
             return res.status(400).json({ message: 'All fields are required' });
         }
 
-        // Validate enum values
+        // Validate position value
         const validPositions = ["Intern", "Junior", "Mid-Level", "Senior", "Lead", "Supervisor", "Manager", "Director", "VP", "CTO", "CFO", "CEO", "Developer"];
         if (!validPositions.includes(position)) {
             return res.status(400).json({ message: 'Invalid position value' });
         }
 
-        // Check for existing employee
+        // Check if employee already exists
         const existingEmployee = await Employee.findOne({ email });
         if (existingEmployee) {
             return res.status(400).json({ message: 'Email already registered' });
         }
 
-        // Hash password
+        // Hash the password
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        // Create new employee with only the provided fields
+        // Create the employee
         const employee = new Employee({
             name,
             lastName,
@@ -48,11 +50,41 @@ export const registerEmployee = async (req, res) => {
             jobTitle,
             jobCategory,
             salary,
-            role: 'employee' // Default role
+            role: 'employee'
         });
 
         await employee.save();
 
+        // Create associated default payroll
+        const currentDate = new Date();
+        const defaultPayroll = {
+            employeeId: employee._id,
+            month: currentDate.toLocaleString('default', { month: 'long' }),
+            year: currentDate.getFullYear(),
+            basicSalary: salary,
+            earnings: {
+                basicWage: salary,
+                houseRentAllowance: 0,
+                overtime: 0,
+                gratuity: 0,
+                specialAllowance: 0,
+                pfEmployer: 0,
+                esiEmployer: 0
+            },
+            deductions: {
+                pfEmployee: 0,
+                esiEmployee: 0,
+                tax: 0,
+                otherDeductions: 0
+            },
+            ctc: 0,
+            inHandSalary: 0,
+            status: 'Pending'
+        };
+
+        await Payroll.create(defaultPayroll);
+
+        // Generate token and send response
         const token = generateToken(employee._id);
         res.status(201).json({ 
             message: 'Employee registered successfully', 
@@ -61,8 +93,8 @@ export const registerEmployee = async (req, res) => {
                 _id: employee._id,
                 name: employee.name,
                 email: employee.email,
-                position: employee.position
-                // Other fields you want to return
+                position: employee.position,
+                jobTitle: employee.jobTitle
             }
         });
     } catch (error) {
@@ -70,10 +102,12 @@ export const registerEmployee = async (req, res) => {
         res.status(500).json({ 
             message: 'Registration failed',
             error: error.message,
-            ...(error.errors && { detailedErrors: error.errors }) // Mongoose validation errors
+            ...(error.errors && { detailedErrors: error.errors })
         });
     }
 };
+
+
 
 // Login employee
 export const loginEmployee = async (req, res) => {
@@ -106,6 +140,7 @@ export const loginEmployee = async (req, res) => {
                 email: employee.email,
                 position: employee.position,
                 department: employee.department,
+                jobTitle: employee.jobTitle
             },
         });
     } catch (error) {

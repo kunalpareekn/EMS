@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
+import Todo from './Todo';
+import AttendanceBox from '../Attendance/AttendanceBox';
 
 
   
@@ -13,42 +15,7 @@ function DashboardEmployee() {
     const [elapsedTime, setElapsedTime] = useState(0);
     const navigate = useNavigate();
 const user = useSelector((state) => state.auth.user);
-    // useEffect(() => {
-    //     const fetchEmployeeDetails = async () => {
-    //         try {
-    //             const token = localStorage.getItem('token');
-    //             const email = localStorage.getItem('email');
-
-    //             if (!token || !email) {
-    //                 setError('User not authenticated.');
-    //                 setLoading(false);
-    //                 return;
-    //             }
-
-    //             const response = await fetch(`/api/employees?email=${encodeURIComponent(email)}`, {
-    //                 method: 'GET',
-    //                 headers: {
-    //                     'Content-Type': 'application/json',
-    //                     Authorization: `Bearer ${token}`,
-    //                 },
-    //             });
-
-    //             const data = await response.json();
-
-    //             if (!response.ok) {
-    //                 throw new Error(data.message || 'Failed to fetch employee profile');
-    //             }
-
-    //             setEmployee(data);
-    //         } catch (err) {
-    //             setError(err.message);
-    //         } finally {
-    //             setLoading(false);
-    //         }
-    //     };
-
-    //     fetchEmployeeDetails();
-    // }, []);
+   
 
     const handleEditProfile = () => navigate('/profile-details');
     const handleViewReport = () => navigate('/attendance');
@@ -110,13 +77,13 @@ const user = useSelector((state) => state.auth.user);
             <div className="bg-emerald-200 rounded-xl p-5 mb-6 flex flex-col md:flex-row justify-between items-center">
                 <div className="flex items-center space-x-4 mb-4 md:mb-0">
                     <img 
-                        src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e" 
+                        src="/Avatar.jpg" 
                         alt="Profile" 
                         className="w-20 h-20 rounded-full object-cover"
                     />
                     <div>
                         <h2 className="text-xl font-bold text-gray-800"> {user?.name || 'User'}</h2>
-                        <p className="text-gray-600">Salesforce Developer</p>
+                        <p className="text-gray-600">{user?.jobTitle || 'Employee'}</p>
                     </div>
                 </div>
                 <button 
@@ -128,44 +95,7 @@ const user = useSelector((state) => state.auth.user);
             </div>
 
             {/* Check In/Out Section */}
-            <div className="bg-white rounded-xl p-5 mb-6 border-2 border-gray-200 flex flex-col md:flex-row justify-between items-center">
-                <div className="flex flex-col mb-4 md:mb-0">
-                    <p className="text-emerald-400 text-lg">Welcome Back !!!</p>
-                    <h3 className="text-gray-800 text-xl font-semibold">Mr./Ms. {employee?.name || 'Kunal'}</h3>
-                    <img 
-                        src="https://img.icons8.com/ios/100/clock--v1.png" 
-                        alt="Clock Icon" 
-                        className="w-12 h-12 mt-2"
-                    />
-                </div>
-                
-                <div className="flex flex-col items-center">
-                    {!checkInTime ? (
-                        <button 
-                            onClick={handleCheckIn}
-                            className="bg-emerald-400 text-white px-6 py-3 rounded-lg font-medium hover:bg-emerald-500 transition cursor-pointer"
-                        >
-                            Check IN
-                        </button>
-                    ) : (
-                        <>
-                            <button 
-                                onClick={handleCheckOut}
-                                className="bg-emerald-400 text-white px-6 py-3 rounded-lg font-medium hover:bg-emerald-500 transition cursor-pointer"
-                            >
-                                Check Out
-                            </button>
-                            <p className="text-gray-800 text-lg mt-2">Timer: {formatTime(elapsedTime)}</p>
-                        </>
-                    )}
-                    <button 
-                        onClick={handleViewReport}
-                        className="bg-gray-100 text-gray-800 px-4 py-2 rounded-lg font-medium hover:bg-gray-200 transition mt-4"
-                    >
-                        Attendance
-                    </button>
-                </div>
-            </div>
+            <AttendanceBox/>
 
             {/* Main Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -229,24 +159,21 @@ const user = useSelector((state) => state.auth.user);
 
                 {/* Todos Card */}
                 <div className="bg-white rounded-xl p-5 border-2 border-gray-200">
-                    <h3 className="text-lg font-semibold text-gray-800 mb-4">To-dos</h3>
-                    <ul className="space-y-2">
-                        {[
-                            'Complete Onboarding Document Upload',
-                            'Follow up on client documents',
-                            'Design wireframes for LMS',
-                            'Create case study for IT project'
-                        ].map((item, index) => (
-                            <li key={index} className="bg-gray-50 p-3 rounded-lg hover:bg-gray-100 cursor-pointer">
-                                {item}
-                            </li>
-                        ))}
-                    </ul>
+                    <Todo/>
                 </div>
 
                 {/* Leave Management Card */}
                 <div className="bg-white rounded-xl p-5 border-2 border-gray-200">
+                    <div className='flex justify-between gap-4 mb-4'>
                     <h3 className="text-lg font-semibold text-gray-800 mb-4">Leave Management</h3>
+<button 
+                            onClick={() => navigate('/my-leave')}
+                            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition"
+                        >
+                            View Leaves
+                        </button>
+                    </div>
+                    
                     <div className="flex flex-col space-y-4">
                         <button 
                             onClick={() => navigate('/leave')}
@@ -254,10 +181,7 @@ const user = useSelector((state) => state.auth.user);
                         >
                             Apply for Leave
                         </button>
-                        <div className="flex justify-between">
-                            <p className="text-gray-600">Pending Leaves: {employee?.pendingLeaves || 0}</p>
-                            <p className="text-gray-600">Approved Leaves: {employee?.approvedLeaves || 0}</p>
-                        </div>
+                        
                     </div>
                 </div>
             </div>
