@@ -4,7 +4,7 @@ import bodyParser from "body-parser";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import connectDB from "./db/database.js";
-import errorHandler from "../Api/middleware/errorHandler.js";
+import {errorHandler} from "./middlewares/errorHandler.js";
 import { apiLimiter } from "./middlewares/rateLimiter.js";
 import adminRouter from "./routes/Auth/AdminRoutes.js";
 import employeeRouter from "./routes/Auth/EmployeeRoutes.js";
