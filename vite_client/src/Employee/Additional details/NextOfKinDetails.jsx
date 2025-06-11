@@ -1,6 +1,11 @@
 import React, { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { addNextOfKin } from '../../context/employeeDetailsSlice';
 
 function NextOfKinDetails() {
+    const dispatch = useDispatch();
+    const { employee, loading, error: reduxError } = useSelector(state => state.employeeDetails);
+    
     const [formData, setFormData] = useState({
         name: '',
         occupation: '',
@@ -10,63 +15,44 @@ function NextOfKinDetails() {
     });
 
     const [isEditing, setIsEditing] = useState(false);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+    const [localError, setLocalError] = useState(null);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const token = localStorage.getItem('token');
-                const response = await fetch('/api/employees/me', {
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                    },
-                });
-
-                const data = await response.json();
-                if (data?.nextOfKin) {
-                    setFormData(data.nextOfKin);
-                }
-            } catch (error) {
-                setError('Failed to fetch next of kin data.');
-                console.error(error);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchData();
-    }, []);
+        if (employee?.nextOfKin) {
+            setFormData(employee.nextOfKin);
+        }
+    }, [employee]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setFormData((prev) => ({ ...prev, [name]: value }));
+        setFormData(prev => ({ ...prev, [name]: value }));
     };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        try {
-            const token = localStorage.getItem('token');
-            const response = await fetch('/api/employees/me/next-of-kin-details', {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`,
-                },
-                body: JSON.stringify(formData),
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to save next of kin details');
-            }
-
-            alert('Next of kin details updated successfully!');
-            setIsEditing(false);
-        } catch (error) {
-            console.error('Error saving next of kin details:', error);
-            setError('Error saving next of kin details.');
-        }
-    };
+   const handleSubmit = async (e) => {
+  e.preventDefault();
+  setIsSubmitting(true);
+  setLocalError(null);
+  
+  try {
+    const result = await dispatch(addNextOfKin(formData));
+    
+    if (addNextOfKin.fulfilled.match(result)) {
+      setIsEditing(false);
+      // Optional: show success message
+    } else {
+      throw new Error(result.payload || 'Failed to save details');
+    }
+  } catch (error) {
+    setLocalError(error.message);
+    console.error('Submission error:', {
+      error: error.toString(),
+      stack: error.stack
+    });
+  } finally {
+    setIsSubmitting(false);
+  }
+};
 
     if (loading) return <p className="text-center text-gray-500">Loading...</p>;
 
@@ -75,9 +61,9 @@ function NextOfKinDetails() {
             <div className="bg-white p-6 rounded-lg shadow">
                 <h2 className="text-2xl font-semibold mb-4 text-gray-800">Next of Kin Details</h2>
 
-                {error && (
-                    <div className="mb-4 text-red-600 font-medium">
-                        {error}
+                {(reduxError || localError) && (
+                    <div className="mb-4 p-2 text-red-600 bg-red-100 rounded">
+                        {reduxError || localError}
                     </div>
                 )}
 
@@ -105,6 +91,7 @@ function NextOfKinDetails() {
                                 value={formData.name}
                                 onChange={handleChange}
                                 className="w-full border border-gray-300 rounded px-3 py-2"
+                                required
                             />
                         </div>
                         <div>
@@ -115,16 +102,18 @@ function NextOfKinDetails() {
                                 value={formData.occupation}
                                 onChange={handleChange}
                                 className="w-full border border-gray-300 rounded px-3 py-2"
+                                required
                             />
                         </div>
                         <div>
                             <label className="block font-medium text-gray-700 mb-1">Phone Number</label>
                             <input
-                                type="text"
+                                type="tel"
                                 name="phone"
                                 value={formData.phone}
                                 onChange={handleChange}
                                 className="w-full border border-gray-300 rounded px-3 py-2"
+                                required
                             />
                         </div>
                         <div>
@@ -134,6 +123,7 @@ function NextOfKinDetails() {
                                 value={formData.relationship}
                                 onChange={handleChange}
                                 className="w-full border border-gray-300 rounded px-3 py-2"
+                                required
                             >
                                 <option value="Relative">Relative</option>
                                 <option value="Friend">Friend</option>
@@ -147,14 +137,16 @@ function NextOfKinDetails() {
                                 value={formData.address}
                                 onChange={handleChange}
                                 className="w-full border border-gray-300 rounded px-3 py-2 h-24 resize-none"
+                                required
                             />
                         </div>
                         <div className="flex gap-4">
                             <button
                                 type="submit"
-                                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded"
+                                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded disabled:bg-green-400"
+                                disabled={isSubmitting}
                             >
-                                Save
+                                {isSubmitting ? 'Saving...' : 'Save'}
                             </button>
                             <button
                                 type="button"

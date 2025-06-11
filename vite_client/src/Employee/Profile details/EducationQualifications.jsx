@@ -1,92 +1,126 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import {
+  fetchEmployeeDetails,
+  addAcademicRecord,
+  addProfessionalQualification
+} from '../../context/employeeDetailsSlice';
 
 const EducationQualifications = () => {
-    const [academicRecords, setAcademicRecords] = useState([]);
-    const [professionalQualifications, setProfessionalQualifications] = useState([]);
-
+    const dispatch = useDispatch();
+    const { employee, loading, error } = useSelector(state => state.employeeDetails);
+    
     const [academicInput, setAcademicInput] = useState({ institution: '', details: '' });
-    const [professionalInput, setProfessionalInput] = useState({ title: '', organization: '', duration: '', description: '' });
+    const [professionalInput, setProfessionalInput] = useState({ 
+        title: '', 
+        organization: '', 
+        duration: '', 
+        description: '' 
+    });
 
     const [showAcademicForm, setShowAcademicForm] = useState(false);
     const [showProfessionalForm, setShowProfessionalForm] = useState(false);
-
-    const token = localStorage.getItem('token');
-
-    const fetchQualifications = useCallback(async () => {
-        try {
-            const res = await fetch('/api/employees/me', {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            });
-            const data = await res.json();
-            setAcademicRecords(data.academicRecords || []);
-            setProfessionalQualifications(data.professionalQualifications || []);
-        } catch (error) {
-            console.error('Error fetching qualifications:', error);
-        }
-    }, [token]);
+    const [apiError, setApiError] = useState(null);
+    const [successMessage, setSuccessMessage] = useState(null);
 
     useEffect(() => {
-        fetchQualifications();
-    }, [fetchQualifications]);
+        dispatch(fetchEmployeeDetails());
+    }, [dispatch]);
 
-    const handleAddAcademic = async () => {
-        if (!academicInput.institution || !academicInput.details) return;
+const handleAddAcademic = async () => {
+  if (!academicInput.institution || !academicInput.details) {
+    setApiError('Institution and details are required');
+    return;
+  }
 
-        try {
-            const res = await fetch('/api/employees/me/academic-records', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${token}`,
-                },
-                body: JSON.stringify(academicInput),
-            });
+  setApiError(null);
+  setSuccessMessage(null);
 
-            if (!res.ok) throw new Error('Failed to add academic record');
+  try {
+    const result = await dispatch(addAcademicRecord({
+      institution: academicInput.institution,
+      details: academicInput.details
+    }));
 
-            const updated = await res.json();
-            setAcademicRecords(updated.academicRecords || []);
-            setAcademicInput({ institution: '', details: '' });
-            setShowAcademicForm(false);
-        } catch (error) {
-            console.error('Error adding academic record:', error);
-        }
-    };
+    if (addAcademicRecord.fulfilled.match(result)) {
+      setSuccessMessage('Academic record added successfully!');
+      setAcademicInput({ institution: '', details: '' });
+      setShowAcademicForm(false);
+    } else {
+      setApiError(result.payload || 'Failed to add academic record');
+    }
+  } catch (error) {
+    setApiError(error.message);
+  }
+};
 
-    const handleAddProfessional = async () => {
-        if (!professionalInput.title || !professionalInput.duration) return;
+ const handleAddProfessional = async () => {
+  if (!professionalInput.title || !professionalInput.duration) {
+    setApiError('Title and duration are required');
+    return;
+  }
 
-        try {
-            const res = await fetch('/api/employees/me/professional-qualifications', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${token}`,
-                },
-                body: JSON.stringify(professionalInput),
-            });
+  setApiError(null);
+  setSuccessMessage(null);
 
-            if (!res.ok) throw new Error('Failed to add professional qualification');
+  try {
+    const result = await dispatch(addProfessionalQualification({
+      title: professionalInput.title,
+      organization: professionalInput.organization,
+      duration: professionalInput.duration,
+      description: professionalInput.description
+    }));
 
-            const updated = await res.json();
-            setProfessionalQualifications(updated.professionalQualifications || []);
-            setProfessionalInput({ title: '', organization: '', duration: '', description: '' });
-            setShowProfessionalForm(false);
-        } catch (error) {
-            console.error('Error adding professional qualification:', error);
-        }
-    };
+    if (addProfessionalQualification.fulfilled.match(result)) {
+      setSuccessMessage('Professional qualification added successfully!');
+      setProfessionalInput({ 
+        title: '', 
+        organization: '', 
+        duration: '', 
+        description: '' 
+      });
+      setShowProfessionalForm(false);
+      dispatch(fetchEmployeeDetails()); // Refresh data
+    } else {
+      const errorMessage = result.payload || 'Failed to add professional qualification';
+      throw new Error(errorMessage);
+    }
+  } catch (error) {
+    console.error('Detailed error:', {
+      message: error.message,
+      stack: error.stack
+    });
+    setApiError(error.message);
+  }
+};
+
+    if (loading) return <div className="text-center py-8">Loading qualifications...</div>;
 
     return (
         <div className="max-w-2xl mx-auto p-5 bg-gray-50 rounded-lg shadow-sm">
+            {/* Error and Success Messages */}
+            {apiError && (
+                <div className="mb-4 p-4 bg-red-100 border-l-4 border-red-500 text-red-700">
+                    <p>{apiError}</p>
+                </div>
+            )}
+            
+            {successMessage && (
+                <div className="mb-4 p-4 bg-green-100 border-l-4 border-green-500 text-green-700">
+                    <p>{successMessage}</p>
+                </div>
+            )}
+
             {/* Academic Records Section */}
             <div className="mb-8">
                 <div className="flex justify-between items-center mb-4">
                     <h2 className="text-xl font-bold text-gray-800">Academic Records</h2>
                     <button 
-                        onClick={() => setShowAcademicForm(!showAcademicForm)}
+                        onClick={() => {
+                            setShowAcademicForm(!showAcademicForm);
+                            setApiError(null);
+                            setSuccessMessage(null);
+                        }}
                         className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
                     >
                         {showAcademicForm ? 'Cancel' : 'Add Academic Record'}
@@ -110,24 +144,27 @@ const EducationQualifications = () => {
                         <button 
                             onClick={handleAddAcademic}
                             className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+                            disabled={loading}
                         >
-                            Save
+                            {loading ? 'Saving...' : 'Save'}
                         </button>
                     </div>
                 )}
 
-                {academicRecords.length === 0 ? (
-                    <p className="text-center text-gray-500 py-4">No academic records added yet.</p>
-                ) : (
-                    <div className="space-y-4">
-                        {academicRecords.map((record, index) => (
-                            <div key={index} className="bg-white p-4 rounded-lg shadow">
-                                <h3 className="text-lg font-semibold text-gray-800">{record.institution}</h3>
-                                <p className="text-gray-600">{record.details}</p>
-                            </div>
-                        ))}
-                    </div>
-                )}
+               {(!employee?.professionalQualifications || employee.professionalQualifications.length === 0) ? (
+  <p className="text-center text-gray-500 py-4">No professional qualifications added yet.</p>
+) : (
+  <div className="space-y-4">
+    {employee.professionalQualifications?.map((qualification, index) => (
+      <div key={qualification?._id || index} className="bg-white p-4 rounded-lg shadow">
+        <h3 className="text-lg font-semibold text-gray-800">{qualification?.title}</h3>
+        {qualification?.organization && <p className="text-gray-600">{qualification.organization}</p>}
+        <p className="text-gray-600">{qualification?.duration}</p>
+        {qualification?.description && <p className="text-gray-600">{qualification.description}</p>}
+      </div>
+    ))}
+  </div>
+)}
             </div>
 
             {/* Professional Qualifications Section */}
@@ -135,7 +172,11 @@ const EducationQualifications = () => {
                 <div className="flex justify-between items-center mb-4">
                     <h2 className="text-xl font-bold text-gray-800">Professional Qualifications</h2>
                     <button 
-                        onClick={() => setShowProfessionalForm(!showProfessionalForm)}
+                        onClick={() => {
+                            setShowProfessionalForm(!showProfessionalForm);
+                            setApiError(null);
+                            setSuccessMessage(null);
+                        }}
                         className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
                     >
                         {showProfessionalForm ? 'Cancel' : 'Add Professional Qualification'}
@@ -171,18 +212,19 @@ const EducationQualifications = () => {
                         <button 
                             onClick={handleAddProfessional}
                             className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+                            disabled={loading}
                         >
-                            Save
+                            {loading ? 'Saving...' : 'Save'}
                         </button>
                     </div>
                 )}
 
-                {professionalQualifications.length === 0 ? (
+                {(!employee?.professionalQualifications || employee.professionalQualifications.length === 0) ? (
                     <p className="text-center text-gray-500 py-4">No professional qualifications added yet.</p>
                 ) : (
                     <div className="space-y-4">
-                        {professionalQualifications.map((qualification, index) => (
-                            <div key={index} className="bg-white p-4 rounded-lg shadow">
+                        {employee.professionalQualifications.map((qualification, index) => (
+                            <div key={qualification._id || index} className="bg-white p-4 rounded-lg shadow">
                                 <h3 className="text-lg font-semibold text-gray-800">{qualification.title}</h3>
                                 {qualification.organization && <p className="text-gray-600">{qualification.organization}</p>}
                                 <p className="text-gray-600">{qualification.duration}</p>

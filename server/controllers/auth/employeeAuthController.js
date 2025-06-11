@@ -1,7 +1,7 @@
 import Employee from '../../models/employee.model.js';
-import jwt from 'jsonwebtoken';
 import { generateToken } from '../../helpers/utils.js';
 import bcrypt from 'bcryptjs';
+import mongoose from "mongoose";
 
 // Generate token with employeeId instead of email
 import Payroll from '../../models/payroll.model.js'; // Make sure this path is correct
@@ -107,8 +107,6 @@ export const registerEmployee = async (req, res) => {
     }
 };
 
-
-
 // Login employee
 export const loginEmployee = async (req, res) => {
     try {
@@ -163,38 +161,6 @@ export const logoutEmployee = (req, res) => {
     }
 };
 
-// Get the logged-in employee's data
-export const getLoggedInEmployee = async (req, res) => {
-    try {
-        const employee = req.employee; // from authMiddleware
-
-        if (!employee) {
-            return res.status(404).json({ message: 'Employee not found' });
-        }
-
-        res.json(employee);
-    } catch (error) {
-        console.error('Error in getLoggedInEmployee:', error.message);
-        res.status(500).json({ message: 'Server error', error: error.message });
-    }
-};
-
-// Update employee details
-export const updateEmployeeDetails = async (req, res) => {
-    try {
-        const employeeId = req.employee._id; // From authMiddleware
-        const updates = req.body;
-
-        const updatedEmployee = await Employee.findByIdAndUpdate(employeeId, updates, { new: true });
-        if (!updatedEmployee) {
-            return res.status(404).json({ message: 'Employee not found' });
-        }
-
-        res.json(updatedEmployee);
-    } catch (error) {
-        res.status(500).json({ message: 'Error updating employee details', error: error.message });
-    }
-};
 //get all employees
 export const getAllEmployees = async (req, res) => {
     try {
@@ -209,5 +175,50 @@ export const getAllEmployees = async (req, res) => {
     } catch (error) {
         console.error('Error fetching employees:', error);
         res.status(500).json({ message: 'Failed to fetch employees', error: error.message });
+    }
+};
+
+// Update employee active status (Admin only)
+export const updateEmployeeStatus = async (req, res) => {
+    try {
+        // Check if requester is admin
+        if (req.user?.role !== 'admin') {
+            return res.status(403).json({ message: 'Access denied. Admins only.' });
+        }
+
+        const { employeeId } = req.params;
+        const { active } = req.body;
+
+        // Validate input
+        if (typeof active !== 'boolean') {
+            return res.status(400).json({ message: 'Invalid status. Must be true/false.' });
+        }
+
+        if (!mongoose.Types.ObjectId.isValid(employeeId)) {
+            return res.status(400).json({ message: 'Invalid employee ID' });
+        }
+
+        // Update status
+        const updatedEmployee = await Employee.findByIdAndUpdate(
+            employeeId,
+            { active },
+            { new: true, runValidators: true }
+        ).select('-password');
+
+        if (!updatedEmployee) {
+            return res.status(404).json({ message: 'Employee not found' });
+        }
+
+        res.status(200).json({
+            message: `Employee ${active ? 'activated' : 'deactivated'} successfully`,
+            employee: updatedEmployee
+        });
+
+    } catch (error) {
+        console.error('Error updating employee status:', error);
+        res.status(500).json({ 
+            message: 'Failed to update employee status',
+            error: error.message 
+        });
     }
 };

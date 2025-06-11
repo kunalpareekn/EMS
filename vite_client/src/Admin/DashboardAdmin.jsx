@@ -47,7 +47,7 @@ function DashboardAdmin() {
           <div>
             <h4 className="text-lg font-medium mb-2">Menu</h4>
             <ul className="space-y-4">
-              <li><Link to={"/dashboard"} className="flex items-center"><span className="mr-2">📊</span> Dashboard</Link></li>
+              <li><Link to={"/dashboard-admin"} className="flex items-center"><span className="mr-2">📊</span> Dashboard</Link></li>
               <li><Link to={"/employees"} className="flex items-center"><span className="mr-2">👥</span> Employees</Link></li>
               <li><Link to={"/projects"} className="flex items-center"><span className="mr-2">📋</span> Projects</Link></li>
               <li><Link to={"/admin-payroll"} className="flex items-center"><span className="mr-2">💰</span> Payroll</Link></li>

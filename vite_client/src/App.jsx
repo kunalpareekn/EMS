@@ -9,7 +9,7 @@ import AddEmployee from './Admin/Employee/AddEmployee'; // Import AddEmployee co
 import EmployeeList from './Admin/EmployeeList'; // Import EmployeeList component
 import AddProject from './Admin/project/AddProject'; // Import AddProject component
 import ProjectCard from './Admin/project/ProjectCard'; // Import AddProject component
-import EmployeeDetails from './Admin/EmployeeDetail'; // Import EmployeeDetails component
+// import EmployeeDetails from './Admin/EmployeeDetail'; // Import EmployeeDetails component
 import ProfileDetails from './Employee/Profile details/ProfileDetails'; // Import ProfileDetails component
 import ContactDetails from './Employee/Profile details/ContactDetails';
 import ProfileSidebar from './Employee/ProfileSidebar'; // Import ProfileSidebar component
@@ -25,13 +25,14 @@ import EmployeePayroll from './Employee/EmployeePayroll';
 import Leave from './Employee/Leave/LeaveApplication';
 import LeaveManagement from './Admin/LeaveManagement';
 import AdminPayroll from './Admin/Payroll/AdminPayroll';
-import ProjectsPage from './Admin/project/Projectpage';
+import ProjectsPage from './Admin/project/ProjectPage';
 import ProjectDetailPage from './Admin/project/ProjectDetailPage';
 import EmployeesPage from './Admin/Employee/EmployeesPage';
 import UpdatePayroll from './Admin/Payroll/UpdatePayroll';
 import MyLeavePage from './Employee/Leave/MyLeave';
 import AttendanceStats from './Employee/Attendance/AttendanceStats';
-
+import EmployeeDetailsPage from './Admin/Employee/EmployeeDetailsPage';
+import ViewProfile from './Employee/Profile details/ViewProfile';
 function App() {
     const location = useLocation();
     const hideHeaderRoutes = ['/', '/login', '/register']; // Routes where Header and Sidebar should not be shown
@@ -79,7 +80,8 @@ function App() {
                         <Route path="/add-project" element={<AddProject />} /> {/* Add route for AddProject */}
                         <Route path="/projects" element={<ProjectsPage  />} /> {/* Add route for AddProject */}
                         <Route path="/projects/:id" element={<ProjectDetailPage />} />
-                        <Route path="/employee/:id" element={<EmployeeDetails />} /> {/* Add route for EmployeeDetails */}
+                        <Route path="/view-profile" element={<ViewProfile/>}/>
+                        <Route path="/employees/:employeeId" element={<EmployeeDetailsPage />} /> {/* Add route for EmployeeDetails */}
                         <Route path="/contact-details" element={<ContactDetails />} /> {/* Add route for ContactDetails */}
                         <Route path="/profile-details" element={<ProfileDetails />} /> {/* Add route for ProfileDetails */}
                         <Route path="/next-of-kin-details" element={<NextOfKinDetails />} />

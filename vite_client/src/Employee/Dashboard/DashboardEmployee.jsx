@@ -92,6 +92,13 @@ const user = useSelector((state) => state.auth.user);
                 >
                     Edit Profile
                 </button>
+                <Link to="/view-profile">  <button 
+                   
+                    className="bg-gray-800 text-white px-4 py-2 rounded-lg font-medium hover:bg-gray-700 transition"
+                >
+                    View Profile
+                </button>
+                </Link>
             </div>
 
             {/* Check In/Out Section */}

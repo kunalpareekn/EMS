@@ -1,93 +1,62 @@
 import React, { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { updateEmployeeInfo } from '../../context/employeeDetailsSlice';
 
 const ContactDetails = () => {
+    const dispatch = useDispatch();
+    const user = useSelector((state) => state.auth.user);
+    const updatingInfo = useSelector((state) => state.employeeDetails.updatingInfo);
+
     const [formData, setFormData] = useState({
         phone1: '',
         phone2: '',
         personalEmail: '',
-        city: '',
         address: '',
     });
+
     const [isEditing, setIsEditing] = useState(false);
-    const [loading, setLoading] = useState(true);
 
-    // Fetch existing contact details when component mounts
     useEffect(() => {
-        const fetchContactDetails = async () => {
-            try {
-                const response = await fetch('/api/employees/me/contact-details', {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        Authorization: `Bearer ${localStorage.getItem('token')}`,
-                    },
-                });
-
-                if (!response.ok) {
-                    throw new Error('Failed to fetch contact details');
-                }
-
-                const data = await response.json();
-                setFormData({
-                    phone1: data.phone1 || '',
-                    phone2: data.phone2 || '',
-                    personalEmail: data.personalEmail || '',
-                    city: data.city || '',
-                    address: data.address || '',
-                });
-            } catch (error) {
-                console.error(error.message);
-                alert('Could not load contact details');
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchContactDetails();
-    }, []);
+        if (user) {
+            setFormData({
+                phone1: user.phone1 || '',
+                phone2: user.phone2 || '',
+                personalEmail: user.personalEmail || '',
+                address: user.address || '',
+            });
+        }
+    }, [user]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setFormData({ ...formData, [name]: value });
+        setFormData((prev) => ({ ...prev, [name]: value }));
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        const { phone1, personalEmail, address } = formData;
 
-        const { phone1, personalEmail, city, address } = formData;
-        if (!phone1 || !personalEmail || !city || !address) {
+        if (!phone1 || !personalEmail || !address) {
             alert('Please fill in all required fields.');
             return;
         }
 
         try {
-            const response = await fetch('/api/employees/me/contact-details', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${localStorage.getItem('token')}`,
-                },
-                body: JSON.stringify(formData),
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.message || 'Failed to save contact details');
-            }
-
+            await dispatch(updateEmployeeInfo(formData)).unwrap();
             alert('Contact details updated successfully!');
             setIsEditing(false);
-        } catch (error) {
-            console.error('Error:', error.message);
-            alert(error.message);
+        } catch (err) {
+            alert(err?.message || 'Something went wrong.');
         }
     };
 
-    if (loading) return (
-        <div className="flex justify-center items-center p-8">
-            Loading contact details...
-        </div>
-    );
+    if (!user) {
+        return (
+            <div className="flex justify-center items-center p-8">
+                Loading user info...
+            </div>
+        );
+    }
 
     return (
         <div className="max-w-xl mx-auto my-5 p-5 bg-gray-50 rounded-lg shadow-md font-sans">
@@ -97,93 +66,67 @@ const ContactDetails = () => {
                 <form onSubmit={handleSubmit} className="flex flex-col gap-5">
                     <div className="flex flex-wrap -mx-2">
                         <div className="w-1/2 px-2">
-                            <label className="block font-semibold mb-2 text-sm text-gray-700">
-                                Phone Number 1
-                            </label>
+                            <label className="block mb-2 text-sm font-medium text-gray-700">Phone 1</label>
                             <input
                                 type="text"
                                 name="phone1"
                                 value={formData.phone1}
                                 onChange={handleChange}
-                                placeholder="Phone Number 1"
-                                className="w-full p-2.5 border border-gray-300 rounded bg-blue-50 outline-none text-gray-700 text-sm"
+                                className="w-full p-2.5 border rounded bg-blue-50 text-sm"
                             />
                         </div>
                         <div className="w-1/2 px-2">
-                            <label className="block font-semibold mb-2 text-sm text-gray-700">
-                                Phone Number 2
-                            </label>
+                            <label className="block mb-2 text-sm font-medium text-gray-700">Phone 2</label>
                             <input
                                 type="text"
                                 name="phone2"
                                 value={formData.phone2}
                                 onChange={handleChange}
-                                placeholder="Phone Number 2"
-                                className="w-full p-2.5 border border-gray-300 rounded bg-blue-50 outline-none text-gray-700 text-sm"
+                                className="w-full p-2.5 border rounded bg-blue-50 text-sm"
                             />
                         </div>
                     </div>
-                    
+
                     <div>
-                        <label className="block font-semibold mb-2 text-sm text-gray-700">
-                            Personal E-mail Address
-                        </label>
+                        <label className="block mb-2 text-sm font-medium text-gray-700">Personal Email</label>
                         <input
                             type="email"
                             name="personalEmail"
                             value={formData.personalEmail}
                             onChange={handleChange}
-                            placeholder="Personal Email Address"
-                            className="w-full p-2.5 border border-gray-300 rounded bg-blue-50 outline-none text-gray-700 text-sm"
+                            className="w-full p-2.5 border rounded bg-blue-50 text-sm"
                         />
                     </div>
-                    
+
                     <div>
-                        <label className="block font-semibold mb-2 text-sm text-gray-700">
-                            City of Residence
-                        </label>
-                        <input
-                            type="text"
-                            name="city"
-                            value={formData.city}
-                            onChange={handleChange}
-                            placeholder="City of Residence"
-                            className="w-full p-2.5 border border-gray-300 rounded bg-blue-50 outline-none text-gray-700 text-sm"
-                        />
-                    </div>
-                    
-                    <div>
-                        <label className="block font-semibold mb-2 text-sm text-gray-700">
-                            Residential Address
-                        </label>
+                        <label className="block mb-2 text-sm font-medium text-gray-700">Address</label>
                         <textarea
                             name="address"
                             value={formData.address}
                             onChange={handleChange}
-                            placeholder="Residential Address"
-                            className="w-full p-2.5 border border-gray-300 rounded bg-blue-50 outline-none text-gray-700 text-sm resize-none"
-                        ></textarea>
+                            className="w-full p-2.5 border rounded bg-blue-50 text-sm resize-none"
+                        />
                     </div>
-                    
-                    <button 
-                        type="submit" 
-                        className="mt-5 bg-green-400 hover:bg-green-500 text-white font-semibold py-3 px-8 rounded-lg shadow-md transition-colors duration-300 self-start"
+
+                    <button
+                        type="submit"
+                        disabled={updatingInfo}
+                        className="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-6 rounded mt-4"
                     >
-                        Save
+                        {updatingInfo ? 'Saving...' : 'Save'}
                     </button>
                 </form>
             ) : (
                 <>
-                    <div className="space-y-2.5 text-gray-600">
-                        <p><span className="font-bold">Phone Number 1:</span> {formData.phone1}</p>
-                        <p><span className="font-bold">Phone Number 2:</span> {formData.phone2}</p>
-                        <p><span className="font-bold">Personal Email:</span> {formData.personalEmail}</p>
-                        <p><span className="font-bold">City:</span> {formData.city}</p>
-                        <p><span className="font-bold">Address:</span> {formData.address}</p>
+                    <div className="text-gray-700 space-y-2">
+                        <p><strong>Phone 1:</strong> {formData.phone1}</p>
+                        <p><strong>Phone 2:</strong> {formData.phone2}</p>
+                        <p><strong>Personal Email:</strong> {formData.personalEmail}</p>
+                        <p><strong>Address:</strong> {formData.address}</p>
                     </div>
-                    <button 
+                    <button
                         onClick={() => setIsEditing(true)}
-                        className="mt-5 bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2.5 px-4 rounded transition-colors duration-300"
+                        className="mt-5 bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded"
                     >
                         Edit
                     </button>

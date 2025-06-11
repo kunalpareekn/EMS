@@ -15,6 +15,10 @@ export const EMPLOYEE_LEAVE_ENDPOINT="http://localhost:5000/api/v1/employee/leav
 export const EMPLOYEE_ATTENDANCE_ENDPOINT="http://localhost:5000/api/v1/employee/attendance"
 
 
+//==================Both===================//
+export const BOTH_PROFILE_ENDPOINT="http://localhost:5000/api/v1/both/profile-details"
+
+
 
 
 

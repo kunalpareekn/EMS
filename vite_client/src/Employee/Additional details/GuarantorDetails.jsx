@@ -1,66 +1,32 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { addGuarantor } from '../../context/employeeDetailsSlice'; // Adjust path as needed
 
 const GuarantorDetails = () => {
+  const dispatch = useDispatch();
+  const { employee, updatingGuarantor } = useSelector((state) => state.employeeDetails);
+
+  const guarantorDetails = employee?.guarantors?.[0] || {}; // Assuming single guarantor
+
   const [guarantor, setGuarantor] = useState({
-    name: '',
-    occupation: '',
-    phone: ''
+    name: guarantorDetails?.name || '',
+    occupation: guarantorDetails?.occupation || '',
+    phone: guarantorDetails?.phone || '',
+    relationship: guarantorDetails?.relationship || '',
+    address: guarantorDetails?.address || ''
   });
 
   const [editMode, setEditMode] = useState(false);
-  const token = localStorage.getItem('token');
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setGuarantor({ ...guarantor, [name]: value });
   };
 
-  const fetchGuarantorDetails = useCallback(async () => {
-    try {
-      const response = await fetch('/api/employees/me', {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      const data = await response.json();
-      const guar = data.guarantorDetails || data.guarantor;
-      if (guar) {
-        setGuarantor(guar);
-      }
-    } catch (error) {
-      console.error('Failed to load guarantor details:', error);
-    }
-  }, [token]);
-
-  const handleUpdate = async () => {
-    try {
-      const response = await fetch('/api/employees/me/guarantor-details', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(guarantor)
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to save guarantor details');
-      }
-
-      await response.json();
-      alert('Guarantor details updated successfully!');
-      setEditMode(false);
-    } catch (error) {
-      console.error('Error saving guarantor details:', error);
-      alert('Error saving guarantor details');
-    }
+  const handleUpdate = () => {
+    dispatch(addGuarantor(guarantor));
+    setEditMode(false);
   };
-
-  useEffect(() => {
-    fetchGuarantorDetails();
-  }, [fetchGuarantorDetails]);
 
   return (
     <div className="max-w-xl mx-auto p-6 mt-10 bg-gray-100 rounded-lg shadow-md">
@@ -68,9 +34,11 @@ const GuarantorDetails = () => {
 
       {!editMode ? (
         <div className="space-y-3">
-          <p><strong>Name:</strong> {guarantor.name || '-'}</p>
-          <p><strong>Occupation:</strong> {guarantor.occupation || '-'}</p>
-          <p><strong>Phone:</strong> {guarantor.phone || '-'}</p>
+          <p><strong>Name:</strong> {guarantorDetails?.name || '-'}</p>
+          <p><strong>Occupation:</strong> {guarantorDetails?.occupation || '-'}</p>
+          <p><strong>Phone:</strong> {guarantorDetails?.phone || '-'}</p>
+          <p><strong>Relationship:</strong> {guarantorDetails?.relationship || '-'}</p>
+          <p><strong>Address:</strong> {guarantorDetails?.address || '-'}</p>
           <button
             className="bg-blue-600 text-white px-5 py-2 mt-4 rounded hover:bg-blue-700 transition"
             onClick={() => setEditMode(true)}
@@ -80,20 +48,16 @@ const GuarantorDetails = () => {
         </div>
       ) : (
         <>
-          {[
-            { label: 'Name', name: 'name' },
-            { label: 'Occupation', name: 'occupation' },
-            { label: 'Phone', name: 'phone' }
-          ].map(({ label, name }) => (
-            <div key={name} className="mb-4">
-              <label className="block font-medium text-gray-700 mb-1">{label}</label>
+          {[ 'name', 'occupation', 'phone', 'relationship', 'address' ].map((field) => (
+            <div key={field} className="mb-4">
+              <label className="block font-medium text-gray-700 mb-1 capitalize">{field}</label>
               <input
                 type="text"
-                name={name}
-                value={guarantor[name]}
+                name={field}
+                value={guarantor[field]}
                 onChange={handleChange}
                 className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-                placeholder={label}
+                placeholder={field}
               />
             </div>
           ))}
@@ -102,8 +66,9 @@ const GuarantorDetails = () => {
             <button
               className="bg-green-600 text-white px-5 py-2 rounded hover:bg-green-700 transition"
               onClick={handleUpdate}
+              disabled={updatingGuarantor}
             >
-              Save
+              {updatingGuarantor ? 'Saving...' : 'Save'}
             </button>
             <button
               className="bg-red-600 text-white px-5 py-2 rounded hover:bg-red-700 transition"

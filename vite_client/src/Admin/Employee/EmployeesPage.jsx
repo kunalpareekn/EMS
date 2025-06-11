@@ -9,37 +9,25 @@ import {
   TableRow,
   Paper,
   Chip,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogContentText,
-  DialogActions,
-  Button,
   CircularProgress,
   Box,
   Alert
 } from '@mui/material';
 import { useSelector, useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import { fetchEmployees } from '../../context/employeeSlice';
 
 const EmployeesPage = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { employees, status, error } = useSelector((state) => state.employees);
-  
-  const [openDialog, setOpenDialog] = useState(false);
-  const [selectedEmployee, setSelectedEmployee] = useState(null);
 
   useEffect(() => {
     dispatch(fetchEmployees());
   }, [dispatch]);
 
-  const handleRowClick = (employee) => {
-    setSelectedEmployee(employee);
-    setOpenDialog(true);
-  };
-
-  const handleCloseDialog = () => {
-    setOpenDialog(false);
+  const handleRowClick = (employeeId) => {
+    navigate(`/employees/${employeeId}`);
   };
 
   if (status === 'loading') {
@@ -80,7 +68,7 @@ const EmployeesPage = () => {
               <TableRow 
                 key={employee._id} 
                 hover 
-                onClick={() => handleRowClick(employee)}
+                onClick={() => handleRowClick(employee._id)}
                 style={{ cursor: 'pointer' }}
               >
                 <TableCell>{employee.name} {employee.lastName}</TableCell>
@@ -99,38 +87,6 @@ const EmployeesPage = () => {
           </TableBody>
         </Table>
       </TableContainer>
-
-      <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
-        {selectedEmployee && (
-          <>
-            <DialogTitle>Employee Details</DialogTitle>
-            <DialogContent>
-              <DialogContentText component="div">
-                <strong>Full Name:</strong> {selectedEmployee.name} {selectedEmployee.lastName}<br />
-                <strong>Email:</strong> {selectedEmployee.email}<br />
-                <strong>Manager:</strong> {selectedEmployee.manager}<br />
-                <strong>Salary:</strong> ${selectedEmployee.salary?.toLocaleString()}<br />
-                <strong>Role:</strong> {selectedEmployee.role}<br />
-                <strong>Job Category:</strong> {selectedEmployee.jobCategory}<br />
-                <strong>Job Title:</strong> {selectedEmployee.jobTitle}<br />
-                <strong>Position:</strong> {selectedEmployee.position}<br />
-                <strong>Department:</strong> {selectedEmployee.department}<br />
-                <strong>Status:</strong> 
-                <Chip 
-                  label={selectedEmployee.active ? 'Active' : 'Inactive'} 
-                  color={selectedEmployee.active ? 'success' : 'error'} 
-                  size="small"
-                  style={{ marginLeft: '8px' }}
-                /><br />
-                <strong>Created At:</strong> {new Date(selectedEmployee.createdAt).toLocaleString()}
-              </DialogContentText>
-            </DialogContent>
-            <DialogActions>
-              <Button onClick={handleCloseDialog} color="primary">Close</Button>
-            </DialogActions>
-          </>
-        )}
-      </Dialog>
     </div>
   );
 };

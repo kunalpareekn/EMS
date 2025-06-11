@@ -4,7 +4,7 @@ import bodyParser from "body-parser";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import connectDB from "./db/database.js";
-import errorHandler from "../Api/middleware/errorHandler.js";
+import {errorHandler} from "./middlewares/errorHandler.js";
 import { apiLimiter } from "./middlewares/rateLimiter.js";
 import adminRouter from "./routes/Auth/AdminRoutes.js";
 import employeeRouter from "./routes/Auth/EmployeeRoutes.js";
@@ -13,8 +13,9 @@ import leaveAdminRouter from "./routes/Admin/LeaveAdminRoutes.js"
 import projectRouter from "./routes/Admin/ProjectsRoutes.js"
 import attendanceRouter from "./routes/Employee/AttendaceRoutes.js"
 import payrollRouter from "./routes/Admin/PayrollRoutes.js"
-
-
+import profileDetailsRouter from "./routes/Employee/ProfileDetailsRoutes.js"
+import notificationRouter from "./routes/Admin/NotificationRoutes.js"
+import uploadRouter from "./routes/Both/UploadRoutes.js"
 
 const app  = express();
 
@@ -42,20 +43,25 @@ app.use(cors({
 
 
 
-//routes -------- ADMIN ROUTES-------------
+// -------- ADMIN ROUTES-------------
 app.use("/api/v1/admin/auth",adminRouter);
 app.use("/api/v1/admin/leave",leaveAdminRouter);
 app.use("/api/v1/admin/project",projectRouter);
 app.use("/api/v1/admin/payroll",payrollRouter);
+ 
+// app.use("/api/v1/admin/profile-details",profileDetailsRouter);
 
-//routes -------- EMPLOYEE ROUTES-------------
+// -------- EMPLOYEE ROUTES-------------
 app.use("/api/v1/employee/auth",employeeRouter);
 app.use("/api/v1/employee/leave",leaveEmployeeRouter);
 app.use("/api/v1/employee/attendance",attendanceRouter);
+ 
 
 
-
-
+// ----------------BOTH ROUTES ---------------
+app.use("/api/v1/both/notification",notificationRouter);
+app.use("/api/v1/both/profile-details",profileDetailsRouter);
+app.use("/api/v1/both/document",uploadRouter);
 
 
 

@@ -1,3 +1,4 @@
+// projectSlice.js
 import { createSlice } from "@reduxjs/toolkit";
 
 const projectSlice = createSlice({
@@ -14,20 +15,48 @@ const projectSlice = createSlice({
 
     // Add a single new project
     addProject: (state, action) => {
-  console.log("Added project:", action.payload);
+      console.log("Added project:", action.payload);
+      const normalizedProject = {
+        ...action.payload,
+        projectLeader: Array.isArray(action.payload.projectLeader)
+          ? action.payload.projectLeader.map(p => p._id)
+          : [action.payload.projectLeader._id],
+        projectMembers: action.payload.projectMembers.map(member => member._id),
+      };
+      state.allProjects.unshift(normalizedProject);
+    },
 
-  const normalizedProject = {
-    ...action.payload,
-    projectLeader: Array.isArray(action.payload.projectLeader)
-      ? action.payload.projectLeader.map(p => p._id)
-      : [action.payload.projectLeader._id], // handles single object
-    projectMembers: action.payload.projectMembers.map(member => member._id),
-  };
+    // Update a project
+    updateProject: (state, action) => {
+      console.log("Updated project:", action.payload);
+      const { _id } = action.payload;
+      const index = state.allProjects.findIndex(project => project._id === _id);
+      if (index !== -1) {
+        const normalizedProject = {
+          ...action.payload,
+          projectLeader: Array.isArray(action.payload.projectLeader)
+            ? action.payload.projectLeader.map(p => p._id)
+            : [action.payload.projectLeader._id],
+          projectMembers: action.payload.projectMembers.map(member => member._id),
+        };
+        state.allProjects[index] = normalizedProject;
+      }
+    },
 
-  state.allProjects.unshift(normalizedProject);
-},
+    // Delete a project
+    deleteProject: (state, action) => {
+      console.log("Deleted project ID:", action.payload);
+      state.allProjects = state.allProjects.filter(
+        project => project._id !== action.payload
+      );
+    },
   },
 });
 
-export const { setAllProjects, addProject } = projectSlice.actions;
+export const { 
+  setAllProjects, 
+  addProject,
+  updateProject,
+  deleteProject 
+} = projectSlice.actions;
 export default projectSlice.reducer;

@@ -20,6 +20,7 @@ import payrollReducer from "./payrollSlice";
 import leaveReducer from "./leaveSlice";
 import employeeLeaveReducer from "./employeeLeaveSlice";
 import attendanceReducer from "./attendanceSlice";
+import employeeDetailsReducer from './employeeDetailsSlice';
 
 // Combine reducers
 const rootReducer = combineReducers({
@@ -30,6 +31,7 @@ const rootReducer = combineReducers({
   leave: leaveReducer,
   employeeLeave: employeeLeaveReducer,
   attendance: attendanceReducer,
+  employeeDetails: employeeDetailsReducer,
 });
 
 // Persistence configuration

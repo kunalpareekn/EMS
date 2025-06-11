@@ -54,7 +54,6 @@ const handleClockIn = async () => {
       return;
     }
 
-    console.log('Attempting to clock in with location:', workLocation);
     const result = await dispatch(clockIn({ workLocation })).unwrap();
     showNotification('Checked in successfully!', 'success');
     // Refresh the list after successful clock-in
@@ -118,8 +117,6 @@ useEffect(() => {
   const initializeAttendance = async () => {
     try {
       const result = await dispatch(fetchLogs()).unwrap();
-      console.log('Initial sessions from API:', result.sessions);
-      console.log('Redux state sessions:', store.getState().attendance.sessions);
     } catch (err) {
       console.error('Initial load error:', err);
     }
