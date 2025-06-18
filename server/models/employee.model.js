@@ -117,7 +117,11 @@ const employeeSchema = new mongoose.Schema({
         ifsc: { type: String },
         accountNo: { type: String },
         accountName: { type: String }
-    },
+    }, mustResetPassword: {
+        type: Boolean,
+        default: true
+    }
+    ,
 
     active: { type: Boolean, default: true }
 }, { timestamps: true });

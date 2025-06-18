@@ -1,84 +1,209 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { addGuarantor } from '../../context/employeeDetailsSlice'; // Adjust path as needed
+import { fetchEmployeeOwnInfo, addGuarantor } from '../../context/employeeDetailsSlice';
 
 const GuarantorDetails = () => {
   const dispatch = useDispatch();
-  const { employee, updatingGuarantor } = useSelector((state) => state.employeeDetails);
+  const {
+    employee,
+    loading,
+    error: reduxError,
+    addingGuarantor
+  } = useSelector(state => state.employeeDetails);
 
-  const guarantorDetails = employee?.guarantors?.[0] || {}; // Assuming single guarantor
-
-  const [guarantor, setGuarantor] = useState({
-    name: guarantorDetails?.name || '',
-    occupation: guarantorDetails?.occupation || '',
-    phone: guarantorDetails?.phone || '',
-    relationship: guarantorDetails?.relationship || '',
-    address: guarantorDetails?.address || ''
+  const [formData, setFormData] = useState({
+    name: '',
+    occupation: '',
+    phoneNumber: '',  // Changed from 'phone' to 'phoneNumber'
+    relationship: 'Relative',
+    address: '',
   });
 
-  const [editMode, setEditMode] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [localError, setLocalError] = useState(null);
+
+  useEffect(() => {
+    dispatch(fetchEmployeeOwnInfo());
+  }, [dispatch]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setGuarantor({ ...guarantor, [name]: value });
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLocalError(null);
 
-  const handleUpdate = () => {
-    dispatch(addGuarantor(guarantor));
-    setEditMode(false);
+    // Validate required fields
+    if (!formData.name || !formData.occupation || !formData.phoneNumber) {
+      setLocalError('Name, occupation and phone number are required');
+      return;
+    }
+
+    // Phone number validation
+    if (!/^\d{10,15}$/.test(formData.phoneNumber)) {
+      setLocalError('Phone number must be 10-15 digits');
+      return;
+    }
+
+    try {
+      const result = await dispatch(addGuarantor({
+        name: formData.name,
+        occupation: formData.occupation,
+        phoneNumber: formData.phoneNumber,
+        relationship: formData.relationship,
+        address: formData.address
+      }));
+
+      if (addGuarantor.fulfilled.match(result)) {
+        setIsEditing(false);
+        dispatch(fetchEmployeeOwnInfo());
+      } else {
+        throw new Error(result.payload || 'Failed to save guarantor details');
+      }
+    } catch (error) {
+      setLocalError(error.message.replace('phone', 'phone number'));
+    }
   };
 
   return (
-    <div className="max-w-xl mx-auto p-6 mt-10 bg-gray-100 rounded-lg shadow-md">
-      <h2 className="text-2xl font-semibold text-gray-800 mb-6 text-center">Guarantor Details</h2>
+    <div className="max-w-2xl mx-auto p-6 bg-gray-50 rounded-lg shadow-md mt-8">
+      <div className="bg-white p-6 rounded-lg shadow">
+        <h2 className="text-2xl font-semibold mb-4 text-gray-800">Guarantor Details</h2>
 
-      {!editMode ? (
-        <div className="space-y-3">
-          <p><strong>Name:</strong> {guarantorDetails?.name || '-'}</p>
-          <p><strong>Occupation:</strong> {guarantorDetails?.occupation || '-'}</p>
-          <p><strong>Phone:</strong> {guarantorDetails?.phone || '-'}</p>
-          <p><strong>Relationship:</strong> {guarantorDetails?.relationship || '-'}</p>
-          <p><strong>Address:</strong> {guarantorDetails?.address || '-'}</p>
-          <button
-            className="bg-blue-600 text-white px-5 py-2 mt-4 rounded hover:bg-blue-700 transition"
-            onClick={() => setEditMode(true)}
-          >
-            Edit
-          </button>
-        </div>
-      ) : (
-        <>
-          {[ 'name', 'occupation', 'phone', 'relationship', 'address' ].map((field) => (
-            <div key={field} className="mb-4">
-              <label className="block font-medium text-gray-700 mb-1 capitalize">{field}</label>
-              <input
-                type="text"
-                name={field}
-                value={guarantor[field]}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-                placeholder={field}
-              />
-            </div>
-          ))}
+        {(reduxError || localError) && (
+          <div className="mb-4 p-2 text-red-600 bg-red-100 rounded">
+            {reduxError || localError}
+          </div>
+        )}
 
-          <div className="flex gap-4 mt-4">
+        {!isEditing ? (
+          <div className="space-y-6">
+            {employee?.guarantors?.length > 0 ? (
+              employee.guarantors.map((guarantor, index) => (
+                <div key={guarantor._id || index} className="border-b pb-4">
+                  <div className="space-y-2">
+                    <p><strong>Name:</strong> {guarantor.name}</p>
+                    <p><strong>Occupation:</strong> {guarantor.occupation}</p>
+                    <p><strong>Phone:</strong> {guarantor.phoneNumber}</p>
+                    <p><strong>Relationship:</strong> {guarantor.relationship}</p>
+                    <p><strong>Address:</strong> {guarantor.address.split('\n').map((line, i) => (
+                      <span key={i}>{line}<br /></span>
+                    ))}</p>
+                  </div>
+                  <button
+                    onClick={() => {
+                      setFormData({
+                        name: guarantor.name,
+                        occupation: guarantor.occupation,
+                        phoneNumber: guarantor.phoneNumber,
+                        relationship: guarantor.relationship,
+                        address: guarantor.address
+                      });
+                      setIsEditing(true);
+                    }}
+                    className="mt-3 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm"
+                  >
+                    Edit
+                  </button>
+                </div>
+              ))
+            ) : (
+              <p className="text-gray-500">No guarantor details available</p>
+            )}
+
             <button
-              className="bg-green-600 text-white px-5 py-2 rounded hover:bg-green-700 transition"
-              onClick={handleUpdate}
-              disabled={updatingGuarantor}
+              onClick={() => setIsEditing(true)}
+              className="mt-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
             >
-              {updatingGuarantor ? 'Saving...' : 'Save'}
-            </button>
-            <button
-              className="bg-red-600 text-white px-5 py-2 rounded hover:bg-red-700 transition"
-              onClick={() => setEditMode(false)}
-            >
-              Cancel
+              Add New Guarantor
             </button>
           </div>
-        </>
-      )}
+        ) : (
+          <form className="space-y-4" onSubmit={handleSubmit}>
+            <h3 className="text-lg font-medium">
+              {isEditing ? 'Edit Guarantor' : 'Add New Guarantor'}
+            </h3>
+
+            <div>
+              <label className="block font-medium text-gray-700 mb-1">Name*</label>
+              <input
+                type="text"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                className="w-full border border-gray-300 rounded px-3 py-2"
+                required
+              />
+            </div>
+            <div>
+              <label className="block font-medium text-gray-700 mb-1">Occupation*</label>
+              <input
+                type="text"
+                name="occupation"
+                value={formData.occupation}
+                onChange={handleChange}
+                className="w-full border border-gray-300 rounded px-3 py-2"
+                required
+              />
+            </div>
+            <div>
+              <label className="block font-medium text-gray-700 mb-1">Phone Number*</label>
+              <input
+                type="tel"
+                name="phoneNumber"  // Keep as phoneNumber in form state
+                value={formData.phoneNumber}
+                onChange={handleChange}
+                className="w-full border border-gray-300 rounded px-3 py-2"
+                required
+              />
+            </div>
+            <div>
+              <label className="block font-medium text-gray-700 mb-1">Relationship*</label>
+              <select
+                name="relationship"
+                value={formData.relationship}
+                onChange={handleChange}
+                className="w-full border border-gray-300 rounded px-3 py-2"
+                required
+              >
+                <option value="Relative">Relative</option>
+                <option value="Friend">Friend</option>
+                <option value="Colleague">Colleague</option>
+                <option value="Spouse">Spouse</option>
+                <option value="Parent">Parent</option>
+                <option value="Sibling">Sibling</option>
+              </select>
+            </div>
+            <div>
+              <label className="block font-medium text-gray-700 mb-1">Address*</label>
+              <textarea
+                name="address"
+                value={formData.address}
+                onChange={handleChange}
+                className="w-full border border-gray-300 rounded px-3 py-2 h-24 resize-none"
+                required
+              />
+            </div>
+            <div className="flex gap-4">
+              <button
+                type="submit"
+                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded disabled:bg-green-400"
+                disabled={addingGuarantor || !formData.name || !formData.occupation || !formData.phoneNumber}
+              >
+                {addingGuarantor ? 'Saving...' : 'Save'}
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsEditing(false)}
+                className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded"
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
+        )}
+      </div>
     </div>
   );
 };

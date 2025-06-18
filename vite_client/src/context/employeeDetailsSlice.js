@@ -87,46 +87,28 @@ export const addAcademicRecord = createAsyncThunk(
 // Async thunk for adding guarantor details
 export const addGuarantor = createAsyncThunk(
   'employeeDetails/addGuarantor',
-  async (guarantorData, { rejectWithValue, getState }) => {
+  async (guarantorData, { rejectWithValue }) => {
     try {
-      const token = localStorage.getItem('token');
-      
-      // Transform the data to match backend expectations
-  const backendData = {
-  name: guarantorData.name,
-  occupation: guarantorData.occupation,
-  phoneNumber: guarantorData.phone,
-  relationship: guarantorData.relationship,
-  address: guarantorData.address
-};
+      // Transform data to match backend expectations
+      const backendData = {
+        name: guarantorData.name,
+        occupation: guarantorData.occupation,
+        phone: guarantorData.phoneNumber, // Map phoneNumber to phone
+        relationship: guarantorData.relationship,
+        address: guarantorData.address
+      };
 
       const response = await axios.post(
         `${BOTH_PROFILE_ENDPOINT}/add-guarantor-detail`,
-        backendData, // Use the transformed data
-        {
-          withCredentials: true,
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          }
-        }
+        backendData,
+        { withCredentials: true }
       );
       return response.data.guarantors;
     } catch (error) {
-      console.error('Guarantor Error Details:', {
-        status: error.response?.status,
-        data: error.response?.data,
-        config: error.response?.config
-      });
-      return rejectWithValue(
-        error.response?.data?.message || 
-        error.response?.data?.error || 
-        'Failed to add guarantor'
-      );
+      return rejectWithValue(error.response?.data?.message || 'Failed to add guarantor');
     }
   }
 );
-
 // Async thunk for adding professional qualification
 export const addProfessionalQualification = createAsyncThunk(
   'employeeDetails/addProfessionalQualification',
@@ -164,32 +146,22 @@ export const addProfessionalQualification = createAsyncThunk(
 // Async thunk for adding next of kin
 export const addNextOfKin = createAsyncThunk(
   'employeeDetails/addNextOfKin',
-  async (nextOfKinData, { rejectWithValue, getState }) => {
+  async (nextOfKinData, { rejectWithValue }) => {
     try {
-      const token = localStorage.getItem('token'); // Get token from storage
-      const { employee } = getState().employeeDetails;
-
       const response = await axios.post(
-        `${BOTH_PROFILE_ENDPOINT}/add-nok-detail`,
+        `${BOTH_PROFILE_ENDPOINT}/add-nok-detail`, // Ensure this is employee endpoint
         nextOfKinData,
         {
+          withCredentials: true, // Crucial for cookie-based auth
           headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}` // Add auth header
-          },
-          withCredentials: true
+            'Content-Type': 'application/json'
+          }
         }
       );
-
-      return {
-        ...employee,
-        nextOfKin: response.data.nextOfKin // Ensure this matches your API response
-      };
+      return response.data.nextOfKin;
     } catch (error) {
-      console.error('API Error:', error.response?.data);
       return rejectWithValue(
-        error.response?.data?.message ||
-        error.message ||
+        error.response?.data?.message || 
         'Failed to add next of kin'
       );
     }

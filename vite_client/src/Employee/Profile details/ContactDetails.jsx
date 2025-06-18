@@ -4,8 +4,7 @@ import { updateEmployeeInfo } from '../../context/employeeDetailsSlice';
 
 const ContactDetails = () => {
     const dispatch = useDispatch();
-    const user = useSelector((state) => state.auth.user);
-    const updatingInfo = useSelector((state) => state.employeeDetails.updatingInfo);
+    const { employee, updatingInfo } = useSelector((state) => state.employeeDetails);
 
     const [formData, setFormData] = useState({
         phone1: '',
@@ -17,15 +16,15 @@ const ContactDetails = () => {
     const [isEditing, setIsEditing] = useState(false);
 
     useEffect(() => {
-        if (user) {
+        if (employee) {
             setFormData({
-                phone1: user.phone1 || '',
-                phone2: user.phone2 || '',
-                personalEmail: user.personalEmail || '',
-                address: user.address || '',
+                phone1: employee.phone1 || '',
+                phone2: employee.phone2 || '',
+                personalEmail: employee.personalEmail || '',
+                address: employee.address || '',
             });
         }
-    }, [user]);
+    }, [employee]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -50,10 +49,10 @@ const ContactDetails = () => {
         }
     };
 
-    if (!user) {
+    if (!employee) {
         return (
             <div className="flex justify-center items-center p-8">
-                Loading user info...
+                Loading employee info...
             </div>
         );
     }
@@ -66,13 +65,14 @@ const ContactDetails = () => {
                 <form onSubmit={handleSubmit} className="flex flex-col gap-5">
                     <div className="flex flex-wrap -mx-2">
                         <div className="w-1/2 px-2">
-                            <label className="block mb-2 text-sm font-medium text-gray-700">Phone 1</label>
+                            <label className="block mb-2 text-sm font-medium text-gray-700">Phone 1*</label>
                             <input
                                 type="text"
                                 name="phone1"
                                 value={formData.phone1}
                                 onChange={handleChange}
                                 className="w-full p-2.5 border rounded bg-blue-50 text-sm"
+                                required
                             />
                         </div>
                         <div className="w-1/2 px-2">
@@ -88,41 +88,54 @@ const ContactDetails = () => {
                     </div>
 
                     <div>
-                        <label className="block mb-2 text-sm font-medium text-gray-700">Personal Email</label>
+                        <label className="block mb-2 text-sm font-medium text-gray-700">Personal Email*</label>
                         <input
                             type="email"
                             name="personalEmail"
                             value={formData.personalEmail}
                             onChange={handleChange}
                             className="w-full p-2.5 border rounded bg-blue-50 text-sm"
+                            required
                         />
                     </div>
 
                     <div>
-                        <label className="block mb-2 text-sm font-medium text-gray-700">Address</label>
+                        <label className="block mb-2 text-sm font-medium text-gray-700">Address*</label>
                         <textarea
                             name="address"
                             value={formData.address}
                             onChange={handleChange}
                             className="w-full p-2.5 border rounded bg-blue-50 text-sm resize-none"
+                            required
                         />
                     </div>
 
-                    <button
-                        type="submit"
-                        disabled={updatingInfo}
-                        className="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-6 rounded mt-4"
-                    >
-                        {updatingInfo ? 'Saving...' : 'Save'}
-                    </button>
+                    <div className="flex gap-4">
+                        <button
+                            type="submit"
+                            disabled={updatingInfo}
+                            className="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-6 rounded"
+                        >
+                            {updatingInfo ? 'Saving...' : 'Save'}
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => setIsEditing(false)}
+                            className="bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-6 rounded"
+                        >
+                            Cancel
+                        </button>
+                    </div>
                 </form>
             ) : (
                 <>
                     <div className="text-gray-700 space-y-2">
-                        <p><strong>Phone 1:</strong> {formData.phone1}</p>
-                        <p><strong>Phone 2:</strong> {formData.phone2}</p>
-                        <p><strong>Personal Email:</strong> {formData.personalEmail}</p>
-                        <p><strong>Address:</strong> {formData.address}</p>
+                        <p><strong>Phone 1:</strong> {formData.phone1 || 'N/A'}</p>
+                        <p><strong>Phone 2:</strong> {formData.phone2 || 'N/A'}</p>
+                        <p><strong>Personal Email:</strong> {formData.personalEmail || 'N/A'}</p>
+                        <p><strong>Address:</strong> {formData.address ? formData.address.split('\n').map((line, i) => (
+                            <span key={i}>{line}<br /></span>
+                        )) : 'N/A'}</p>
                     </div>
                     <button
                         onClick={() => setIsEditing(true)}

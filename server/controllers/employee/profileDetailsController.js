@@ -2,16 +2,18 @@ import Employee from '../../models/employee.model.js';
 import mongoose from 'mongoose';
 
 // Employee updates their additional information
+// Employee updates their additional information
 export const updateEmployeeInfo = async (req, res) => {
     try {
-        const employeeId = req.employee?._id; // Assuming the authenticated employee's ID is available
+        const employeeId = req.employee?._id;
         const updateData = req.body;
 
         // Fields that cannot be updated through this endpoint
         const restrictedFields = [
             'name', 'lastName', 'email', 'password', 'position', 
             'department', 'manager', 'jobTitle', 'jobCategory', 
-            'salary', 'role', 'active'
+            'salary', 'role', 'active', 'guarantors', 'nextOfKins',
+            'familyDetails', 'academicRecords', 'professionalQualifications'
         ];
 
         // Check if update includes restricted fields
@@ -46,14 +48,6 @@ export const updateEmployeeInfo = async (req, res) => {
             }
         }
 
-        // Validate city if provided
-        if (updateData.city) {
-            if (typeof updateData.city !== 'string' || updateData.city.trim().length === 0) {
-                return res.status(400).json({ message: 'Please provide a valid city name' });
-            }
-            // Optionally add more specific validation for city format if needed
-        }
-
         // Update the employee document
         const updatedEmployee = await Employee.findByIdAndUpdate(
             employeeId,
@@ -61,9 +55,8 @@ export const updateEmployeeInfo = async (req, res) => {
             { 
                 new: true, 
                 runValidators: true,
-                // Ensure only allowed fields are updated
                 fields: { 
-                    password: 0, // Always exclude password
+                    password: 0,
                     ...Object.fromEntries(restrictedFields.map(field => [field, 0]))
                 }
             }
@@ -87,7 +80,8 @@ export const updateEmployeeInfo = async (req, res) => {
         });
     }
 };
-// Employee adds academic records
+
+// Employee adds academic records (max 3)
 export const addAcademicRecord = async (req, res) => {
     try {
         const employeeId = req.employee?._id;
@@ -95,6 +89,14 @@ export const addAcademicRecord = async (req, res) => {
 
         if (!institution || !details) {
             return res.status(400).json({ message: 'Institution and details are required' });
+        }
+
+        // Check current count of academic records
+        const employee = await Employee.findById(employeeId);
+        if (employee.academicRecords.length >= 3) {
+            return res.status(400).json({ 
+                message: 'Maximum limit of 3 academic records reached' 
+            });
         }
 
         const newRecord = { institution, details };
@@ -119,53 +121,56 @@ export const addAcademicRecord = async (req, res) => {
     }
 };
 
+// Employee adds/updates guarantor (only 1 allowed)
 export const addGuarantorDetails = async (req, res) => {
     try {
         const employeeId = req.employee?._id;
-        const { name, occupation, phoneNumber, relationship, address } = req.body;
+        const { name, occupation, phone, relationship, address } = req.body;
 
         // Validate required fields
-        if (!name || !occupation || !phoneNumber) {
+        if (!name || !occupation || !phone) {
             return res.status(400).json({ 
-                message: 'Name, occupation and phone number are required' 
+                message: 'Name, occupation and phone are required' 
             });
         }
 
         // Validate phone number format
-        if (!/^\d{10,15}$/.test(phoneNumber)) {
+        if (!/^\d{10,15}$/.test(phone)) {
             return res.status(400).json({ 
-                message: 'Phone number must be 10-15 digits' 
+                message: 'Phone must be 10-15 digits' 
             });
         }
 
         const newGuarantor = { 
             name,
             occupation,
-            phoneNumber,
-            relationship: relationship || '',
+            phone,
+            relationship: relationship || 'Relative',
             address: address || '',
             addedAt: new Date()
         };
 
+        // Use $set to replace the entire guarantors array with just the new one
         const updatedEmployee = await Employee.findByIdAndUpdate(
             employeeId,
-            { $push: { guarantors: newGuarantor } },
+            { $set: { guarantors: [newGuarantor] } }, // Only one guarantor allowed
             { new: true }
         ).select('guarantors');
 
         res.status(201).json({
-            message: 'Guarantor details added successfully',
+            message: 'Guarantor details updated successfully',
             guarantors: updatedEmployee.guarantors
         });
 
     } catch (error) {
         console.error('Error adding guarantor details:', error);
         res.status(500).json({ 
-            message: 'Failed to add guarantor details',
+            message: 'Failed to update guarantor details',
             error: error.message
         });
     }
 };
+
 // Employee adds professional qualification
 export const addProfessionalQualification = async (req, res) => {
     try {
@@ -203,6 +208,7 @@ export const addProfessionalQualification = async (req, res) => {
     }
 };
 
+// Employee adds/updates next of kin (only 1 allowed)
 export const addNextOfKin = async (req, res) => {
     try {
         const employeeId = req.employee?._id;
@@ -231,26 +237,28 @@ export const addNextOfKin = async (req, res) => {
             addedAt: new Date()
         };
 
+        // Use $set to replace the entire nextOfKins array with just the new one
         const updatedEmployee = await Employee.findByIdAndUpdate(
             employeeId,
-            { $push: { nextOfKins: newNextOfKin } },
+            { $set: { nextOfKins: [newNextOfKin] } }, // Only one next of kin allowed
             { new: true }
         ).select('nextOfKins');
 
         res.status(201).json({
-            message: 'Next of kin added successfully',
+            message: 'Next of kin updated successfully',
             nextOfKins: updatedEmployee.nextOfKins
         });
 
     } catch (error) {
         console.error('Error adding next of kin:', error);
         res.status(500).json({ 
-            message: 'Failed to add next of kin',
+            message: 'Failed to update next of kin',
             error: error.message
         });
     }
 };
-// Employee adds family details
+
+// Employee adds family details (max 4)
 export const addFamilyDetail = async (req, res) => {
     try {
         const employeeId = req.employee?._id;
@@ -258,6 +266,14 @@ export const addFamilyDetail = async (req, res) => {
 
         if (!fullName || !relationship) {
             return res.status(400).json({ message: 'Full name and relationship are required' });
+        }
+
+        // Check current count of family details
+        const employee = await Employee.findById(employeeId);
+        if (employee.familyDetails.length >= 4) {
+            return res.status(400).json({ 
+                message: 'Maximum limit of 4 family members reached' 
+            });
         }
 
         const newFamilyMember = { 
@@ -344,9 +360,8 @@ export const getEmployeeInfoByAdmin = async (req, res) => {
         }
 
         const employee = await Employee.findById(employeeId)
-    .select('-password -active -role')
-    .select('guarantors nextOfKins'); // explicitly include them if schema excludes by default
-
+            .select('-password -active -role')
+            .select('guarantors nextOfKins familyDetails academicRecords professionalQualifications');
 
         if (!employee) {
             return res.status(404).json({ message: 'Employee not found' });
@@ -363,20 +378,16 @@ export const getEmployeeInfoByAdmin = async (req, res) => {
     }
 };
 
-
 export const getEmployeeInfoByEmployee = async (req, res) => {
     try {
-        // Extract employee ID from the authenticated cookie session
-        const employeeId = req.employee?._id; // Assuming `req.employee` is set by your auth middleware
+        const employeeId = req.employee?._id;
 
-        // If no employee ID is found in the session, deny access
         if (!employeeId) {
             return res.status(401).json({ 
                 message: 'Unauthorized. Please log in.' 
             });
         }
 
-        // Optionally, if the endpoint allows fetching by ID (e.g., `/employees/:id`), restrict access
         const requestedId = req.params.employeeId;
         if (requestedId && requestedId !== employeeId.toString()) {
             return res.status(403).json({ 
@@ -384,10 +395,9 @@ export const getEmployeeInfoByEmployee = async (req, res) => {
             });
         }
 
-        // Fetch employee data (exclude sensitive fields)
         const employee = await Employee.findById(employeeId)
-            .select('-password -active -role -salary -manager') // Exclude sensitive data
-            .select('+nextOfKins +guarantors'); // Explicitly include if needed
+            .select('-password -active -role -salary -manager')
+            .select('guarantors nextOfKins familyDetails academicRecords professionalQualifications');
 
         if (!employee) {
             return res.status(404).json({ 
@@ -409,137 +419,3 @@ export const getEmployeeInfoByEmployee = async (req, res) => {
     }
 };
 
-
-// Employee uploads document 
-export const addDocument = async (req, res) => {
-    try {
-        const employeeId = req.employee?._id;
-        const { documentType, additionalInfo } = req.body;
-
-        // Validate required fields
-        if (!documentType || !req.file) {
-            return res.status(400).json({ 
-                message: 'Document type and file are required' 
-            });
-        }
-
-        // Define allowed document types with their specific validations
-        const ALLOWED_DOCUMENT_TYPES = {
-            OFFER_LETTER: {
-                mimeTypes: ['application/pdf'],
-                maxSize: 2 * 1024 * 1024, // 2MB
-                requiredFields: ['effectiveDate']
-            },
-            BIRTH_CERTIFICATE: {
-                mimeTypes: ['application/pdf', 'image/jpeg', 'image/png'],
-                maxSize: 5 * 1024 * 1024 // 5MB
-            },
-            GUARANTOR_FORM: {
-                mimeTypes: ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
-                maxSize: 3 * 1024 * 1024, // 3MB
-                requiredFields: ['guarantorName', 'guarantorContact']
-            },
-            DEGREE: {
-                mimeTypes: ['application/pdf', 'image/jpeg', 'image/png'],
-                maxSize: 5 * 1024 * 1024, // 5MB
-                requiredFields: ['institution', 'yearObtained']
-            },
-            CERTIFICATE: {
-                mimeTypes: ['application/pdf', 'image/jpeg', 'image/png'],
-                maxSize: 5 * 1024 * 1024 // 5MB
-            }
-        };
-
-        // Validate document type
-        if (!ALLOWED_DOCUMENT_TYPES[documentType]) {
-            return res.status(400).json({
-                message: 'Invalid document type',
-                allowedTypes: Object.keys(ALLOWED_DOCUMENT_TYPES)
-            });
-        }
-
-        const documentConfig = ALLOWED_DOCUMENT_TYPES[documentType];
-
-        // Validate file type
-        if (!documentConfig.mimeTypes.includes(req.file.mimetype)) {
-            return res.status(400).json({
-                message: 'Invalid file type for this document',
-                allowedTypes: documentConfig.mimeTypes
-            });
-        }
-
-        // Validate file size
-        if (req.file.size > documentConfig.maxSize) {
-            return res.status(400).json({
-                message: `File too large. Max size: ${documentConfig.maxSize / (1024 * 1024)}MB`
-            });
-        }
-
-        // Validate required fields for specific document types
-        if (documentConfig.requiredFields) {
-            const missingFields = documentConfig.requiredFields.filter(
-                field => !additionalInfo || !additionalInfo[field]
-            );
-            
-            if (missingFields.length > 0) {
-                return res.status(400).json({
-                    message: `Missing required fields for ${documentType}`,
-                    missingFields
-                });
-            }
-        }
-
-        // Construct document metadata
-        const newDocument = {
-            documentType,
-            filePath: `/uploads/documents/${req.file.filename}`,
-            fileName: req.file.originalname,
-            mimeType: req.file.mimetype,
-            size: req.file.size,
-            uploadedAt: new Date(),
-            status: 'PENDING_REVIEW', // Initial status
-            additionalInfo: additionalInfo || {}
-        };
-
-        // Update employee record
-        const updatedEmployee = await Employee.findByIdAndUpdate(
-            employeeId,
-            { 
-                $push: { 
-                    documents: {
-                        $each: [newDocument],
-                        $sort: { uploadedAt: -1 } // Keep documents sorted by upload date
-                    } 
-                } 
-            },
-            { 
-                new: true,
-                select: 'documents'
-            }
-        );
-
-        res.status(201).json({
-            message: 'Document uploaded successfully',
-            document: newDocument,
-            documents: updatedEmployee.documents
-        });
-
-    } catch (error) {
-        console.error('Error adding document:', error);
-        
-        // Clean up uploaded file if error occurred
-        if (req.file) {
-            try {
-                fs.unlinkSync(req.file.path);
-            } catch (err) {
-                console.error('Error deleting uploaded file:', err);
-            }
-        }
-
-        res.status(500).json({ 
-            message: 'Failed to upload document',
-            error: error.message,
-            ...(error.errors && { detailedErrors: error.errors })
-        });
-    }
-};

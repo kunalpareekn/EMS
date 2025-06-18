@@ -1,5 +1,4 @@
 import express from 'express';
-import isAuthenticated from '../../middlewares/isAuthenticated.js';
 import { createNotification, getNotifications } from '../../controllers/admin/notificationController.js';
 import isAdminAuthenticated from './../../middlewares/isAdminAuthenticated.js';
  
@@ -8,7 +7,7 @@ import isAdminAuthenticated from './../../middlewares/isAdminAuthenticated.js';
 const router = express.Router();
 
 // Get all notifications for user
-router.route("/get-all-notification").get(isAuthenticated,getNotifications);
+router.route("/get-all-notification").get(getNotifications);
 
 
 // Create notification (admin only)

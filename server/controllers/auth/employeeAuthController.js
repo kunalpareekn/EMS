@@ -2,6 +2,8 @@ import Employee from '../../models/employee.model.js';
 import { generateToken } from '../../helpers/utils.js';
 import bcrypt from 'bcryptjs';
 import mongoose from "mongoose";
+import sendWelcomeEmail from '../../helpers/emailSender.js';
+
 
 // Generate token with employeeId instead of email
 import Payroll from '../../models/payroll.model.js'; // Make sure this path is correct
@@ -18,7 +20,7 @@ export const registerEmployee = async (req, res) => {
         } = req.body;
 
         // Validate required fields
-        if (!name || !lastName || !email || !password || !position || 
+        if (!name || !lastName || !email || !password || !position ||
             !department || !manager || !jobTitle || !jobCategory || !salary) {
             return res.status(400).json({ message: 'All fields are required' });
         }
@@ -50,11 +52,12 @@ export const registerEmployee = async (req, res) => {
             jobTitle,
             jobCategory,
             salary,
-            role: 'employee'
+            role: 'employee',
+            mustResetPassword: true
         });
 
         await employee.save();
-
+ await sendWelcomeEmail(email,name);
         // Create associated default payroll
         const currentDate = new Date();
         const defaultPayroll = {
@@ -86,8 +89,8 @@ export const registerEmployee = async (req, res) => {
 
         // Generate token and send response
         const token = generateToken(employee._id);
-        res.status(201).json({ 
-            message: 'Employee registered successfully', 
+        res.status(201).json({
+            message: 'Employee registered successfully',
             token,
             employee: {
                 _id: employee._id,
@@ -99,7 +102,7 @@ export const registerEmployee = async (req, res) => {
         });
     } catch (error) {
         console.error('Registration error:', error);
-        res.status(500).json({ 
+        res.status(500).json({
             message: 'Registration failed',
             error: error.message,
             ...(error.errors && { detailedErrors: error.errors })
@@ -138,7 +141,8 @@ export const loginEmployee = async (req, res) => {
                 email: employee.email,
                 position: employee.position,
                 department: employee.department,
-                jobTitle: employee.jobTitle
+                jobTitle: employee.jobTitle,
+                mustResetPassword: employee.mustResetPassword
             },
         });
     } catch (error) {
@@ -216,9 +220,69 @@ export const updateEmployeeStatus = async (req, res) => {
 
     } catch (error) {
         console.error('Error updating employee status:', error);
-        res.status(500).json({ 
+        res.status(500).json({
             message: 'Failed to update employee status',
-            error: error.message 
+            error: error.message
         });
+    }
+};
+export const resetEmployeePassword = async (req, res) => {
+    try {
+        const employeeId = req.employee?._id;
+        const { newPassword } = req.body;
+
+        if (!newPassword || newPassword.length < 6) {
+            return res.status(400).json({ message: 'Password must be at least 6 characters long.' });
+        }
+
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+        const employee = await Employee.findByIdAndUpdate(
+            employeeId,
+            {
+                password: hashedPassword,
+                mustResetPassword: false
+            },
+            { new: true }
+        );
+
+        if (!employee) {
+            return res.status(404).json({ message: 'Employee not found.' });
+        }
+
+        res.status(200).json({ message: 'Password reset successful.' });
+    } catch (error) {
+        console.error('Reset error:', error);
+        res.status(500).json({ message: 'Failed to reset password', error: error.message });
+    }
+};
+
+// Delete employee (Admin only)
+export const deleteEmployee = async (req, res) => {
+    try {
+        // Ensure requester is an admin
+        if (req.user?.role !== 'admin') {
+            return res.status(403).json({ message: 'Access denied. Admins only.' });
+        }
+
+        const { employeeId } = req.params;
+
+        if (!mongoose.Types.ObjectId.isValid(employeeId)) {
+            return res.status(400).json({ message: 'Invalid employee ID' });
+        }
+
+        const employee = await Employee.findByIdAndDelete(employeeId);
+
+        if (!employee) {
+            return res.status(404).json({ message: 'Employee not found' });
+        }
+
+        // Optionally delete associated payroll data (if needed)
+        await Payroll.deleteMany({ employeeId: employee._id });
+
+        res.status(200).json({ message: 'Employee deleted successfully' });
+    } catch (error) {
+        console.error('Error deleting employee:', error);
+        res.status(500).json({ message: 'Failed to delete employee', error: error.message });
     }
 };

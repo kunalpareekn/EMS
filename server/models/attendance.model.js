@@ -17,6 +17,10 @@ const attendanceSchema = new mongoose.Schema({
     clockOut: {
         type: Date,
     },
+    breaks: [{
+        breakIn: Date,
+        breakOut: Date
+    }],
     effectiveHours: {
         type: Number,
         default: 0,
@@ -41,7 +45,7 @@ const attendanceSchema = new mongoose.Schema({
         type: Boolean,
         default: false,
     },
-    averageWorkHours: {  // Usually calculated from multiple entries
+    averageWorkHours: {
         type: Number,
         default: 0,
     },
@@ -52,7 +56,7 @@ const attendanceSchema = new mongoose.Schema({
     },
     status: {
         type: String,
-        enum: ["present", "absent", "half-day"],
+        enum: ["present", "absent", "half-day","onBreak"],
         default: "present",
     },
 }, {
@@ -68,11 +72,21 @@ attendanceSchema.pre("save", function (next) {
 
     if (this.clockIn && this.clockOut) {
         const durationMs = this.clockOut - this.clockIn;
-        const hours = durationMs / (1000 * 60 * 60);
-        const roundedHours = Math.round(hours * 100) / 100;
+        const grossHours = durationMs / (1000 * 60 * 60);
+        this.grossHours = Math.round(grossHours * 100) / 100;
 
-        this.grossHours = roundedHours;
-        this.effectiveHours = roundedHours;
+        // Calculate total break duration
+        let totalBreakMs = 0;
+        if (this.breaks && this.breaks.length > 0) {
+            this.breaks.forEach(b => {
+                if (b.breakIn && b.breakOut) {
+                    totalBreakMs += new Date(b.breakOut) - new Date(b.breakIn);
+                }
+            });
+        }
+
+        const effectiveHours = (durationMs - totalBreakMs) / (1000 * 60 * 60);
+        this.effectiveHours = Math.round(effectiveHours * 100) / 100;
 
         // Mark late if clock-in is after 9:00 AM
         const nineAM = new Date(this.clockIn);
@@ -83,10 +97,13 @@ attendanceSchema.pre("save", function (next) {
         // Mark early departure if clock-out is before 5:00 PM
         const fivePM = new Date(this.clockIn);
         fivePM.setHours(17, 0, 0, 0);
-        this.isEarlyDeparture = this.clockOut < fivePM;
+        const clockOutDate = new Date(this.clockOut);
+        this.isEarlyDeparture = clockOutDate < fivePM;
 
         // Calculate overtime (anything over 8 hrs)
-        this.overtimeHours = roundedHours > 8 ? Math.round((roundedHours - 8) * 100) / 100 : 0;
+        this.overtimeHours = this.effectiveHours > 8
+            ? Math.round((this.effectiveHours - 8) * 100) / 100
+            : 0;
     }
 
     next();

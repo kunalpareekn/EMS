@@ -21,6 +21,7 @@ import leaveReducer from "./leaveSlice";
 import employeeLeaveReducer from "./employeeLeaveSlice";
 import attendanceReducer from "./attendanceSlice";
 import employeeDetailsReducer from './employeeDetailsSlice';
+import notificationReducer from "./notificationSlice"
 
 // Combine reducers
 const rootReducer = combineReducers({
@@ -32,6 +33,7 @@ const rootReducer = combineReducers({
   employeeLeave: employeeLeaveReducer,
   attendance: attendanceReducer,
   employeeDetails: employeeDetailsReducer,
+  notifications: notificationReducer
 });
 
 // Persistence configuration
@@ -40,7 +42,8 @@ const persistConfig = {
   version: 1,
   storage,
   // Optional: persist only auth/user data
-  whitelist: ['auth'], // Only persist `auth` slice, for login persistence
+ whitelist: ['auth', 'employeeDetails']
+ // Only persist `auth` slice, for login persistence
   // OR use `blacklist` if you want to persist everything *except* some slices
   // blacklist: ['payroll', 'attendance'], 
 };

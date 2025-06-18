@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import Todo from './Todo';
 import AttendanceBox from '../Attendance/AttendanceBox';
+import NotificationFeed from './NotificationFeed';
+import PasswordResetPopup from '../PasswordResetPopup';
+import { fetchEmployeeOwnInfo } from '../../context/employeeDetailsSlice';
 
 
   
@@ -13,9 +16,11 @@ function DashboardEmployee() {
     const [checkInTime, setCheckInTime] = useState(null);
     const [timer, setTimer] = useState(null);
     const [elapsedTime, setElapsedTime] = useState(0);
+    const [showResetPopup, setShowResetPopup] = useState(false);
+
     const navigate = useNavigate();
 const user = useSelector((state) => state.auth.user);
-   
+   const dispatch = useDispatch();
 
     const handleEditProfile = () => navigate('/profile-details');
     const handleViewReport = () => navigate('/attendance');
@@ -40,6 +45,10 @@ const user = useSelector((state) => state.auth.user);
             console.error('Failed to save check-in time:', err);
         }
     };
+    useEffect(() => {
+  dispatch(fetchEmployeeOwnInfo());
+}, [dispatch]);
+
 
     const handleCheckOut = async () => {
         const now = new Date();
@@ -68,11 +77,21 @@ const user = useSelector((state) => state.auth.user);
         return `${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
     };
 
+
+
+    
+    
+useEffect(() => {
+  if (user?.mustResetPassword) {
+    setShowResetPopup(true);
+  }
+}, [user]);
     // if (loading) return <p className="p-4">Loading dashboard...</p>;
     // if (error) return <p className="text-red-500 p-4">{error}</p>;
 
     return (
         <div className="min-h-screen bg-gray-100 p-5">
+            {showResetPopup && <PasswordResetPopup onClose={() => setShowResetPopup(false)} />}
             {/* Header Card */}
             <div className="bg-emerald-200 rounded-xl p-5 mb-6 flex flex-col md:flex-row justify-between items-center">
                 <div className="flex items-center space-x-4 mb-4 md:mb-0">
@@ -107,7 +126,7 @@ const user = useSelector((state) => state.auth.user);
             {/* Main Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 {/* Announcements Card */}
-                <div className="bg-white rounded-xl p-5 border-2 border-gray-200">
+                {/* <div className="bg-white rounded-xl p-5 border-2 border-gray-200">
                     <h3 className="text-lg font-semibold text-gray-800 mb-4">Announcement(s)</h3>
                     <ul className="space-y-2">
                         {['Welcome Saron - New staff joined', 'Sendoff for Project Manager', 'Marriage Alert', 'Office Space Update'].map((item, index) => (
@@ -116,7 +135,8 @@ const user = useSelector((state) => state.auth.user);
                             </li>
                         ))}
                     </ul>
-                </div>
+                </div> */}
+                <NotificationFeed/>
 
                 {/* Payslip Card */}
                 <div className="bg-white rounded-xl p-5 border-2 border-gray-200">

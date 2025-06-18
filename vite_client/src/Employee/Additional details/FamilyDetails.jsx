@@ -61,19 +61,32 @@ const FamilyDetails = () => {
       <h2 className="text-2xl font-semibold text-center text-gray-800 mb-6">Family Details</h2>
 
       {!isEditing && familyDetails.length > 0 ? (
-        <div className="bg-gray-100 p-5 rounded-lg shadow-sm">
-          <p className="mb-2"><strong>Name:</strong> {familyDetails[0].fullName || 'N/A'}</p>
-          <p className="mb-2"><strong>Occupation:</strong> {familyDetails[0].occupation || 'N/A'}</p>
-          <p className="mb-2"><strong>Phone:</strong> {familyDetails[0].phoneNo || 'N/A'}</p>
-          <p className="mb-2"><strong>Relationship:</strong> {familyDetails[0].relationship || 'N/A'}</p>
-          <p className="mb-4"><strong>Address:</strong> {familyDetails[0].address || 'N/A'}</p>
-          <button
-            className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition"
-            onClick={() => setIsEditing(true)}
-          >
-            Edit
-          </button>
-        </div>
+  <div className="space-y-4">
+    {familyDetails.map((member, index) => (
+      <div
+        key={member._id || index}
+        className="bg-gray-100 p-5 rounded-lg shadow-sm border border-gray-300"
+      >
+        <p className="mb-2"><strong>Name:</strong> {member.fullName || 'N/A'}</p>
+        <p className="mb-2"><strong>Occupation:</strong> {member.occupation || 'N/A'}</p>
+        <p className="mb-2"><strong>Phone:</strong> {member.phoneNo || 'N/A'}</p>
+        <p className="mb-2"><strong>Relationship:</strong> {member.relationship || 'N/A'}</p>
+        <p className="mb-4"><strong>Address:</strong> {member.address || 'N/A'}</p>
+      </div>
+    ))}
+
+    <button
+      className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition"
+      onClick={() => {
+  setFormData(initialFormData);  // clear form
+  setIsEditing(true);
+}}
+
+    >
+      Add More
+    </button>
+  </div>
+
       ) : (
         <form onSubmit={handleSubmit} className="space-y-4">
           {['fullName', 'occupation', 'relationship', 'phoneNo', 'address'].map((field) => (

@@ -28,14 +28,18 @@ import { useSelector, useDispatch } from 'react-redux';
 import { 
   fetchEmployeeDetails, 
   updateEmployeeStatus,
-  clearEmployeeDetails
+  clearEmployeeDetails,
+ 
 } from '../../context/employeeDetailsSlice';
+import { deleteEmployee } from '../../context/employeeSlice';
+import { BOTH_DOCUMENT_ENDPOINT } from '../../utils/constant';
 
 const EmployeeDetailsPage = () => {
   const { employeeId } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [openDialog, setOpenDialog] = useState(false);
+  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   
   const { 
     employee, 
@@ -57,6 +61,34 @@ const EmployeeDetailsPage = () => {
     setOpenDialog(true);
   };
 
+  const handleDownloadDocument = async (documentId, fileName) => {
+    try {
+      const downloadUrl = `${BOTH_DOCUMENT_ENDPOINT}/${employeeId}/documents/${documentId}/download`;
+      const response = await fetch(downloadUrl, {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
+
+      if (!response.ok) throw new Error('Failed to download document');
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', fileName || 'document');
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error downloading document:', error);
+      alert('Failed to download document. Please try again.');
+    }
+  };
+
   const handleConfirmStatusChange = () => {
     dispatch(updateEmployeeStatus({
       employeeId: employee._id,
@@ -67,6 +99,26 @@ const EmployeeDetailsPage = () => {
 
   const handleCloseDialog = () => {
     setOpenDialog(false);
+  };
+
+  const handleDeleteClick = () => {
+    setOpenDeleteDialog(true);
+  };
+
+  const handleConfirmDelete = () => {
+    dispatch(deleteEmployee(employeeId))
+      .unwrap()
+      .then(() => {
+        navigate('/employees');
+      })
+      .catch((error) => {
+        console.error('Error deleting employee:', error);
+      });
+    setOpenDeleteDialog(false);
+  };
+
+  const handleCloseDeleteDialog = () => {
+    setOpenDeleteDialog(false);
   };
 
   if (loading) {
@@ -120,24 +172,35 @@ const EmployeeDetailsPage = () => {
           {employee.name} {employee.lastName}
         </Typography>
         
-        <Button
-          variant="contained"
-          color={employee.active ? 'success' : 'error'}
-          onClick={handleStatusChangeClick}
-          disabled={updatingStatus}
-          startIcon={
-            <Chip 
-              label={employee.active ? 'Active' : 'Inactive'} 
-              color={employee.active ? 'success' : 'error'} 
-              size="small"
-            />
-          }
-        >
-          {employee.active ? 'Set Inactive' : 'Set Active'}
-        </Button>
+        <Box sx={{ display: 'flex', gap: 2 }}>
+          <Button
+            variant="contained"
+            color={employee.active ? 'success' : 'error'}
+            onClick={handleStatusChangeClick}
+            disabled={updatingStatus}
+            startIcon={
+              <Chip 
+                label={employee.active ? 'Active' : 'Inactive'} 
+                color={employee.active ? 'success' : 'error'} 
+                size="small"
+              />
+            }
+          >
+            {employee.active ? 'Set Inactive' : 'Set Active'}
+          </Button>
+          
+          <Button
+            variant="contained"
+            color="error"
+            onClick={handleDeleteClick}
+            disabled={updatingStatus}
+          >
+            Delete Employee
+          </Button>
+        </Box>
       </Box>
 
-      {/* Confirmation Dialog */}
+      {/* Status Change Dialog */}
       <Dialog
         open={openDialog}
         onClose={handleCloseDialog}
@@ -163,6 +226,37 @@ const EmployeeDetailsPage = () => {
             disabled={updatingStatus}
           >
             {updatingStatus ? 'Updating...' : 'Confirm'}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog
+        open={openDeleteDialog}
+        onClose={handleCloseDeleteDialog}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">
+          Confirm Employee Deletion
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            Are you sure you want to permanently delete {employee.name} {employee.lastName}? 
+            This action cannot be undone and will also delete all associated records (payroll, documents, etc.).
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseDeleteDialog} color="primary">
+            Cancel
+          </Button>
+          <Button 
+            onClick={handleConfirmDelete} 
+            color="error" 
+            autoFocus
+            disabled={updatingStatus}
+          >
+            {updatingStatus ? 'Deleting...' : 'Confirm Delete'}
           </Button>
         </DialogActions>
       </Dialog>
@@ -422,45 +516,54 @@ const EmployeeDetailsPage = () => {
         )}
 
         {/* Documents */}
-        {employee.documents?.length > 0 && (
-          <Accordion>
-            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-              <Typography>Documents</Typography>
-            </AccordionSummary>
-            <AccordionDetails>
-              <TableContainer component={Paper}>
-                <Table>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>Document Type</TableCell>
-                      <TableCell>File Name</TableCell>
-                      <TableCell>Uploaded At</TableCell>
-                      <TableCell>Action</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {employee.documents.map((doc, index) => (
-                      <TableRow key={index}>
-                        <TableCell>{doc.documentType}</TableCell>
-                        <TableCell>{doc.fileName}</TableCell>
-                        <TableCell>{new Date(doc.uploadedAt).toLocaleString()}</TableCell>
-                        <TableCell>
-                          <Button 
-                            variant="outlined" 
-                            size="small"
-                            onClick={() => window.open(`http://localhost:5000${doc.filePath}`, '_blank')}
-                          >
-                            View
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </AccordionDetails>
-          </Accordion>
-        )}
+      {employee.documents?.length > 0 && (
+  <Accordion>
+    <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+      <Typography>Documents</Typography>
+    </AccordionSummary>
+    <AccordionDetails>
+      <TableContainer component={Paper}>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell>Document Type</TableCell>
+              <TableCell>File Name</TableCell>
+              <TableCell>Uploaded At</TableCell>
+              <TableCell>Actions</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {employee.documents.map((doc, index) => (
+              <TableRow key={index}>
+                <TableCell>{doc.documentType}</TableCell>
+                <TableCell>{doc.fileName}</TableCell>
+                <TableCell>{new Date(doc.uploadedAt).toLocaleString()}</TableCell>
+                <TableCell>
+                  <Button 
+                    variant="outlined" 
+                    size="small"
+                    onClick={() => handleDownloadDocument(doc._id, doc.fileName)}
+                    sx={{ mr: 1 }}
+                  >
+                    Download
+                  </Button>
+                  <Button 
+                    variant="outlined" 
+                    size="small"
+                    color="secondary"
+                    onClick={() => window.open(`http://localhost:5000${doc.filePath}`, '_blank')}
+                  >
+                    View
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    </AccordionDetails>
+  </Accordion>
+)}
       </Box>
     </Box>
   );

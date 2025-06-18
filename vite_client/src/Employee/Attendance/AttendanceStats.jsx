@@ -1,9 +1,8 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchLogs } from '../../context/attendanceSlice';
-
 import { FiCalendar, FiClock, FiTrendingUp, FiHome, FiAlertTriangle } from 'react-icons/fi';
-import { Bar, Pie } from 'react-chartjs-2';
+import { Bar } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -11,15 +10,29 @@ import {
   BarElement,
   Title,
   Tooltip,
-  Legend,
-  ArcElement
+  Legend
 } from 'chart.js';
 
-ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement);
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 const AttendanceStats = () => {
   const dispatch = useDispatch();
-  const { summary, dailyStats, loading, error } = useSelector((state) => state.attendance);
+  const { summary, sessions, loading, error } = useSelector((state) => state.attendance);
+
+  // Group sessions by date for dailyStats
+  const groupedStats = useMemo(() => {
+    const result = {};
+    if (sessions && sessions.length > 0) {
+      sessions.forEach((session) => {
+        const dateKey = new Date(session.date).toISOString().split('T')[0];
+        if (!result[dateKey]) {
+          result[dateKey] = { sessions: [] };
+        }
+        result[dateKey].sessions.push(session);
+      });
+    }
+    return result;
+  }, [sessions]);
 
   useEffect(() => {
     dispatch(fetchLogs());
@@ -33,61 +46,12 @@ const AttendanceStats = () => {
     return <div className="text-center py-10 text-red-500">Error: {error}</div>;
   }
 
-  if (!summary || !dailyStats) {
+  if (!summary || !sessions || sessions.length === 0) {
     return <div className="text-center py-10 text-gray-500">No attendance data available.</div>;
   }
 
-  // Chart data based on Redux state
-  const hoursData = {
-    labels: ['Effective Hours', 'Gross Hours', 'Overtime'],
-    datasets: [
-      {
-        label: 'Hours',
-        data: [
-          summary.avgEffectiveHours,
-          summary.avgGrossHours,
-          summary.totalOvertime
-        ],
-        backgroundColor: [
-          'rgba(54, 162, 235, 0.7)',
-          'rgba(75, 192, 192, 0.7)',
-          'rgba(255, 159, 64, 0.7)'
-        ],
-        borderColor: [
-          'rgba(54, 162, 235, 1)',
-          'rgba(75, 192, 192, 1)',
-          'rgba(255, 159, 64, 1)'
-        ],
-        borderWidth: 1,
-      },
-    ],
-  };
-
-  const issuesData = {
-    labels: ['Late Arrivals', 'Early Departures'],
-    datasets: [
-      {
-        data: [
-          summary.totalLateArrivals,
-          summary.totalEarlyDepartures
-        ],
-        backgroundColor: [
-          'rgba(255, 99, 132, 0.7)',
-          'rgba(255, 206, 86, 0.7)'
-        ],
-        borderColor: [
-          'rgba(255, 99, 132, 1)',
-          'rgba(255, 206, 86, 1)'
-        ],
-        borderWidth: 1,
-      },
-    ],
-  };
-
-  const todayKey = Object.keys(dailyStats)[0]; // Assuming the latest date
-  const todayStats = dailyStats[todayKey] || { sessions: [] };
-
-  const workLocationCounts = todayStats.sessions.reduce(
+  // Calculate work location distribution
+  const workLocationCounts = sessions.reduce(
     (acc, session) => {
       if (session.workLocation === 'work_from_home') acc.wfh += 1;
       else acc.office += 1;
@@ -96,18 +60,29 @@ const AttendanceStats = () => {
     { wfh: 0, office: 0 }
   );
 
-  const workLocationData = {
-    labels: ['Work From Home', 'Office'],
+  // Prepare data for the bar chart
+  const chartData = {
+    labels: ['Effective Hours', 'Overtime', 'Late Arrivals', 'Early Departures'],
     datasets: [
       {
-        data: [workLocationCounts.wfh, workLocationCounts.office],
+        label: 'Stats',
+        data: [
+          summary.totalEffectiveHours,
+          summary.totalOvertime,
+          summary.totalLateArrivals,
+          summary.totalEarlyDepartures
+        ],
         backgroundColor: [
-          'rgba(153, 102, 255, 0.7)',
-          'rgba(54, 162, 235, 0.7)'
+          'rgba(54, 162, 235, 0.7)',
+          'rgba(255, 159, 64, 0.7)',
+          'rgba(255, 99, 132, 0.7)',
+          'rgba(255, 206, 86, 0.7)'
         ],
         borderColor: [
-          'rgba(153, 102, 255, 1)',
-          'rgba(54, 162, 235, 1)'
+          'rgba(54, 162, 235, 1)',
+          'rgba(255, 159, 64, 1)',
+          'rgba(255, 99, 132, 1)',
+          'rgba(255, 206, 86, 1)'
         ],
         borderWidth: 1,
       },
@@ -118,6 +93,11 @@ const AttendanceStats = () => {
     if (!timeString) return '--:--';
     const date = new Date(timeString);
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  };
+
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString([], { year: 'numeric', month: 'short', day: 'numeric' });
   };
 
   return (
@@ -140,8 +120,8 @@ const AttendanceStats = () => {
             <FiClock className="text-green-600 text-xl" />
           </div>
           <div>
-            <p className="text-gray-500 text-sm">Avg. Effective Hours</p>
-            <p className="text-2xl font-bold text-gray-800">{summary.avgEffectiveHours.toFixed(2)}</p>
+            <p className="text-gray-500 text-sm">Total Effective Hours</p>
+            <p className="text-2xl font-bold text-gray-800">{summary.totalEffectiveHours.toFixed(2)}</p>
           </div>
         </div>
         <div className="bg-white rounded-lg shadow p-6 flex items-center">
@@ -149,8 +129,8 @@ const AttendanceStats = () => {
             <FiTrendingUp className="text-purple-600 text-xl" />
           </div>
           <div>
-            <p className="text-gray-500 text-sm">Avg. Gross Hours</p>
-            <p className="text-2xl font-bold text-gray-800">{summary.avgGrossHours.toFixed(2)}</p>
+            <p className="text-gray-500 text-sm">Total Overtime</p>
+            <p className="text-2xl font-bold text-gray-800">{summary.totalOvertime.toFixed(2)}</p>
           </div>
         </div>
         <div className="bg-white rounded-lg shadow p-6 flex items-center">
@@ -166,60 +146,73 @@ const AttendanceStats = () => {
         </div>
       </div>
 
-      {/* Charts Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-        <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-xl font-semibold text-gray-800 mb-4">Hours Breakdown</h2>
-          <div className="h-64">
-            <Bar data={hoursData} options={{
-              responsive: true,
-              maintainAspectRatio: false,
-              plugins: { legend: { position: 'top' } },
-              scales: {
-                y: {
-                  beginAtZero: true,
-                  ticks: {
-                    callback: (value) => `${value} hrs`
-                  }
-                }
-              }
-            }} />
+      {/* Work Location Stats */}
+      <div className="bg-white rounded-lg shadow p-6 mb-8">
+        <h2 className="text-xl font-semibold text-gray-800 mb-4">Work Location Distribution</h2>
+        <div className="flex justify-between">
+          <div className="text-center">
+            <div className="text-2xl font-bold text-blue-600">{workLocationCounts.office}</div>
+            <div className="text-gray-500">Office</div>
           </div>
-        </div>
-        <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-xl font-semibold text-gray-800 mb-4">Attendance Issues</h2>
-          <div className="h-64">
-            <Pie data={issuesData} options={{
-              responsive: true,
-              maintainAspectRatio: false,
-              plugins: { legend: { position: 'top' } }
-            }} />
+          <div className="text-center">
+            <div className="text-2xl font-bold text-purple-600">{workLocationCounts.wfh}</div>
+            <div className="text-gray-500">Work From Home</div>
           </div>
         </div>
       </div>
 
-      {/* Work Location Chart */}
+      {/* Main Chart */}
       <div className="bg-white rounded-lg shadow p-6 mb-8">
-        <h2 className="text-xl font-semibold text-gray-800 mb-4">Work Location Distribution</h2>
+        <h2 className="text-xl font-semibold text-gray-800 mb-4">Attendance Overview</h2>
         <div className="h-64">
-          <Pie data={workLocationData} options={{
+          <Bar data={chartData} options={{
             responsive: true,
             maintainAspectRatio: false,
-            plugins: { legend: { position: 'top' } }
+            plugins: { 
+              legend: { display: false },
+              tooltip: {
+                callbacks: {
+                  label: function(context) {
+                    let label = context.dataset.label || '';
+                    if (label) {
+                      label += ': ';
+                    }
+                    if (context.parsed.y !== null) {
+                      if (context.dataIndex < 2) {
+                        label += `${context.parsed.y.toFixed(2)} hours`;
+                      } else {
+                        label += context.parsed.y;
+                      }
+                    }
+                    return label;
+                  }
+                }
+              }
+            },
+            scales: {
+              y: {
+                beginAtZero: true,
+                ticks: {
+                  callback: function(value) {
+                    return Number.isInteger(value) ? value : value.toFixed(2);
+                  }
+                }
+              }
+            }
           }} />
         </div>
       </div>
 
-      {/* Daily Sessions Table */}
+      {/* Recent Sessions Table */}
       <div className="bg-white rounded-lg shadow overflow-hidden">
         <div className="px-6 py-4 border-b border-gray-200">
-          <h2 className="text-xl font-semibold text-gray-800">Daily Sessions - {todayKey}</h2>
+          <h2 className="text-xl font-semibold text-gray-800">Recent Sessions</h2>
         </div>
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Session</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Clock In</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Clock Out</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Hours</th>
@@ -228,9 +221,11 @@ const AttendanceStats = () => {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {todayStats.sessions.map((session, index) => (
+              {sessions.slice(0, 10).map((session, index) => (
                 <tr key={index}>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Session {index + 1}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {formatDate(session.date)}
+                  </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {formatTime(session.clockIn)}
                   </td>
@@ -238,16 +233,22 @@ const AttendanceStats = () => {
                     {session.clockOut ? formatTime(session.clockOut) : '--:--'}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {session.effectiveHours > 0 ? `${session.effectiveHours.toFixed(2)} hrs` : '--'}
+                    {session.effectiveHours > 0 ? `${session.effectiveHours.toFixed(2)}` : '--'}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    {(session.isLateArrival || session.isEarlyDeparture) ? (
-                      <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
-                        Issue
-                      </span>
+                    {session.status === 'present' ? (
+                      session.isLateArrival || session.isEarlyDeparture ? (
+                        <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                          Partial
+                        </span>
+                      ) : (
+                        <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                          Present
+                        </span>
+                      )
                     ) : (
-                      <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                        Normal
+                      <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                        {session.status}
                       </span>
                     )}
                   </td>

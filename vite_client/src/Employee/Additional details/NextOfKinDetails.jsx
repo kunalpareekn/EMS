@@ -1,10 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { addNextOfKin } from '../../context/employeeDetailsSlice';
+import { addNextOfKin, fetchEmployeeOwnInfo } from '../../context/employeeDetailsSlice';
 
 function NextOfKinDetails() {
     const dispatch = useDispatch();
-    const { employee, loading, error: reduxError } = useSelector(state => state.employeeDetails);
+    const { 
+        employee, 
+        loading, 
+        error: reduxError, 
+        addingNextOfKin 
+    } = useSelector(state => state.employeeDetails);
     
     const [formData, setFormData] = useState({
         name: '',
@@ -16,43 +21,40 @@ function NextOfKinDetails() {
 
     const [isEditing, setIsEditing] = useState(false);
     const [localError, setLocalError] = useState(null);
-    const [isSubmitting, setIsSubmitting] = useState(false);
 
     useEffect(() => {
-        if (employee?.nextOfKin) {
-            setFormData(employee.nextOfKin);
-        }
-    }, [employee]);
+        // Fetch employee's own data on mount
+        dispatch(fetchEmployeeOwnInfo());
+    }, [dispatch]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
-   const handleSubmit = async (e) => {
-  e.preventDefault();
-  setIsSubmitting(true);
-  setLocalError(null);
-  
-  try {
-    const result = await dispatch(addNextOfKin(formData));
-    
-    if (addNextOfKin.fulfilled.match(result)) {
-      setIsEditing(false);
-      // Optional: show success message
-    } else {
-      throw new Error(result.payload || 'Failed to save details');
-    }
-  } catch (error) {
-    setLocalError(error.message);
-    console.error('Submission error:', {
-      error: error.toString(),
-      stack: error.stack
-    });
-  } finally {
-    setIsSubmitting(false);
-  }
-};
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setLocalError(null);
+        
+        // Client-side validation
+        if (!formData.name || !formData.occupation || !formData.phone) {
+            setLocalError('Name, occupation and phone are required');
+            return;
+        }
+
+        try {
+            const result = await dispatch(addNextOfKin(formData));
+            
+            if (addNextOfKin.fulfilled.match(result)) {
+                setIsEditing(false);
+                dispatch(fetchEmployeeOwnInfo()); // Refresh data
+            } else {
+                throw new Error(result.payload || 'Failed to save next of kin');
+            }
+        } catch (error) {
+            setLocalError(error.message);
+        }
+    };
 
     if (loading) return <p className="text-center text-gray-500">Loading...</p>;
 
@@ -68,23 +70,47 @@ function NextOfKinDetails() {
                 )}
 
                 {!isEditing ? (
-                    <div className="space-y-3">
-                        <p><strong>Name:</strong> {formData.name || 'N/A'}</p>
-                        <p><strong>Occupation:</strong> {formData.occupation || 'N/A'}</p>
-                        <p><strong>Phone:</strong> {formData.phone || 'N/A'}</p>
-                        <p><strong>Relationship:</strong> {formData.relationship || 'N/A'}</p>
-                        <p><strong>Address:</strong> {formData.address || 'N/A'}</p>
+                    <div className="space-y-6">
+                        {employee?.nextOfKins?.length > 0 ? (
+                            employee.nextOfKins.map((kin, index) => (
+                                <div key={kin._id} className="border-b pb-4">
+                                    <div className="space-y-2">
+                                        <p><strong>Name:</strong> {kin.name}</p>
+                                        <p><strong>Occupation:</strong> {kin.occupation}</p>
+                                        <p><strong>Phone:</strong> {kin.phone}</p>
+                                        <p><strong>Relationship:</strong> {kin.relationship}</p>
+                                        <p><strong>Address:</strong> {kin.address.split('\n').map((line, i) => (
+                                            <span key={i}>{line}<br /></span>
+                                        ))}</p>
+                                        <p><strong>Added:</strong> {new Date(kin.addedAt).toLocaleDateString()}</p>
+                                    </div>
+                                    <button
+                                        onClick={() => handleEditKin(kin, index)}
+                                        className="mt-3 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm"
+                                    >
+                                        Edit
+                                    </button>
+                                </div>
+                            ))
+                        ) : (
+                            <p className="text-gray-500">No next of kin details available</p>
+                        )}
+                        
                         <button
                             onClick={() => setIsEditing(true)}
                             className="mt-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
                         >
-                            Edit
+                            Add New Next of Kin
                         </button>
                     </div>
                 ) : (
                     <form className="space-y-4" onSubmit={handleSubmit}>
+                        <h3 className="text-lg font-medium">
+                            {activeKinIndex !== null ? 'Edit Next of Kin' : 'Add New Next of Kin'}
+                        </h3>
+                        
                         <div>
-                            <label className="block font-medium text-gray-700 mb-1">Name</label>
+                            <label className="block font-medium text-gray-700 mb-1">Name*</label>
                             <input
                                 type="text"
                                 name="name"
@@ -95,7 +121,7 @@ function NextOfKinDetails() {
                             />
                         </div>
                         <div>
-                            <label className="block font-medium text-gray-700 mb-1">Occupation</label>
+                            <label className="block font-medium text-gray-700 mb-1">Occupation*</label>
                             <input
                                 type="text"
                                 name="occupation"
@@ -106,7 +132,7 @@ function NextOfKinDetails() {
                             />
                         </div>
                         <div>
-                            <label className="block font-medium text-gray-700 mb-1">Phone Number</label>
+                            <label className="block font-medium text-gray-700 mb-1">Phone Number*</label>
                             <input
                                 type="tel"
                                 name="phone"
@@ -117,7 +143,7 @@ function NextOfKinDetails() {
                             />
                         </div>
                         <div>
-                            <label className="block font-medium text-gray-700 mb-1">Relationship</label>
+                            <label className="block font-medium text-gray-700 mb-1">Relationship*</label>
                             <select
                                 name="relationship"
                                 value={formData.relationship}
@@ -128,10 +154,13 @@ function NextOfKinDetails() {
                                 <option value="Relative">Relative</option>
                                 <option value="Friend">Friend</option>
                                 <option value="Colleague">Colleague</option>
+                                <option value="Spouse">Spouse</option>
+                                <option value="Parent">Parent</option>
+                                <option value="Sibling">Sibling</option>
                             </select>
                         </div>
                         <div>
-                            <label className="block font-medium text-gray-700 mb-1">Address</label>
+                            <label className="block font-medium text-gray-700 mb-1">Address*</label>
                             <textarea
                                 name="address"
                                 value={formData.address}
@@ -144,9 +173,9 @@ function NextOfKinDetails() {
                             <button
                                 type="submit"
                                 className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded disabled:bg-green-400"
-                                disabled={isSubmitting}
+                                disabled={addingNextOfKin}
                             >
-                                {isSubmitting ? 'Saving...' : 'Save'}
+                                {addingNextOfKin ? 'Saving...' : 'Save'}
                             </button>
                             <button
                                 type="button"

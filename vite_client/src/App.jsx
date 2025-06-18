@@ -25,7 +25,7 @@ import EmployeePayroll from './Employee/EmployeePayroll';
 import Leave from './Employee/Leave/LeaveApplication';
 import LeaveManagement from './Admin/LeaveManagement';
 import AdminPayroll from './Admin/Payroll/AdminPayroll';
-import ProjectsPage from './Admin/project/ProjectPage';
+import ProjectsPage from './/Admin/project/ProjectPage';
 import ProjectDetailPage from './Admin/project/ProjectDetailPage';
 import EmployeesPage from './Admin/Employee/EmployeesPage';
 import UpdatePayroll from './Admin/Payroll/UpdatePayroll';
@@ -33,6 +33,8 @@ import MyLeavePage from './Employee/Leave/MyLeave';
 import AttendanceStats from './Employee/Attendance/AttendanceStats';
 import EmployeeDetailsPage from './Admin/Employee/EmployeeDetailsPage';
 import ViewProfile from './Employee/Profile details/ViewProfile';
+import TodayStatusComponent from './Admin/Attendance/TodayStatusComponent';
+import AllAttendanceStatsComponent from './Admin/Attendance/AllAttendanceStatsComponent';
 function App() {
     const location = useLocation();
     const hideHeaderRoutes = ['/', '/login', '/register']; // Routes where Header and Sidebar should not be shown
@@ -100,6 +102,11 @@ function App() {
                         <Route path="/employee-payroll" element={<EmployeePayroll />} />
                         <Route path="/admin-payroll" element={<AdminPayroll />} />
                         <Route path="/add-payroll" element={<UpdatePayroll />} />
+                        <Route path="/today-attendance" element={<TodayStatusComponent />} />
+                        <Route path="/all-attendance-history" element={<AllAttendanceStatsComponent />} />
+
+
+
                     </Routes>
                 </div>
             </div>

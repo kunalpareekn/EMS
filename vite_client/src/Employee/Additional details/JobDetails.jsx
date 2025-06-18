@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-
+import { BOTH_DOCUMENT_ENDPOINT } from '../../utils/constant';
 const JobDetails = () => {
     const employeeId = localStorage.getItem('employeeId');
     const [additionalInfo, setAdditionalInfo] = useState({});
@@ -38,9 +38,10 @@ const JobDetails = () => {
                 formData.append('additionalInfo', JSON.stringify(additionalInfo[documentType]));
             }
 
-            const response = await fetch(`/api/employees/${employeeId}/documents`, {
+            const response = await fetch(`${BOTH_DOCUMENT_ENDPOINT}/document-upload`, {
                 method: 'POST',
                 body: formData,
+                 credentials: 'include',
                 // Don't set Content-Type header - the browser will set it with the correct boundary
             });
 

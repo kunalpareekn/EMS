@@ -8,7 +8,7 @@ export const createEmployee = createAsyncThunk(
   async (employeeData, thunkAPI) => {
     try {
       const response = await axios.post(`${EMPLOYEE_AUTH_ENDPOINT}/register`, employeeData);
-      return response.data.employee; // Make sure to return the employee object
+      return response.data.employee;
     } catch (err) {
       return thunkAPI.rejectWithValue(err.response.data.message || 'Failed to create employee');
     }
@@ -20,9 +20,24 @@ export const fetchEmployees = createAsyncThunk(
   async (_, thunkAPI) => {
     try {
       const response = await axios.get(`${EMPLOYEE_AUTH_ENDPOINT}/get-all-employees`, {withCredentials: true});
-      return response.data.employees; // Return the array directly
+      return response.data.employees;
     } catch (err) {
       return thunkAPI.rejectWithValue(err.response?.data?.message || 'Failed to fetch employees');
+    }
+  }
+);
+
+// Add this new async thunk for deleting an employee
+export const deleteEmployee = createAsyncThunk(
+  'employees/deleteEmployee',
+  async (employeeId, thunkAPI) => {
+    try {
+      const response = await axios.delete(`${EMPLOYEE_AUTH_ENDPOINT}/delete-employee/${employeeId}`, {
+        withCredentials: true
+      });
+      return employeeId; // Return the deleted employee's ID
+    } catch (err) {
+      return thunkAPI.rejectWithValue(err.response?.data?.message || 'Failed to delete employee');
     }
   }
 );
@@ -41,9 +56,9 @@ const employeeSlice = createSlice({
         state.status = 'loading';
         state.error = null;
       })
-      .addCase(createEmployee.fulfilled, (state, action) => { // Added action parameter
+      .addCase(createEmployee.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        state.employees.push(action.payload); // Add the new employee to the array
+        state.employees.push(action.payload);
       })
       .addCase(createEmployee.rejected, (state, action) => {
         state.status = 'failed';
@@ -55,9 +70,25 @@ const employeeSlice = createSlice({
       })
       .addCase(fetchEmployees.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        state.employees = action.payload; // Set the employees array directly
+        state.employees = action.payload;
       })
       .addCase(fetchEmployees.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.payload;
+      })
+      // Add cases for deleteEmployee
+      .addCase(deleteEmployee.pending, (state) => {
+        state.status = 'loading';
+        state.error = null;
+      })
+      .addCase(deleteEmployee.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        // Remove the deleted employee from the state
+        state.employees = state.employees.filter(
+          employee => employee._id !== action.payload
+        );
+      })
+      .addCase(deleteEmployee.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.payload;
       });

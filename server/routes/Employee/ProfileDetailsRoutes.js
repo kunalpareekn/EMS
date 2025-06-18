@@ -5,7 +5,6 @@ import {
     addProfessionalQualification,
     addFamilyDetail,
     updateFinancialDetails,
-    addDocument,
     addGuarantorDetails,
     addNextOfKin,
     getEmployeeInfoByAdmin,
@@ -13,7 +12,6 @@ import {
 } from "../../controllers/employee/profileDetailsController.js";
 import isAuthenticated from "../../middlewares/isAuthenticated.js";
 import isAdminAuthenticated from './../../middlewares/isAdminAuthenticated.js';
-import upload from "../../middlewares/upload.js";
 import { updateEmployeeStatus } from "../../controllers/auth/employeeAuthController.js";
 
 
@@ -35,12 +33,5 @@ router.route("/update-financial-details").put(isAuthenticated, updateFinancialDe
 router.route("/admin/update-status/:employeeId").patch(isAdminAuthenticated,updateEmployeeStatus );
 
 
-// Document routes
-router.post(
-    '/documents',
-    isAuthenticated,
-    upload.single('document'), // 'document' is the field name in form-data
-    addDocument
-);
 
 export default router;
