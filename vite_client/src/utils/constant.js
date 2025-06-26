@@ -19,6 +19,7 @@ export const BOTH_PROFILE_ENDPOINT="http://localhost:5000/api/v1/both/profile-de
 export const BOTH_NOTIFICATION_ENDPOINT="http://localhost:5000/api/v1/both/notification"
 export const BOTH_ATTENDANCE_ENDPOINT="http://localhost:5000/api/v1/both/attendance"
 export const BOTH_DOCUMENT_ENDPOINT="http://localhost:5000/api/v1/both/document"
+export const BOTH_PASSWORD_ENDPOINT="http://localhost:5000/api/v1/both/password"
 
 
 

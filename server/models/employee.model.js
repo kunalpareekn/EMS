@@ -122,8 +122,10 @@ const employeeSchema = new mongoose.Schema({
         default: true
     }
     ,
-
-    active: { type: Boolean, default: true }
+resetPasswordToken: String,
+  resetPasswordExpire: Date,
+  mustResetPassword: Boolean
+    ,active: { type: Boolean, default: true }
 }, { timestamps: true });
 
 const Employee = mongoose.model("Employee", employeeSchema, "employees");

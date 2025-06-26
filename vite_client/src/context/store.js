@@ -22,6 +22,7 @@ import employeeLeaveReducer from "./employeeLeaveSlice";
 import attendanceReducer from "./attendanceSlice";
 import employeeDetailsReducer from './employeeDetailsSlice';
 import notificationReducer from "./notificationSlice"
+import forgotPasswordReducer from "./../context/forgotPasswordSlice"
 
 // Combine reducers
 const rootReducer = combineReducers({
@@ -33,7 +34,8 @@ const rootReducer = combineReducers({
   employeeLeave: employeeLeaveReducer,
   attendance: attendanceReducer,
   employeeDetails: employeeDetailsReducer,
-  notifications: notificationReducer
+  notifications: notificationReducer,
+  forgotPassword: forgotPasswordReducer
 });
 
 // Persistence configuration

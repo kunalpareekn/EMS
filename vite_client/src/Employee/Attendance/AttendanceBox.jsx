@@ -8,7 +8,6 @@ import {
 } from '../../context/attendanceSlice';
 import { format, parseISO } from 'date-fns';
 import { FiClock, FiHome, FiMapPin, FiCalendar, FiCoffee, FiPause, FiPlay } from 'react-icons/fi';
-import { Link } from 'react-router-dom';
 
 const AttendanceBox = () => {
   const dispatch = useDispatch();
@@ -112,11 +111,6 @@ const AttendanceBox = () => {
     <div className="bg-white rounded-lg shadow-md p-6 mb-6">
       <div className='flex flex-row justify-between mb-2'>
         <h2 className="text-xl font-semibold text-gray-800 mb-4">Today's Attendance</h2>
-        <Link to="/attendance-stats">
-          <button className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition">
-            My Attendance
-          </button>
-        </Link>
       </div>
 
       {error && (

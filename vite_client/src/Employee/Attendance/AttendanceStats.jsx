@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchLogs } from '../../context/attendanceSlice';
 import { FiCalendar, FiClock, FiTrendingUp, FiHome, FiAlertTriangle } from 'react-icons/fi';
@@ -18,6 +18,16 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
 const AttendanceStats = () => {
   const dispatch = useDispatch();
   const { summary, sessions, loading, error } = useSelector((state) => state.attendance);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // Group sessions by date for dailyStats
   const groupedStats = useMemo(() => {
@@ -101,167 +111,169 @@ const AttendanceStats = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold text-gray-800 mb-6">Attendance Statistics</h1>
+    <div className={`min-h-screen bg-gray-100 ${isMobile ? 'pt-16' : 'ml-64'}`}>
+      <div className="mx-auto p-4 max-w-screen-2xl">
+        <h1 className="text-2xl md:text-3xl font-bold text-gray-800 mb-6">Attendance Statistics</h1>
 
-      {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <div className="bg-white rounded-lg shadow p-6 flex items-center">
-          <div className="bg-blue-100 p-3 rounded-full mr-4">
-            <FiCalendar className="text-blue-600 text-xl" />
+        {/* Summary Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+          <div className="bg-white rounded-lg shadow p-4 flex items-center">
+            <div className="bg-blue-100 p-2 rounded-full mr-3">
+              <FiCalendar className="text-blue-600 text-lg" />
+            </div>
+            <div>
+              <p className="text-xs text-gray-500">Total Days</p>
+              <p className="text-xl font-bold text-gray-800">{summary.totalDays}</p>
+            </div>
           </div>
-          <div>
-            <p className="text-gray-500 text-sm">Total Days</p>
-            <p className="text-2xl font-bold text-gray-800">{summary.totalDays}</p>
+          <div className="bg-white rounded-lg shadow p-4 flex items-center">
+            <div className="bg-green-100 p-2 rounded-full mr-3">
+              <FiClock className="text-green-600 text-lg" />
+            </div>
+            <div>
+              <p className="text-xs text-gray-500">Total Effective Hours</p>
+              <p className="text-xl font-bold text-gray-800">{summary.totalEffectiveHours.toFixed(2)}</p>
+            </div>
+          </div>
+          <div className="bg-white rounded-lg shadow p-4 flex items-center">
+            <div className="bg-purple-100 p-2 rounded-full mr-3">
+              <FiTrendingUp className="text-purple-600 text-lg" />
+            </div>
+            <div>
+              <p className="text-xs text-gray-500">Total Overtime</p>
+              <p className="text-xl font-bold text-gray-800">{summary.totalOvertime.toFixed(2)}</p>
+            </div>
+          </div>
+          <div className="bg-white rounded-lg shadow p-4 flex items-center">
+            <div className="bg-red-100 p-2 rounded-full mr-3">
+              <FiAlertTriangle className="text-red-600 text-lg" />
+            </div>
+            <div>
+              <p className="text-xs text-gray-500">Attendance Issues</p>
+              <p className="text-xl font-bold text-gray-800">
+                {summary.totalLateArrivals + summary.totalEarlyDepartures}
+              </p>
+            </div>
           </div>
         </div>
-        <div className="bg-white rounded-lg shadow p-6 flex items-center">
-          <div className="bg-green-100 p-3 rounded-full mr-4">
-            <FiClock className="text-green-600 text-xl" />
-          </div>
-          <div>
-            <p className="text-gray-500 text-sm">Total Effective Hours</p>
-            <p className="text-2xl font-bold text-gray-800">{summary.totalEffectiveHours.toFixed(2)}</p>
-          </div>
-        </div>
-        <div className="bg-white rounded-lg shadow p-6 flex items-center">
-          <div className="bg-purple-100 p-3 rounded-full mr-4">
-            <FiTrendingUp className="text-purple-600 text-xl" />
-          </div>
-          <div>
-            <p className="text-gray-500 text-sm">Total Overtime</p>
-            <p className="text-2xl font-bold text-gray-800">{summary.totalOvertime.toFixed(2)}</p>
-          </div>
-        </div>
-        <div className="bg-white rounded-lg shadow p-6 flex items-center">
-          <div className="bg-red-100 p-3 rounded-full mr-4">
-            <FiAlertTriangle className="text-red-600 text-xl" />
-          </div>
-          <div>
-            <p className="text-gray-500 text-sm">Attendance Issues</p>
-            <p className="text-2xl font-bold text-gray-800">
-              {summary.totalLateArrivals + summary.totalEarlyDepartures}
-            </p>
-          </div>
-        </div>
-      </div>
 
-      {/* Work Location Stats */}
-      <div className="bg-white rounded-lg shadow p-6 mb-8">
-        <h2 className="text-xl font-semibold text-gray-800 mb-4">Work Location Distribution</h2>
-        <div className="flex justify-between">
-          <div className="text-center">
-            <div className="text-2xl font-bold text-blue-600">{workLocationCounts.office}</div>
-            <div className="text-gray-500">Office</div>
-          </div>
-          <div className="text-center">
-            <div className="text-2xl font-bold text-purple-600">{workLocationCounts.wfh}</div>
-            <div className="text-gray-500">Work From Home</div>
+        {/* Work Location Stats */}
+        <div className="bg-white rounded-lg shadow p-4 mb-6">
+          <h2 className="text-lg font-semibold text-gray-800 mb-3">Work Location Distribution</h2>
+          <div className="flex justify-between">
+            <div className="text-center">
+              <div className="text-xl font-bold text-blue-600">{workLocationCounts.office}</div>
+              <div className="text-xs text-gray-500">Office</div>
+            </div>
+            <div className="text-center">
+              <div className="text-xl font-bold text-purple-600">{workLocationCounts.wfh}</div>
+              <div className="text-xs text-gray-500">Work From Home</div>
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Main Chart */}
-      <div className="bg-white rounded-lg shadow p-6 mb-8">
-        <h2 className="text-xl font-semibold text-gray-800 mb-4">Attendance Overview</h2>
-        <div className="h-64">
-          <Bar data={chartData} options={{
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: { 
-              legend: { display: false },
-              tooltip: {
-                callbacks: {
-                  label: function(context) {
-                    let label = context.dataset.label || '';
-                    if (label) {
-                      label += ': ';
-                    }
-                    if (context.parsed.y !== null) {
-                      if (context.dataIndex < 2) {
-                        label += `${context.parsed.y.toFixed(2)} hours`;
-                      } else {
-                        label += context.parsed.y;
+        {/* Main Chart */}
+        <div className="bg-white rounded-lg shadow p-4 mb-6">
+          <h2 className="text-lg font-semibold text-gray-800 mb-3">Attendance Overview</h2>
+          <div className="h-64">
+            <Bar data={chartData} options={{
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: { 
+                legend: { display: false },
+                tooltip: {
+                  callbacks: {
+                    label: function(context) {
+                      let label = context.dataset.label || '';
+                      if (label) {
+                        label += ': ';
                       }
+                      if (context.parsed.y !== null) {
+                        if (context.dataIndex < 2) {
+                          label += `${context.parsed.y.toFixed(2)} hours`;
+                        } else {
+                          label += context.parsed.y;
+                        }
+                      }
+                      return label;
                     }
-                    return label;
+                  }
+                }
+              },
+              scales: {
+                y: {
+                  beginAtZero: true,
+                  ticks: {
+                    callback: function(value) {
+                      return Number.isInteger(value) ? value : value.toFixed(2);
+                    }
                   }
                 }
               }
-            },
-            scales: {
-              y: {
-                beginAtZero: true,
-                ticks: {
-                  callback: function(value) {
-                    return Number.isInteger(value) ? value : value.toFixed(2);
-                  }
-                }
-              }
-            }
-          }} />
+            }} />
+          </div>
         </div>
-      </div>
 
-      {/* Recent Sessions Table */}
-      <div className="bg-white rounded-lg shadow overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <h2 className="text-xl font-semibold text-gray-800">Recent Sessions</h2>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Clock In</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Clock Out</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Hours</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {sessions.slice(0, 10).map((session, index) => (
-                <tr key={index}>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {formatDate(session.date)}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {formatTime(session.clockIn)}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {session.clockOut ? formatTime(session.clockOut) : '--:--'}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {session.effectiveHours > 0 ? `${session.effectiveHours.toFixed(2)}` : '--'}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    {session.status === 'present' ? (
-                      session.isLateArrival || session.isEarlyDeparture ? (
-                        <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                          Partial
-                        </span>
-                      ) : (
-                        <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                          Present
-                        </span>
-                      )
-                    ) : (
-                      <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
-                        {session.status}
-                      </span>
-                    )}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    <div className="flex items-center">
-                      <FiHome className="mr-1" />
-                      {session.workLocation === 'work_from_home' ? 'WFH' : 'Office'}
-                    </div>
-                  </td>
+        {/* Recent Sessions Table */}
+        <div className="bg-white rounded-lg shadow overflow-hidden mb-6">
+          <div className="px-4 py-3 border-b border-gray-200">
+            <h2 className="text-lg font-semibold text-gray-800">Recent Sessions</h2>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-max divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Clock In</th>
+                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Clock Out</th>
+                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Hours</th>
+                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {sessions.slice(0, 10).map((session, index) => (
+                  <tr key={index}>
+                    <td className="px-4 py-3 whitespace-nowrap text-xs text-gray-500">
+                      {formatDate(session.date)}
+                    </td>
+                    <td className="px-4 py-3 whitespace-nowrap text-xs text-gray-500">
+                      {formatTime(session.clockIn)}
+                    </td>
+                    <td className="px-4 py-3 whitespace-nowrap text-xs text-gray-500">
+                      {session.clockOut ? formatTime(session.clockOut) : '--:--'}
+                    </td>
+                    <td className="px-4 py-3 whitespace-nowrap text-xs text-gray-500">
+                      {session.effectiveHours > 0 ? `${session.effectiveHours.toFixed(2)}` : '--'}
+                    </td>
+                    <td className="px-4 py-3 whitespace-nowrap">
+                      {session.status === 'present' ? (
+                        session.isLateArrival || session.isEarlyDeparture ? (
+                          <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                            Partial
+                          </span>
+                        ) : (
+                          <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                            Present
+                          </span>
+                        )
+                      ) : (
+                        <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                          {session.status}
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-4 py-3 whitespace-nowrap text-xs text-gray-500">
+                      <div className="flex items-center">
+                        <FiHome className="mr-1" />
+                        {session.workLocation === 'work_from_home' ? 'WFH' : 'Office'}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>

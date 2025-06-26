@@ -14,7 +14,9 @@ import {
   Alert,
   Checkbox,
   ListItemText,
-  Autocomplete
+  Autocomplete,
+  useMediaQuery,
+  useTheme
 } from '@mui/material';
 import { useNavigate, Link } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
@@ -24,6 +26,8 @@ import useAddProject from '../../Hooks/useAddProject';
 function AddProject() {
     const dispatch = useDispatch();
     const navigate = useNavigate();
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down('md'));
     
     // Get employees from Redux store (simplified structure)
     const { employees, status, error: employeesError } = useSelector((state) => ({
@@ -145,8 +149,30 @@ function AddProject() {
     }
 
     return (
-        <Box sx={{ padding: 4 }}>
-            <Typography variant="h4" gutterBottom>Add New Project</Typography>
+        <Box 
+            sx={{ 
+                padding: 4,
+                // Adjust margin based on sidebar state and screen size
+                marginLeft: isMobile ? 0 : '20rem', // Default to expanded sidebar
+                transition: theme.transitions.create('margin', {
+                    easing: theme.transitions.easing.sharp,
+                    duration: theme.transitions.duration.leavingScreen,
+                }),
+                // You might want to add a class or state to track sidebar collapsed state
+                // Here's how you would adjust it when sidebar is minimized:
+                // '&.sidebar-collapsed': {
+                //     marginLeft: '5rem', // w-20 equivalent
+                // },
+                // For mobile, no margin needed as sidebar becomes top navbar
+                [theme.breakpoints.down('md')]: {
+                    marginLeft: 0,
+                    padding: 2
+                }
+            }}
+        >
+            <Typography variant="h4" gutterBottom sx={{ [theme.breakpoints.down('md')]: { fontSize: '1.5rem' } }}>
+                Add New Project
+            </Typography>
             
             {error && (
                 <Alert severity="error" sx={{ mb: 2 }}>
@@ -160,7 +186,12 @@ function AddProject() {
                 </Box>
             )}
 
-            <Paper elevation={3} sx={{ padding: 3 }}>
+            <Paper elevation={3} sx={{ 
+                padding: 3,
+                [theme.breakpoints.down('md')]: {
+                    padding: 2
+                }
+            }}>
                 <form onSubmit={handleSubmit}>
                     <TextField
                         fullWidth
@@ -170,9 +201,10 @@ function AddProject() {
                         onChange={handleChange}
                         margin="normal"
                         required
+                        sx={{ [theme.breakpoints.down('md')]: { marginBottom: 2 } }}
                     />
                     
-                    <FormControl fullWidth margin="normal">
+                    <FormControl fullWidth margin="normal" sx={{ [theme.breakpoints.down('md')]: { marginBottom: 2 } }}>
                         <InputLabel>Project Status</InputLabel>
                         <Select
                             name="status"
@@ -189,8 +221,8 @@ function AddProject() {
                     </FormControl>
                     
                     {/* Project Leaders Section */}
-                    <Box mt={3}>
-                        <Typography variant="h6" gutterBottom>
+                    <Box mt={3} sx={{ [theme.breakpoints.down('md')]: { marginTop: 2 } }}>
+                        <Typography variant="h6" gutterBottom sx={{ [theme.breakpoints.down('md')]: { fontSize: '1.1rem' } }}>
                             Project Leaders (Max 2)
                         </Typography>
                         <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 2 }}>
@@ -200,6 +232,7 @@ function AddProject() {
                                     label={getEmployeeName(id)}
                                     onDelete={() => handleLeaderSelect(id)}
                                     color="primary"
+                                    size={isMobile ? 'small' : 'medium'}
                                 />
                             ))}
                         </Box>
@@ -225,14 +258,19 @@ function AddProject() {
                                     label="Search and select leaders"
                                     placeholder="Type to search employees"
                                     onChange={(e) => setSearchTerm(e.target.value)}
+                                    size={isMobile ? 'small' : 'medium'}
                                 />
                             )}
                             renderOption={(props, employee, { selected }) => (
                                 <MenuItem {...props} key={employee._id}>
-                                    <Checkbox checked={form.projectLeader.includes(employee._id)} />
+                                    <Checkbox checked={form.projectLeader.includes(employee._id)} size={isMobile ? 'small' : 'medium'} />
                                     <ListItemText 
                                         primary={`${employee.name} ${employee.lastName}`}
                                         secondary={`${employee.position} - ${employee.department}`}
+                                        sx={{ 
+                                            '& .MuiListItemText-primary': { fontSize: isMobile ? '0.875rem' : '1rem' },
+                                            '& .MuiListItemText-secondary': { fontSize: isMobile ? '0.75rem' : '0.875rem' }
+                                        }}
                                     />
                                 </MenuItem>
                             )}
@@ -242,6 +280,7 @@ function AddProject() {
                                         {...getTagProps({ index })}
                                         key={employee._id}
                                         label={`${employee.name} ${employee.lastName}`}
+                                        size={isMobile ? 'small' : 'medium'}
                                     />
                                 ))
                             }
@@ -249,8 +288,8 @@ function AddProject() {
                     </Box>
                     
                     {/* Project Members Section */}
-                    <Box mt={3}>
-                        <Typography variant="h6" gutterBottom>
+                    <Box mt={3} sx={{ [theme.breakpoints.down('md')]: { marginTop: 2 } }}>
+                        <Typography variant="h6" gutterBottom sx={{ [theme.breakpoints.down('md')]: { fontSize: '1.1rem' } }}>
                             Project Members
                         </Typography>
                         <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 2 }}>
@@ -260,6 +299,7 @@ function AddProject() {
                                     label={getEmployeeName(id)}
                                     onDelete={() => handleMemberSelect(id)}
                                     color="secondary"
+                                    size={isMobile ? 'small' : 'medium'}
                                 />
                             ))}
                         </Box>
@@ -280,14 +320,19 @@ function AddProject() {
                                     label="Search and select members"
                                     placeholder="Type to search employees"
                                     onChange={(e) => setSearchTerm(e.target.value)}
+                                    size={isMobile ? 'small' : 'medium'}
                                 />
                             )}
                             renderOption={(props, employee, { selected }) => (
                                 <MenuItem {...props} key={employee._id}>
-                                    <Checkbox checked={form.projectMembers.includes(employee._id)} />
+                                    <Checkbox checked={form.projectMembers.includes(employee._id)} size={isMobile ? 'small' : 'medium'} />
                                     <ListItemText 
                                         primary={`${employee.name} ${employee.lastName}`}
                                         secondary={`${employee.position} - ${employee.department}`}
+                                        sx={{ 
+                                            '& .MuiListItemText-primary': { fontSize: isMobile ? '0.875rem' : '1rem' },
+                                            '& .MuiListItemText-secondary': { fontSize: isMobile ? '0.75rem' : '0.875rem' }
+                                        }}
                                     />
                                 </MenuItem>
                             )}
@@ -297,18 +342,27 @@ function AddProject() {
                                         {...getTagProps({ index })}
                                         key={employee._id}
                                         label={`${employee.name} ${employee.lastName}`}
+                                        size={isMobile ? 'small' : 'medium'}
                                     />
                                 ))
                             }
                         />
                     </Box>
                     
-                    <Box mt={4} display="flex" justifyContent="space-between">
+                    <Box mt={4} display="flex" justifyContent="space-between" sx={{ 
+                        [theme.breakpoints.down('md')]: { 
+                            flexDirection: 'column-reverse',
+                            gap: 2,
+                            marginTop: 3
+                        }
+                    }}>
                         <Button 
                             variant="contained" 
                             color="primary" 
                             type="submit"
                             disabled={projectStatus === 'loading'}
+                            fullWidth={isMobile}
+                            size={isMobile ? 'medium' : 'large'}
                         >
                             {projectStatus === 'loading' ? 'Saving...' : 'Save Project'}
                         </Button>
@@ -318,6 +372,8 @@ function AddProject() {
                             to="/dashboard-admin"
                             variant="outlined"
                             color="secondary"
+                            fullWidth={isMobile}
+                            size={isMobile ? 'medium' : 'large'}
                         >
                             Cancel
                         </Button>

@@ -15,7 +15,9 @@ import {
   Checkbox,
   ListItemText,
   Autocomplete,
-  Divider
+  Divider,
+  useMediaQuery,
+  useTheme
 } from '@mui/material';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
@@ -31,7 +33,11 @@ const ProjectDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
-    useGetAllProjects();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  
+  useGetAllProjects();
+  
   // Project data
   const project = useSelector(store => 
     store.project?.allProjects?.find(p => p._id === id)
@@ -97,13 +103,11 @@ const ProjectDetailPage = () => {
       const index = currentMembers.indexOf(employeeId);
       
       if (index === -1) {
-        // Add employee to members
         return {
           ...prev,
           projectMembers: [...currentMembers, employeeId]
         };
       } else {
-        // Remove employee from members
         return {
           ...prev,
           projectMembers: currentMembers.filter(id => id !== employeeId)
@@ -111,14 +115,14 @@ const ProjectDetailPage = () => {
       }
     });
   };
-  const handleBackToProject=()=>{
+
+  const handleBackToProject = () => {
     navigate('/projects', { replace: true });
     useGetAllProjects();
   }
 
   const handleUpdate = async () => {
     try {
-      // Prepare the data to send
       const projectData = {
         name: editedProject.name,
         status: editedProject.status,
@@ -166,12 +170,33 @@ const ProjectDetailPage = () => {
   };
 
   return (
-    <Box sx={{ padding: 4 }}>
-      <Box display="flex" justifyContent="space-between" alignItems="center" mb={4}>
+    <Box 
+      sx={{ 
+        padding: isMobile ? 2 : 4,
+        marginLeft: isMobile ? 0 : '16rem', // Default to expanded sidebar (w-64)
+        transition: theme.transitions.create('margin', {
+          easing: theme.transitions.easing.sharp,
+          duration: theme.transitions.duration.leavingScreen,
+        }),
+        // You'll need to add logic for collapsed sidebar state
+        // '&.sidebar-collapsed': {
+        //   marginLeft: '5rem', // w-20 equivalent
+        // },
+      }}
+    >
+      <Box 
+        display="flex" 
+        flexDirection={isMobile ? 'column' : 'row'} 
+        justifyContent="space-between" 
+        alignItems={isMobile ? 'flex-start' : 'center'} 
+        gap={2}
+        mb={4}
+      >
         <Button 
           onClick={() => navigate('/projects')}
           startIcon={<FiChevronLeft />}
           variant="outlined"
+          size={isMobile ? 'small' : 'medium'}
         >
           Back to Projects
         </Button>
@@ -184,16 +209,18 @@ const ProjectDetailPage = () => {
                 startIcon={<FiEdit2 />}
                 variant="contained"
                 color="primary"
+                size={isMobile ? 'small' : 'medium'}
               >
-                Edit
+                {isMobile ? 'Edit' : 'Edit Project'}
               </Button>
               <Button 
                 onClick={handleDelete}
                 startIcon={<FiTrash2 />}
                 variant="contained"
                 color="error"
+                size={isMobile ? 'small' : 'medium'}
               >
-                Delete
+                {isMobile ? 'Delete' : 'Delete Project'}
               </Button>
             </>
           ) : (
@@ -203,10 +230,19 @@ const ProjectDetailPage = () => {
                 startIcon={<FiSave />}
                 variant="contained"
                 color="success"
+                size={isMobile ? 'small' : 'medium'}
               >
                 Save
               </Button>
-             
+              <Button 
+                onClick={() => setIsEditing(false)}
+                startIcon={<FiX />}
+                variant="outlined"
+                color="secondary"
+                size={isMobile ? 'small' : 'medium'}
+              >
+                Cancel
+              </Button>
             </>
           )}
         </Box>
@@ -219,7 +255,7 @@ const ProjectDetailPage = () => {
       )}
 
       {isEditing ? (
-        <Paper elevation={3} sx={{ padding: 3, mb: 4 }}>
+        <Paper elevation={3} sx={{ padding: isMobile ? 2 : 3, mb: 4 }}>
           <Box component="form" sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
             <TextField
               fullWidth
@@ -228,9 +264,10 @@ const ProjectDetailPage = () => {
               value={editedProject.name}
               onChange={handleInputChange}
               required
+              size={isMobile ? 'small' : 'medium'}
             />
             
-            <FormControl fullWidth>
+            <FormControl fullWidth size={isMobile ? 'small' : 'medium'}>
               <InputLabel>Status</InputLabel>
               <Select
                 name="status"
@@ -246,7 +283,7 @@ const ProjectDetailPage = () => {
               </Select>
             </FormControl>
 
-            <FormControl fullWidth>
+            <FormControl fullWidth size={isMobile ? 'small' : 'medium'}>
               <InputLabel>Project Leader</InputLabel>
               <Select
                 name="projectLeader"
@@ -263,14 +300,13 @@ const ProjectDetailPage = () => {
               </Select>
             </FormControl>
 
-            <FormControl fullWidth>
+            <FormControl fullWidth size={isMobile ? 'small' : 'medium'}>
               <InputLabel>Project Members</InputLabel>
               <Select
                 multiple
                 name="projectMembers"
                 value={editedProject.projectMembers}
                 onChange={(e) => {
-                  // For multi-select, the value is already an array
                   setEditedProject(prev => ({
                     ...prev,
                     projectMembers: e.target.value
@@ -282,7 +318,11 @@ const ProjectDetailPage = () => {
                     {selected.map((employeeId) => {
                       const employee = getEmployeeById(employeeId);
                       return employee ? (
-                        <Chip key={employeeId} label={getEmployeeName(employee)} />
+                        <Chip 
+                          key={employeeId} 
+                          label={getEmployeeName(employee)} 
+                          size={isMobile ? 'small' : 'medium'}
+                        />
                       ) : null;
                     })}
                   </Box>
@@ -290,8 +330,14 @@ const ProjectDetailPage = () => {
               >
                 {employees.map((employee) => (
                   <MenuItem key={employee._id} value={employee._id}>
-                    <Checkbox checked={editedProject.projectMembers.indexOf(employee._id) > -1} />
-                    <ListItemText primary={getEmployeeName(employee)} />
+                    <Checkbox 
+                      checked={editedProject.projectMembers.indexOf(employee._id) > -1} 
+                      size={isMobile ? 'small' : 'medium'}
+                    />
+                    <ListItemText 
+                      primary={getEmployeeName(employee)} 
+                      primaryTypographyProps={{ fontSize: isMobile ? '0.875rem' : '1rem' }}
+                    />
                   </MenuItem>
                 ))}
               </Select>
@@ -299,10 +345,15 @@ const ProjectDetailPage = () => {
           </Box>
         </Paper>
       ) : (
-        <Paper elevation={3} sx={{ padding: 3, mb: 4 }}>
-          <Typography variant="h4" gutterBottom>{project.name}</Typography>
+        <Paper elevation={3} sx={{ padding: isMobile ? 2 : 3, mb: 4 }}>
+          <Typography variant={isMobile ? 'h5' : 'h4'} gutterBottom>{project.name}</Typography>
           
-          <Box display="flex" gap={4} mb={3}>
+          <Box 
+            display="flex" 
+            flexDirection={isMobile ? 'column' : 'row'} 
+            gap={isMobile ? 2 : 4} 
+            mb={3}
+          >
             <Box>
               <Typography variant="subtitle1" color="text.secondary">Status</Typography>
               <Chip 
@@ -312,19 +363,20 @@ const ProjectDetailPage = () => {
                   project.status === 'In Progress' ? 'primary' :
                   project.status === 'On Hold' ? 'warning' : 'default'
                 }
+                size={isMobile ? 'small' : 'medium'}
               />
             </Box>
             
             <Box>
               <Typography variant="subtitle1" color="text.secondary">Manager</Typography>
-              <Typography>
+              <Typography variant={isMobile ? 'body2' : 'body1'}>
                 {project.projectLeader ? getEmployeeName(project.projectLeader) : 'Not assigned'}
               </Typography>
             </Box>
             
             <Box>
               <Typography variant="subtitle1" color="text.secondary">Start Date</Typography>
-              <Typography>
+              <Typography variant={isMobile ? 'body2' : 'body1'}>
                 {new Date(project.createdAt).toLocaleDateString()}
               </Typography>
             </Box>
@@ -341,6 +393,7 @@ const ProjectDetailPage = () => {
                   label={getEmployeeName(member)}
                   color="secondary"
                   variant="outlined"
+                  size={isMobile ? 'small' : 'medium'}
                 />
               ))}
             </Box>

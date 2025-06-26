@@ -6,7 +6,6 @@ import DashboardAdmin from './Admin/DashboardAdmin';
 import DashboardEmployee from './Employee/Dashboard/DashboardEmployee';
 import Header from './Shared/Header'; // Import Header component
 import AddEmployee from './Admin/Employee/AddEmployee'; // Import AddEmployee component
-import EmployeeList from './Admin/EmployeeList'; // Import EmployeeList component
 import AddProject from './Admin/project/AddProject'; // Import AddProject component
 import ProjectCard from './Admin/project/ProjectCard'; // Import AddProject component
 // import EmployeeDetails from './Admin/EmployeeDetail'; // Import EmployeeDetails component
@@ -35,6 +34,9 @@ import EmployeeDetailsPage from './Admin/Employee/EmployeeDetailsPage';
 import ViewProfile from './Employee/Profile details/ViewProfile';
 import TodayStatusComponent from './Admin/Attendance/TodayStatusComponent';
 import AllAttendanceStatsComponent from './Admin/Attendance/AllAttendanceStatsComponent';
+import ForgotPasswordEmail from './Both/ForgotPasswordEmail';
+import ResetPassword from './Both/ResetPassword';
+import NotFound from './Others/NotFound';
 function App() {
     const location = useLocation();
     const hideHeaderRoutes = ['/', '/login', '/register']; // Routes where Header and Sidebar should not be shown
@@ -77,7 +79,6 @@ function App() {
 
 
                         
-                        <Route path="/employee-list" element={<EmployeeList />} /> {/* Add route for EmployeeList */}
                         <Route path="/add-employee" element={<AddEmployee />} /> {/* Add route for AddEmployee */}
                         <Route path="/add-project" element={<AddProject />} /> {/* Add route for AddProject */}
                         <Route path="/projects" element={<ProjectsPage  />} /> {/* Add route for AddProject */}
@@ -99,11 +100,14 @@ function App() {
                         <Route path="/leave-management" element={<LeaveManagement />} />
                         <Route path="/daily-report" element={<DailyReport />} /> {/* Add route for DailyReport */}
                         <Route path="/attendance" element={<AttendanceDashboard />} />
-                        <Route path="/employee-payroll" element={<EmployeePayroll />} />
+                        {/* <Route path="/employee-payroll" element={<EmployeePayroll />} /> */}
                         <Route path="/admin-payroll" element={<AdminPayroll />} />
                         <Route path="/add-payroll" element={<UpdatePayroll />} />
                         <Route path="/today-attendance" element={<TodayStatusComponent />} />
                         <Route path="/all-attendance-history" element={<AllAttendanceStatsComponent />} />
+                        <Route path="/forgot-password" element={<ForgotPasswordEmail />} />
+                        <Route path="/reset-password/:token" element={<ResetPassword />} />
+                         <Route path="*" element={<NotFound />} />
 
 
 

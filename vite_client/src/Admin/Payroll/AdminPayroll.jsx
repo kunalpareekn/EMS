@@ -62,30 +62,34 @@ const AdminPayroll = () => {
 
     // Function to determine payroll status
     const getPayrollStatus = (employee) => {
-        // Assuming payroll is considered generated if inHandSalary exists and is greater than 0
-        // You can adjust this logic based on your actual data structure
         return employee.inHandSalary !== undefined && employee.inHandSalary > 0 ? 'Generated' : 'Not Generated';
     };
 
     return (
-        <div className="p-5 max-w-screen-xl mx-auto">
-            <div className="flex justify-between items-center mb-5">
-                <h2 className="text-2xl font-semibold text-gray-800">Employee Payroll</h2>
-                <Link to="/add-payroll"><button
-                    onClick={handleCreatePayroll}
-                    className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 text-sm"
-                >
-                    + Create Payroll
-                </button></Link>
+        <div className="p-5 transition-all duration-300 ease-in-out ml-64 min-h-screen bg-gray-50 
+            lg:ml-64 md:ml-20 sm:ml-0" 
+            // Expanded sidebar: ml-64 (256px), Minimized sidebar: ml-20 (80px), Mobile: ml-0
+        >
+            {/* Mobile header - only shown on small screens */}
+            <div className="sm:block lg:hidden md:hidden mb-4 bg-white p-4 rounded-lg shadow">
+                <h2 className="text-xl font-semibold text-gray-800">Employee Payroll</h2>
             </div>
 
-            <div className="p-5 max-w-screen-xl mx-auto">
-                <div className="flex justify-between items-center mb-5">
-                    <h2 className="text-2xl font-semibold text-gray-800">Employee Payroll</h2>
-                </div>
+            <div className="flex justify-between items-center mb-5">
+                <h2 className="text-2xl font-semibold text-gray-800 hidden sm:hidden lg:block">Employee Payroll</h2>
+                <Link to="/add-payroll">
+                    <button
+                        onClick={handleCreatePayroll}
+                        className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 text-sm"
+                    >
+                        + Create Payroll
+                    </button>
+                </Link>
+            </div>
 
+            <div className="bg-white p-5 rounded-lg shadow">
                 <div className="flex flex-col md:flex-row gap-5 mb-5">
-                    <div className="flex flex-col gap-1">
+                    <div className="flex flex-col gap-1 flex-1">
                         <label className="font-medium text-gray-700">Month</label>
                         <select
                             className="p-2 border border-gray-300 rounded-md text-sm"
@@ -100,7 +104,7 @@ const AdminPayroll = () => {
                             ))}
                         </select>
                     </div>
-                    <div className="flex flex-col gap-1">
+                    <div className="flex flex-col gap-1 flex-1">
                         <label className="font-medium text-gray-700">Year</label>
                         <select
                             className="p-2 border border-gray-300 rounded-md text-sm"
@@ -180,7 +184,7 @@ const AdminPayroll = () => {
             {/* Payroll Details Dialog */}
             {isDialogOpen && selectedEmployee && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-                    <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl">
+                    <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
                         <div className="p-6">
                             <div className="flex justify-between items-start mb-4">
                                 <h3 className="text-xl font-semibold text-gray-800">

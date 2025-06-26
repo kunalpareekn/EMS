@@ -52,7 +52,7 @@ const FinancialDetails = () => {
   };
 
   return (
-    <div className="bg-blue-50 p-8 rounded-2xl max-w-2xl mx-auto mt-10 shadow-md">
+    <div className="bg-blue-50 p-8 rounded-2xl ml-84 max-w-2xl mx-auto mt-10 shadow-md">
       <h2 className="text-2xl font-semibold text-gray-800 mb-6 text-center">Financial Details</h2>
 
       {isEditing ? (

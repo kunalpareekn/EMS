@@ -73,7 +73,7 @@ const NotificationFeed = () => {
   }, [allNotifications, readIds]);
 
   return (
-    <div className="p-4 border rounded-md shadow-md w-full max-w-md mt-4 bg-white">
+    <div className="p-4 border-gray-200 rounded-lg shadow-md w-full  mt-2 bg-white">
       <h2 className="text-xl font-semibold mb-2">Announcements</h2>
       {visibleNotifications.length === 0 ? (
         <p className="text-gray-600">No notifications yet.</p>

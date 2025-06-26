@@ -67,9 +67,9 @@ const GuarantorDetails = () => {
   };
 
   return (
-    <div className="max-w-2xl mx-auto p-6 bg-gray-50 rounded-lg shadow-md mt-8">
-      <div className="bg-white p-6 rounded-lg shadow">
-        <h2 className="text-2xl font-semibold mb-4 text-gray-800">Guarantor Details</h2>
+    <div className="lg:ml-64 xl:ml-64 md:ml-64 sm:ml-0 p-4 md:p-6 bg-gray-50 min-h-screen">
+      <div className="max-w-4xl mx-auto bg-white p-4 md:p-6 rounded-lg shadow">
+        <h2 className="text-xl md:text-2xl font-semibold mb-4 text-gray-800">Guarantor Details</h2>
 
         {(reduxError || localError) && (
           <div className="mb-4 p-2 text-red-600 bg-red-100 rounded">
@@ -82,12 +82,12 @@ const GuarantorDetails = () => {
             {employee?.guarantors?.length > 0 ? (
               employee.guarantors.map((guarantor, index) => (
                 <div key={guarantor._id || index} className="border-b pb-4">
-                  <div className="space-y-2">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                     <p><strong>Name:</strong> {guarantor.name}</p>
                     <p><strong>Occupation:</strong> {guarantor.occupation}</p>
                     <p><strong>Phone:</strong> {guarantor.phoneNumber}</p>
                     <p><strong>Relationship:</strong> {guarantor.relationship}</p>
-                    <p><strong>Address:</strong> {guarantor.address.split('\n').map((line, i) => (
+                    <p className="md:col-span-2"><strong>Address:</strong> {guarantor.address.split('\n').map((line, i) => (
                       <span key={i}>{line}<br /></span>
                     ))}</p>
                   </div>
@@ -114,7 +114,7 @@ const GuarantorDetails = () => {
 
             <button
               onClick={() => setIsEditing(true)}
-              className="mt-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
+              className="mt-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded w-full md:w-auto"
             >
               Add New Guarantor
             </button>
@@ -151,7 +151,7 @@ const GuarantorDetails = () => {
               <label className="block font-medium text-gray-700 mb-1">Phone Number*</label>
               <input
                 type="tel"
-                name="phoneNumber"  // Keep as phoneNumber in form state
+                name="phoneNumber"
                 value={formData.phoneNumber}
                 onChange={handleChange}
                 className="w-full border border-gray-300 rounded px-3 py-2"
@@ -185,10 +185,10 @@ const GuarantorDetails = () => {
                 required
               />
             </div>
-            <div className="flex gap-4">
+            <div className="flex flex-col sm:flex-row gap-4">
               <button
                 type="submit"
-                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded disabled:bg-green-400"
+                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded disabled:bg-green-400 flex-1"
                 disabled={addingGuarantor || !formData.name || !formData.occupation || !formData.phoneNumber}
               >
                 {addingGuarantor ? 'Saving...' : 'Save'}
@@ -196,7 +196,7 @@ const GuarantorDetails = () => {
               <button
                 type="button"
                 onClick={() => setIsEditing(false)}
-                className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded"
+                className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded flex-1"
               >
                 Cancel
               </button>

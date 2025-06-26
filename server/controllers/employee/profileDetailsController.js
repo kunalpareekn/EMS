@@ -172,7 +172,7 @@ export const addGuarantorDetails = async (req, res) => {
 };
 
 // Employee adds professional qualification
-export const addProfessionalQualification = async (req, res) => {
+  export const addProfessionalQualification = async (req, res) => {
     try {
         const employeeId = req.employee?._id;
         const { title, organization, duration, description } = req.body;
@@ -346,36 +346,37 @@ export const updateFinancialDetails = async (req, res) => {
 };
 
 // Admin gets employee's additional information
+
 export const getEmployeeInfoByAdmin = async (req, res) => {
-    try {
-        // Check if requester is admin
-        if (req.user.role !== 'admin') {
-            return res.status(403).json({ message: 'Access denied. Admins only.' });
-        }
-
-        const { employeeId } = req.params;
-
-        if (!mongoose.Types.ObjectId.isValid(employeeId)) {
-            return res.status(400).json({ message: 'Invalid employee ID' });
-        }
-
-        const employee = await Employee.findById(employeeId)
-            .select('-password -active -role')
-            .select('guarantors nextOfKins familyDetails academicRecords professionalQualifications');
-
-        if (!employee) {
-            return res.status(404).json({ message: 'Employee not found' });
-        }
-
-        res.status(200).json({ employee });
-
-    } catch (error) {
-        console.error('Error fetching employee info:', error);
-        res.status(500).json({ 
-            message: 'Failed to fetch employee information',
-            error: error.message
-        });
+  try {
+    // Check if requester is admin
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({ message: 'Access denied. Admins only.' });
     }
+
+    const { employeeId } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(employeeId)) {
+      return res.status(400).json({ message: 'Invalid employee ID' });
+    }
+
+    // Fetch employee and include active status
+    const employee = await Employee.findById(employeeId)
+      .select('-password -role'); // ❗Keep active field by NOT excluding it
+
+    if (!employee) {
+      return res.status(404).json({ message: 'Employee not found' });
+    }
+
+    res.status(200).json({ employee });
+
+  } catch (error) {
+    console.error('Error fetching employee info:', error);
+    res.status(500).json({ 
+      message: 'Failed to fetch employee information',
+      error: error.message
+    });
+  }
 };
 
 export const getEmployeeInfoByEmployee = async (req, res) => {

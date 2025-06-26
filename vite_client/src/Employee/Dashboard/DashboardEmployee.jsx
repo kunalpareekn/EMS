@@ -7,8 +7,6 @@ import NotificationFeed from './NotificationFeed';
 import PasswordResetPopup from '../PasswordResetPopup';
 import { fetchEmployeeOwnInfo } from '../../context/employeeDetailsSlice';
 
-
-  
 function DashboardEmployee() {
     const [employee, setEmployee] = useState(null);
     const [error, setError] = useState('');
@@ -19,8 +17,8 @@ function DashboardEmployee() {
     const [showResetPopup, setShowResetPopup] = useState(false);
 
     const navigate = useNavigate();
-const user = useSelector((state) => state.auth.user);
-   const dispatch = useDispatch();
+    const user = useSelector((state) => state.auth.user);
+    const dispatch = useDispatch();
 
     const handleEditProfile = () => navigate('/profile-details');
     const handleViewReport = () => navigate('/attendance');
@@ -45,10 +43,10 @@ const user = useSelector((state) => state.auth.user);
             console.error('Failed to save check-in time:', err);
         }
     };
-    useEffect(() => {
-  dispatch(fetchEmployeeOwnInfo());
-}, [dispatch]);
 
+    useEffect(() => {
+        dispatch(fetchEmployeeOwnInfo());
+    }, [dispatch]);
 
     const handleCheckOut = async () => {
         const now = new Date();
@@ -77,47 +75,47 @@ const user = useSelector((state) => state.auth.user);
         return `${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
     };
 
-
-
-    
-    
-useEffect(() => {
-  if (user?.mustResetPassword) {
-    setShowResetPopup(true);
-  }
-}, [user]);
-    // if (loading) return <p className="p-4">Loading dashboard...</p>;
-    // if (error) return <p className="text-red-500 p-4">{error}</p>;
+    useEffect(() => {
+        if (user?.mustResetPassword) {
+            setShowResetPopup(true);
+        }
+    }, [user]);
 
     return (
-        <div className="min-h-screen bg-gray-100 p-5">
+        <div className="min-h-screen bg-gray-100 p-5 ml-64 transition-all duration-300">
+            {/* For desktop: ml-64 for default open sidebar */}
+            {/* For mobile: ml-0 and full width (handled via responsive design) */}
+            
             {showResetPopup && <PasswordResetPopup onClose={() => setShowResetPopup(false)} />}
+            
             {/* Header Card */}
             <div className="bg-emerald-200 rounded-xl p-5 mb-6 flex flex-col md:flex-row justify-between items-center">
                 <div className="flex items-center space-x-4 mb-4 md:mb-0">
                     <img 
                         src="/Avatar.jpg" 
                         alt="Profile" 
-                        className="w-20 h-20 rounded-full object-cover"
+                        className="w-16 h-16 md:w-20 md:h-20 rounded-full object-cover"
                     />
                     <div>
-                        <h2 className="text-xl font-bold text-gray-800"> {user?.name || 'User'}</h2>
-                        <p className="text-gray-600">{user?.jobTitle || 'Employee'}</p>
+                        <h2 className="text-lg md:text-xl font-bold text-gray-800">{user?.name || 'User'}</h2>
+                        <p className="text-sm md:text-base text-gray-600">{user?.jobTitle || 'Employee'}</p>
                     </div>
                 </div>
-                <button 
-                    onClick={handleEditProfile}
-                    className="bg-gray-800 text-white px-4 py-2 rounded-lg font-medium hover:bg-gray-700 transition"
-                >
-                    Edit Profile
-                </button>
-                <Link to="/view-profile">  <button 
-                   
-                    className="bg-gray-800 text-white px-4 py-2 rounded-lg font-medium hover:bg-gray-700 transition"
-                >
-                    View Profile
-                </button>
-                </Link>
+                <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                    <button 
+                        onClick={handleEditProfile}
+                        className="bg-gray-800 text-white px-3 py-1 md:px-4 md:py-2 rounded-lg font-medium hover:bg-gray-700 transition text-sm md:text-base"
+                    >
+                        Edit Profile
+                    </button>
+                    <Link to="/view-profile" className="w-full sm:w-auto">
+                        <button 
+                            className="w-full bg-gray-800 text-white px-3 py-1 md:px-4 md:py-2 rounded-lg font-medium hover:bg-gray-700 transition text-sm md:text-base"
+                        >
+                            View Profile
+                        </button>
+                    </Link>
+                </div>
             </div>
 
             {/* Check In/Out Section */}
@@ -125,30 +123,19 @@ useEffect(() => {
 
             {/* Main Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                {/* Announcements Card */}
-                {/* <div className="bg-white rounded-xl p-5 border-2 border-gray-200">
-                    <h3 className="text-lg font-semibold text-gray-800 mb-4">Announcement(s)</h3>
-                    <ul className="space-y-2">
-                        {['Welcome Saron - New staff joined', 'Sendoff for Project Manager', 'Marriage Alert', 'Office Space Update'].map((item, index) => (
-                            <li key={index} className="bg-gray-50 p-3 rounded-lg hover:bg-gray-100 cursor-pointer">
-                                {item}
-                            </li>
-                        ))}
-                    </ul>
-                </div> */}
                 <NotificationFeed/>
 
                 {/* Payslip Card */}
-                <div className="bg-white rounded-xl p-5 border-2 border-gray-200">
+                <div className="bg-white rounded-xl p-4 md:p-5 border-2 border-gray-200">
                     <h3 className="text-lg font-semibold text-gray-800 mb-4">April Pay slip breakdown</h3>
                     <div className="overflow-x-auto">
-                        <table className="w-full">
+                        <table className="w-full min-w-max">
                             <thead className="bg-gray-50">
                                 <tr>
-                                    <th className="p-2 text-left">Earnings</th>
-                                    <th className="p-2 text-left">Amount</th>
-                                    <th className="p-2 text-left">Deductions</th>
-                                    <th className="p-2 text-left">Total</th>
+                                    <th className="p-2 text-left text-sm">Earnings</th>
+                                    <th className="p-2 text-left text-sm">Amount</th>
+                                    <th className="p-2 text-left text-sm">Deductions</th>
+                                    <th className="p-2 text-left text-sm">Total</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -160,7 +147,7 @@ useEffect(() => {
                                 ].map((row, index) => (
                                     <tr key={index} className="border-b border-gray-200">
                                         {row.map((cell, cellIndex) => (
-                                            <td key={cellIndex} className="p-2">{cell}</td>
+                                            <td key={cellIndex} className="p-2 text-sm">{cell}</td>
                                         ))}
                                     </tr>
                                 ))}
@@ -170,13 +157,13 @@ useEffect(() => {
                 </div>
 
                 {/* Birthdays Card */}
-                <div className="bg-white rounded-xl p-5 border-2 border-gray-200">
+                <div className="bg-white rounded-xl p-4 md:p-5 border-2 border-gray-200">
                     <h3 className="text-lg font-semibold text-gray-800 mb-4">Birthdays</h3>
                     <ul className="space-y-2">
                         {[1, 2, 3].map((item) => (
-                            <li key={item} className="bg-gray-50 p-3 rounded-lg flex justify-between items-center">
-                                <span>Biruk Kidan - April 25th</span>
-                                <button className="bg-emerald-400 text-white px-3 py-1 rounded hover:bg-emerald-500 transition">
+                            <li key={item} className="bg-gray-50 p-3 rounded-lg flex flex-col sm:flex-row justify-between items-center gap-2">
+                                <span className="text-sm md:text-base">Biruk Kidan - April 25th</span>
+                                <button className="bg-emerald-400 text-white px-3 py-1 rounded hover:bg-emerald-500 transition text-sm md:text-base">
                                     Send Wishes
                                 </button>
                             </li>
@@ -185,30 +172,29 @@ useEffect(() => {
                 </div>
 
                 {/* Todos Card */}
-                <div className="bg-white rounded-xl p-5 border-2 border-gray-200">
+                <div className="bg-white rounded-xl p-4 md:p-5 border-2 border-gray-200">
                     <Todo/>
                 </div>
 
                 {/* Leave Management Card */}
-                <div className="bg-white rounded-xl p-5 border-2 border-gray-200">
-                    <div className='flex justify-between gap-4 mb-4'>
-                    <h3 className="text-lg font-semibold text-gray-800 mb-4">Leave Management</h3>
-<button 
+                <div className="bg-white rounded-xl p-4 md:p-5 border-2 border-gray-200">
+                    <div className='flex flex-col md:flex-row justify-between gap-4 mb-4'>
+                        <h3 className="text-lg font-semibold text-gray-800">Leave Management</h3>
+                        <button 
                             onClick={() => navigate('/my-leave')}
-                            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition"
+                            className="bg-blue-500 text-white px-3 py-1 md:px-4 md:py-2 rounded hover:bg-blue-600 transition text-sm md:text-base"
                         >
                             View Leaves
                         </button>
                     </div>
                     
-                    <div className="flex flex-col space-y-4">
+                    <div className="flex flex-col space-y-2 md:space-y-4">
                         <button 
                             onClick={() => navigate('/leave')}
-                            className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition"
+                            className="bg-green-500 text-white px-3 py-1 md:px-4 md:py-2 rounded hover:bg-green-600 transition text-sm md:text-base"
                         >
                             Apply for Leave
                         </button>
-                        
                     </div>
                 </div>
             </div>
