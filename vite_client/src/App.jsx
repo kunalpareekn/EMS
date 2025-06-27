@@ -68,7 +68,7 @@ function App() {
                 <div style={{ flex: 1 }}>
                     <Routes>
                         <Route path="/" element={<Login />} /> {/* Set Login as the default route */}
-                        <Route path="/register" element={<Register />} />
+                        <Route path="/register" element={<Register />} /> {/*Please comment this line to block the register page usage*/}
                         <Route path="/login" element={<Login />} />
                         <Route path="/dashboard-admin" element={<DashboardAdmin />} />
                         <Route path="/dashboard-employee" element={<DashboardEmployee />} />
