@@ -11,11 +11,12 @@ import employeeRouter from "./routes/Auth/EmployeeRoutes.js";
 import leaveEmployeeRouter from "./routes/Employee/LeaveEmployeeRoutes.js"
 import leaveAdminRouter from "./routes/Admin/LeaveAdminRoutes.js"
 import projectRouter from "./routes/Admin/ProjectsRoutes.js"
-import attendanceRouter from "./routes/Employee/AttendaceRoutes.js"
+import attendanceRouter from "./routes/Both/AttendaceRoutes.js"
 import payrollRouter from "./routes/Admin/PayrollRoutes.js"
-
-
-
+import profileDetailsRouter from "./routes/Employee/ProfileDetailsRoutes.js"
+import notificationRouter from "./routes/Admin/NotificationRoutes.js"
+import uploadRouter from "./routes/Both/UploadRoutes.js"
+import forgotPasswordRouter from "./routes/Both/ForgotPasswordRoutes.js"
 const app  = express();
 
 dotenv.config();
@@ -42,21 +43,26 @@ app.use(cors({
 
 
 
-//routes -------- ADMIN ROUTES-------------
+// -------- ADMIN ROUTES-------------
 app.use("/api/v1/admin/auth",adminRouter);
 app.use("/api/v1/admin/leave",leaveAdminRouter);
 app.use("/api/v1/admin/project",projectRouter);
 app.use("/api/v1/admin/payroll",payrollRouter);
+ 
+// app.use("/api/v1/admin/profile-details",profileDetailsRouter);
 
-//routes -------- EMPLOYEE ROUTES-------------
+// -------- EMPLOYEE ROUTES-------------
 app.use("/api/v1/employee/auth",employeeRouter);
 app.use("/api/v1/employee/leave",leaveEmployeeRouter);
-app.use("/api/v1/employee/attendance",attendanceRouter);
 
 
 
-
-
+// ----------------BOTH ROUTES ---------------
+app.use("/api/v1/both/attendance",attendanceRouter);
+app.use("/api/v1/both/notification",notificationRouter);
+app.use("/api/v1/both/profile-details",profileDetailsRouter);
+app.use("/api/v1/both/document",uploadRouter);
+app.use("/api/v1/both/password",forgotPasswordRouter)
 
 
 

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { setLoading, setUser } from '../context/Auth/authSlice';
 import { toast } from 'react-toastify';
@@ -132,6 +132,9 @@ function Login() {
                         Create New
                     </a>
                 </p>
+                <Link to="/forgot-password" className='text-right text-sm text-blue-500 hover:text-blue-700 hover:underline'>
+  Forgot Password?
+</Link>
             </div>
         </div>
     );

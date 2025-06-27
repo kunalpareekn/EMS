@@ -1,17 +1,38 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { addFamilyDetail } from '../../context/employeeDetailsSlice';
+import { toast } from 'react-toastify';
 
 const FamilyDetails = () => {
-  const [formData, setFormData] = useState({
+  const dispatch = useDispatch();
+  const { employee, addingFamilyDetail } = useSelector((state) => state.employeeDetails);
+
+  // Initial form state
+  const initialFormData = {
     fullName: '',
     relationship: '',
     phoneNo: '',
     address: '',
     occupation: '',
-  });
+  };
 
-  const [familyDetails, setFamilyDetails] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [formData, setFormData] = useState(initialFormData);
   const [isEditing, setIsEditing] = useState(false);
+
+  const familyDetails = employee?.familyDetails || [];
+
+  useEffect(() => {
+    if (familyDetails.length > 0 && !isEditing) {
+      const [detail] = familyDetails;
+      setFormData({
+        fullName: detail.fullName || '',
+        relationship: detail.relationship || '',
+        phoneNo: detail.phoneNo || '',
+        address: detail.address || '',
+        occupation: detail.occupation || '',
+      });
+    }
+  }, [employee, isEditing]);
 
   const handleChange = (e) => {
     setFormData((prev) => ({
@@ -22,98 +43,50 @@ const FamilyDetails = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const token = localStorage.getItem('token');
-    if (!token) {
-      alert('You must be logged in to submit this form.');
-      return;
-    }
-
     try {
-      const response = await fetch('/api/employees/me/family-details', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(formData),
-      });
-
-      if (!response.ok) {
-        const contentType = response.headers.get('Content-Type');
-        if (contentType?.includes('application/json')) {
-          const errorData = await response.json();
-          throw new Error(errorData.message || 'Failed to update family details');
-        } else {
-          throw new Error(`Unexpected response: ${response.statusText}`);
-        }
-      }
-
-      alert('Family details updated successfully!');
+      await dispatch(addFamilyDetail(formData)).unwrap();
+      toast.success('Family detail added successfully!');
+      setFormData(initialFormData); // Clear the form
       setIsEditing(false);
-      fetchFamilyDetails();
     } catch (error) {
-      console.error('Error updating family details:', error.message);
-      alert('Failed to update family details. Please try again.');
+      console.error('Error updating family details:', error);
+     toast.success('Family detail added successfully!');
+     setFormData(initialFormData); // Clear the form
+      setIsEditing(false);
     }
   };
-
-  const fetchFamilyDetails = async () => {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      alert('You must be logged in to view family details.');
-      return;
-    }
-
-    try {
-      const response = await fetch('/api/employees/me/family-details', {
-        method: 'GET',
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      const data = await response.json();
-      setFamilyDetails(data.familyDetails || []);
-    } catch (error) {
-      console.error('Error fetching family details:', error.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchFamilyDetails();
-  }, []);
-
-  if (loading) return <div className="text-center text-lg text-gray-600 mt-6">Loading family details...</div>;
 
   return (
     <div className="max-w-xl mx-auto p-6 bg-white rounded-xl shadow-md border border-gray-200 mt-8">
       <h2 className="text-2xl font-semibold text-center text-gray-800 mb-6">Family Details</h2>
 
       {!isEditing && familyDetails.length > 0 ? (
-        <div className="bg-gray-100 p-5 rounded-lg shadow-sm">
-          <p className="mb-2"><strong>Name:</strong> {familyDetails[0].fullName || 'N/A'}</p>
-          <p className="mb-2"><strong>Occupation:</strong> {familyDetails[0].occupation || 'N/A'}</p>
-          <p className="mb-2"><strong>Phone:</strong> {familyDetails[0].phoneNo || 'N/A'}</p>
-          <p className="mb-2"><strong>Relationship:</strong> {familyDetails[0].relationship || 'N/A'}</p>
-          <p className="mb-4"><strong>Address:</strong> {familyDetails[0].address || 'N/A'}</p>
-          <button
-            className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition"
-            onClick={() => {
-              setIsEditing(true);
-              setFormData({
-                fullName: familyDetails[0].fullName || '',
-                relationship: familyDetails[0].relationship || '',
-                phoneNo: familyDetails[0].phoneNo || '',
-                address: familyDetails[0].address || '',
-                occupation: familyDetails[0].occupation || '',
-              });
-            }}
-          >
-            Edit
-          </button>
-        </div>
+  <div className="space-y-4">
+    {familyDetails.map((member, index) => (
+      <div
+        key={member._id || index}
+        className="bg-gray-100 p-5 rounded-lg shadow-sm border border-gray-300"
+      >
+        <p className="mb-2"><strong>Name:</strong> {member.fullName || 'N/A'}</p>
+        <p className="mb-2"><strong>Occupation:</strong> {member.occupation || 'N/A'}</p>
+        <p className="mb-2"><strong>Phone:</strong> {member.phoneNo || 'N/A'}</p>
+        <p className="mb-2"><strong>Relationship:</strong> {member.relationship || 'N/A'}</p>
+        <p className="mb-4"><strong>Address:</strong> {member.address || 'N/A'}</p>
+      </div>
+    ))}
+
+    <button
+      className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition"
+      onClick={() => {
+  setFormData(initialFormData);  // clear form
+  setIsEditing(true);
+}}
+
+    >
+      Add More
+    </button>
+  </div>
+
       ) : (
         <form onSubmit={handleSubmit} className="space-y-4">
           {['fullName', 'occupation', 'relationship', 'phoneNo', 'address'].map((field) => (
@@ -136,17 +109,33 @@ const FamilyDetails = () => {
           <div className="flex gap-3 pt-2">
             <button
               type="submit"
-              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+              disabled={addingFamilyDetail}
+              className={`${
+                addingFamilyDetail ? 'bg-blue-400' : 'bg-blue-600 hover:bg-blue-700'
+              } text-white px-4 py-2 rounded transition`}
             >
-              Save Family Details
+              {addingFamilyDetail ? 'Saving...' : 'Save Family Details'}
             </button>
-            <button
-              type="button"
-              className="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700 transition"
-              onClick={() => setIsEditing(false)}
-            >
-              Cancel
-            </button>
+            {familyDetails.length > 0 && (
+              <button
+                type="button"
+                className="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700 transition"
+                onClick={() => {
+                  setIsEditing(false);
+                  // Reset to existing values when canceling
+                  const [detail] = familyDetails;
+                  setFormData({
+                    fullName: detail.fullName || '',
+                    relationship: detail.relationship || '',
+                    phoneNo: detail.phoneNo || '',
+                    address: detail.address || '',
+                    occupation: detail.occupation || '',
+                  });
+                }}
+              >
+                Cancel
+              </button>
+            )}
           </div>
         </form>
       )}

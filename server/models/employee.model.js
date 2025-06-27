@@ -58,19 +58,23 @@ const employeeSchema = new mongoose.Schema({
     personalEmail: { type: String, match: [/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/, 'Please enter a valid email'] },
 
     // Optional nested objects (remove required)
-    nextOfKin: {
+    nextOfKins: [{
         name: { type: String },
         occupation: { type: String },
         phone: { type: String },
         relationship: { type: String },
-        address: { type: String }
-    },
+        address: { type: String },
+        addedAt: { type: Date, default: Date.now } // Optional: Track when added
+    }],
 
-    guarantor: {
+    guarantors: [{
         name: { type: String },
         occupation: { type: String },
-        phone: { type: String }
-    },
+        phone: { type: String },
+        relationship: { type: String },
+        address: { type: String },
+        addedAt: { type: Date, default: Date.now } // Optional: Track when added
+    }],
 
     // Optional arrays (remove required from nested fields)
     academicRecords: [
@@ -113,9 +117,15 @@ const employeeSchema = new mongoose.Schema({
         ifsc: { type: String },
         accountNo: { type: String },
         accountName: { type: String }
-    },
-
-    active: { type: Boolean, default: true }
+    }, mustResetPassword: {
+        type: Boolean,
+        default: true
+    }
+    ,
+resetPasswordToken: String,
+  resetPasswordExpire: Date,
+  mustResetPassword: Boolean
+    ,active: { type: Boolean, default: true }
 }, { timestamps: true });
 
 const Employee = mongoose.model("Employee", employeeSchema, "employees");
