@@ -37,6 +37,8 @@ import AllAttendanceStatsComponent from './Admin/Attendance/AllAttendanceStatsCo
 import ForgotPasswordEmail from './Both/ForgotPasswordEmail';
 import ResetPassword from './Both/ResetPassword';
 import NotFound from './Others/NotFound';
+import EmployeeTasks from './Employee/Project/EmployeeTasks';
+import EmployeeProjects from './Employee/Project/EmployeeProjects';
 function App() {
     const location = useLocation();
     const hideHeaderRoutes = ['/', '/login', '/register']; // Routes where Header and Sidebar should not be shown
@@ -78,12 +80,12 @@ function App() {
                         <Route path="/employees" element={<EmployeesPage />} /> {/* Add route for AddEmployee */}
 
 
-                        
+
                         <Route path="/add-employee" element={<AddEmployee />} /> {/* Add route for AddEmployee */}
                         <Route path="/add-project" element={<AddProject />} /> {/* Add route for AddProject */}
-                        <Route path="/projects" element={<ProjectsPage  />} /> {/* Add route for AddProject */}
+                        <Route path="/projects" element={<ProjectsPage />} /> {/* Add route for AddProject */}
                         <Route path="/projects/:id" element={<ProjectDetailPage />} />
-                        <Route path="/view-profile" element={<ViewProfile/>}/>
+                        <Route path="/view-profile" element={<ViewProfile />} />
                         <Route path="/employees/:employeeId" element={<EmployeeDetailsPage />} /> {/* Add route for EmployeeDetails */}
                         <Route path="/contact-details" element={<ContactDetails />} /> {/* Add route for ContactDetails */}
                         <Route path="/profile-details" element={<ProfileDetails />} /> {/* Add route for ProfileDetails */}
@@ -107,7 +109,10 @@ function App() {
                         <Route path="/all-attendance-history" element={<AllAttendanceStatsComponent />} />
                         <Route path="/forgot-password" element={<ForgotPasswordEmail />} />
                         <Route path="/reset-password/:token" element={<ResetPassword />} />
-                         <Route path="*" element={<NotFound />} />
+
+                        <Route path="/employee/projects" element={<EmployeeProjects />} />
+                        <Route path="/employee/projects/:projectId" element={<EmployeeTasks />} />
+                        <Route path="*" element={<NotFound />} />
 
 
 

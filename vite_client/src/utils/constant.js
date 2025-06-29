@@ -20,6 +20,7 @@ export const BOTH_NOTIFICATION_ENDPOINT="http://localhost:5000/api/v1/both/notif
 export const BOTH_ATTENDANCE_ENDPOINT="http://localhost:5000/api/v1/both/attendance"
 export const BOTH_DOCUMENT_ENDPOINT="http://localhost:5000/api/v1/both/document"
 export const BOTH_PASSWORD_ENDPOINT="http://localhost:5000/api/v1/both/password"
+export const BOTH_TASK_ENDPOINT="http://localhost:5000/api/v1/both/project-task"
 
 
 

@@ -17,6 +17,11 @@ import profileDetailsRouter from "./routes/Employee/ProfileDetailsRoutes.js"
 import notificationRouter from "./routes/Admin/NotificationRoutes.js"
 import uploadRouter from "./routes/Both/UploadRoutes.js"
 import forgotPasswordRouter from "./routes/Both/ForgotPasswordRoutes.js"
+import taskRouter from "./routes/Both/TaskRoutes.js"
+
+
+
+
 const app  = express();
 
 dotenv.config();
@@ -63,6 +68,7 @@ app.use("/api/v1/both/notification",notificationRouter);
 app.use("/api/v1/both/profile-details",profileDetailsRouter);
 app.use("/api/v1/both/document",uploadRouter);
 app.use("/api/v1/both/password",forgotPasswordRouter)
+app.use("/api/v1/both/project-task",taskRouter)
 
 
 
