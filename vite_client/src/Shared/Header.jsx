@@ -79,6 +79,7 @@ const Header = () => {
     const employeeNavItems = [
         { path: "/dashboard-employee", name: "Dashboard", icon: <FaHome /> },
         { path: "/attendance-stats", name: "Attendance", icon: <IoBookmarks /> },
+        { path: "/employee/projects", name: "Projects", icon: <IoBookmarks /> },
         { path: "/my-leave", name: "Leave", icon: <FaCalendarAlt /> },
         { path: "/employee-payroll", name: "Payroll", icon: <FaMoneyBill /> },
         { path: "/profile-details", name: "Profile", icon: <CgProfile /> },
