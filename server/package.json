@@ -5,9 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "nodemon server.js",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "react-scripts build",
-    "start": "react-scripts start"
+    "test": "echo \"Error: no test specified\" && exit 1"
 
   },
   "keywords": [],
