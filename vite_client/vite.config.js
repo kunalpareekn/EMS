@@ -7,6 +7,10 @@ export default defineConfig({
   plugins: [react(),
     tailwindcss()
   ],
+  build: {
+    outDir: '../server/public',  // ⬅️ build frontend into server/public
+    emptyOutDir: true,           // cleans before build
+  }
 },
 )
 

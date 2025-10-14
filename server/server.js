@@ -19,10 +19,13 @@ import notificationRouter from "./routes/Admin/NotificationRoutes.js"
 import uploadRouter from "./routes/Both/UploadRoutes.js"
 import forgotPasswordRouter from "./routes/Both/ForgotPasswordRoutes.js"
 import taskRouter from "./routes/Both/TaskRoutes.js"
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 
 
-
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 const app  = express();
 
 dotenv.config();
@@ -38,9 +41,10 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(apiLimiter); // Apply rate limiting to all routes
 app.use(cors({
-    origin: process.env.FRONTEND_URL,
-    credentials: true
+  origin: process.env.FRONTEND_URL || '*',
+  credentials: true
 }));
+
 
 
 
@@ -96,3 +100,13 @@ app.use(errorHandler);
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
 }); 
+
+app.use(express.static(path.join(__dirname, 'public')));
+app.use((req, res, next) => {
+  if (req.method === 'GET' && !req.path.startsWith('/api')) {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  } else {
+    next();
+  }
+});
+
